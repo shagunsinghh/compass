@@ -1,55 +1,68 @@
 <!-- public/intake.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>IRB Intake Form</title>
-  <link rel="stylesheet" href="main.css" />
-</head>
-<body>
-  <div id="container">
-    <h1>IRB Protocol Intake Form</h1>
-    <form action="/submit-intake" method="POST" enctype="multipart/form-data">
-      <label>Study Title:<br>
-        <input type="text" name="title" required>
-      </label><br><br>
+  <head>
+    <meta charset="UTF-8" />
+    <title>IRB Intake Form</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <nav class="tab-nav">
+      <a href="index.html" class="tab active">Collaborative Editor</a>
+      <a href="intake.html" class="tab">Intake form</a>
+      <a href="rag.html" class="tab">Medical RAG LLM</a>
+    </nav>
+    <div id="container">
+      <h1>IRB Protocol Intake Form</h1>
+      <form action="/submit-intake" method="POST" enctype="multipart/form-data">
+        <label
+          >Study Title:<br />
+          <input type="text" name="title" required /> </label
+        ><br /><br />
 
-      <label>Principal Investigator:<br>
-        <input type="text" name="pi" required>
-      </label><br><br>
+        <label
+          >Principal Investigator:<br />
+          <input type="text" name="pi" required /> </label
+        ><br /><br />
 
-      <label>IRB Number (optional):<br>
-        <input type="text" name="irb_number">
-      </label><br><br>
+        <label
+          >IRB Number (optional):<br />
+          <input type="text" name="irb_number" /> </label
+        ><br /><br />
 
-      <label>Study Description:<br>
-        <textarea name="description" required></textarea>
-      </label><br><br>
+        <label
+          >Study Description:<br />
+          <textarea name="description" required></textarea></label
+        ><br /><br />
 
-      <label>Recruitment Details:<br>
-        <textarea name="recruitment" required></textarea>
-      </label><br><br>
+        <label
+          >Recruitment Details:<br />
+          <textarea name="recruitment" required></textarea></label
+        ><br /><br />
 
-      <label>Risk Level:<br>
-        <select name="risk_level" required>
-          <option value="">--Choose--</option>
-          <option value="Minimal">Minimal</option>
-          <option value="Moderate">Moderate</option>
-          <option value="High">High</option>
-        </select>
-      </label><br><br>
+        <label
+          >Risk Level:<br />
+          <select name="risk_level" required>
+            <option value="">--Choose--</option>
+            <option value="Minimal">Minimal</option>
+            <option value="Moderate">Moderate</option>
+            <option value="High">High</option>
+          </select> </label
+        ><br /><br />
 
-      <label>Consent Required?<br>
-        <input type="radio" name="consent" value="Yes" required> Yes
-        <input type="radio" name="consent" value="No" required> No
-      </label><br><br>
+        <label
+          >Consent Required?<br />
+          <input type="radio" name="consent" value="Yes" required /> Yes
+          <input type="radio" name="consent" value="No" required /> No </label
+        ><br /><br />
 
-      <label>Supporting Documents:<br>
-        <input type="file" name="supporting_docs">
-      </label><br><br>
+        <label
+          >Supporting Documents:<br />
+          <input type="file" name="supporting_docs" /> </label
+        ><br /><br />
 
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-</body>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </body>
 </html>

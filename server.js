@@ -7,6 +7,15 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+// Intake Form Handling
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+const fs = require("fs");
+
+
+app.use(express.urlencoded({ extended: true }));
+
+
 // Serve static files from ./public
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -37,4 +46,91 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
+});
+
+// Intake Form Handling
+app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
+  const formData = {
+    timestamp: new Date().toISOString(),
+    title: req.body.title,
+    pi: req.body.pi,
+    irb_number: req.body.irb_number,
+    description: req.body.description,
+    recruitment: req.body.recruitment,
+    risk_level: req.body.risk_level,
+    consent: req.body.consent,
+    uploaded_file: req.file?.originalname || null,
+  };
+
+  const filePath = path.join(__dirname, "intake_submissions.json");
+  let submissions = [];
+  if (fs.existsSync(filePath)) {
+    const existing = fs.readFileSync(filePath);
+    submissions = JSON.parse(existing);
+  }
+
+  submissions.push(formData);
+  fs.writeFileSync(filePath, JSON.stringify(submissions, null, 2));
+
+  // Render confirmation in HTML
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Submission Confirmed</title>
+        <link rel="stylesheet" href="/main.css">
+      </head>
+      <body>
+        <div id="container">
+          <h1>Submission Received 🎉</h1>
+          <p><strong>Study Title:</strong> ${formData.title}</p>
+          <p><strong>PI:</strong> ${formData.pi}</p>
+          <p><strong>Risk Level:</strong> ${formData.risk_level}</p>
+          <p><strong>Consent Required:</strong> ${formData.consent}</p>
+          <p><strong>Submitted At:</strong> ${formData.timestamp}</p>
+          <p><a href="/intake.html">← Submit another</a> | <a href="/submissions">View all submissions</a></p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  res.send(html);
+});
+
+//Show submissions in browser
+app.get("/submissions", (req, res) => {
+  const filePath = path.join(__dirname, "intake_submissions.json");
+
+  if (!fs.existsSync(filePath)) {
+    return res.send("<p>No submissions yet.</p>");
+  }
+
+  const submissions = JSON.parse(fs.readFileSync(filePath));
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>All IRB Submissions</title>
+        <link rel="stylesheet" href="/main.css">
+      </head>
+      <body>
+        <div id="container">
+          <h1>IRB Submission Log</h1>
+          ${submissions
+            .map(
+              (s) => `
+              <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc;">
+                <p><strong>${s.title}</strong> by ${s.pi} — ${s.timestamp}</p>
+                <p>Risk: ${s.risk_level} | Consent: ${s.consent}</p>
+              </div>
+            `
+            )
+            .join("")}
+          <p><a href="/intake.html">← Submit another</a></p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  res.send(html);
 });

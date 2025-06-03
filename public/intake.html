@@ -63,6 +63,7 @@
 </head>
 <body>
 <div id="navbar-placeholder"></div>
+
 <script>
   fetch('/navbar.html')
     .then(res => res.text())
@@ -70,8 +71,13 @@
       document.getElementById('navbar-placeholder').innerHTML = html;
     });
 </script>
+<div class="hero" style="background: #e0f2ff; text-align: center; padding: 40px;">
+  <h1>IRB Intake Form</h1>
+  <p class="subtitle">Answer a few questions and we’ll generate the forms you need.</p>
+</div>
 
 
+<div class="page-wrapper">
   <div id="container">
     <h1>IRB Protocol Intake Form</h1>
 
@@ -138,5 +144,6 @@
 
     </form>
   </div>
+</div>
 </body>
 </html>

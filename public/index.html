@@ -6,15 +6,16 @@
   <link rel="stylesheet" href="main.css">
 </head>
 <body class="homepage-body">
-  <nav class="navbar">
-    <div class="logo">🧭 Compass</div>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/intake.html">IRB Intake Form</a></li>
-      <li><a href="/rag.html">AI Draft Assistant</a></li>
-      <li><a href="/submissions">View Submissions</a></li>
-    </ul>
-  </nav>
+<div id="navbar-placeholder"></div>
+<script>
+  fetch('/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+    });
+</script>
+
+<div class="page-wrapper">
 
   <header class="hero">
     <h1>Welcome to Compass</h1>
@@ -38,6 +39,7 @@
       <p>Automatically receive links to relevant COUHES documents based on your responses.</p>
     </div>
   </section>
+</div>
   <footer class="footer">
   <div class="footer-content">
     <p>© 2025 Compass Clinical Tools. All rights reserved.</p>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Working Medical RAG-Enhanced LLM</title>
+    <link rel="stylesheet" href="main.css" />
     <style>
       * {
         margin: 0;
@@ -28,6 +29,7 @@
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         overflow: hidden;
       }
+
 
       .header {
         background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
@@ -308,12 +310,17 @@
       }
     </style>
   </head>
-  <body>
-    <nav class="tab-nav">
-      <a href="index.html" class="tab active">Collaborative Editor</a>
-      <a href="intake.html" class="tab">Intake form</a>
-      <a href="rag.html" class="tab">Medical RAG LLM</a>
-    </nav>
+<body>
+  <div id="navbar-placeholder"></div>
+  <script>
+    fetch('/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+      });
+  </script>
+
+
     <div class="container">
       <div class="header">
         <h1>🏥 Medical RAG-Enhanced LLM</h1>

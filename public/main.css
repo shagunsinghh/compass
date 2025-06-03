@@ -2,11 +2,6 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f4f4f4;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  padding-top: 0;
 }
 
 
@@ -18,6 +13,8 @@ body {
   max-width: 800px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  margin: 0 auto;
+
 }
 
 h1 {
@@ -46,35 +43,38 @@ h1 {
 
 /* === NAVIGATION BAR === */
 .navbar {
-  background-color: #002244;
-  color: white;
-  padding: 15px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  padding: 20px 30px;
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.navbar .logo {
-  font-size: 22px;
+.logo {
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
 .nav-links {
   list-style: none;
   display: flex;
-  gap: 20px;
+  gap: 25px;
 }
 
 .nav-links li a {
   color: white;
   text-decoration: none;
   font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.2s ease;
 }
 
 .nav-links li a:hover {
-  text-decoration: underline;
+  color: #a0aec0;
 }
 
 /* === HOMEPAGE HERO SECTION === */
@@ -184,4 +184,11 @@ h1 {
 }
 .cta-button:hover {
   background-color: #005fa3;
+}
+
+.page-wrapper {
+  max-width: 1200px;
+  width: 100%;
+  margin: auto;
+  padding: 40px 20px;
 }

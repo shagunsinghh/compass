@@ -44,7 +44,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 //home page route
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "home.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // In‐memory “shared document”
@@ -120,7 +120,17 @@ formData.recommended_forms = requiredForms;
         <link rel="stylesheet" href="/main.css">
       </head>
       <body>
-        <div id="container">
+  <div id="navbar-placeholder"></div>
+  <script>
+    fetch('/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+      });
+  </script>
+
+  <div class="page-wrapper">
+
           <h1>Submission Received 🎉</h1>
           <p><strong>Study Title:</strong> ${formData.title}</p>
           <p><strong>PI:</strong> ${formData.pi}</p>
@@ -156,31 +166,40 @@ app.get("/submissions", (req, res) => {
   }
 
   const submissions = JSON.parse(fs.readFileSync(filePath));
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>All IRB Submissions</title>
-        <link rel="stylesheet" href="/main.css">
-      </head>
-      <body>
-        <div id="container">
-          <h1>IRB Submission Log</h1>
-          ${submissions
-            .map(
-              (s) => `
+const html = `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>All IRB Submissions</title>
+      <link rel="stylesheet" href="/main.css">
+    </head>
+    <body>
+      <div id="navbar-placeholder"></div>
+      <script>
+        fetch('/navbar.html')
+          .then(res => res.text())
+          .then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+          });
+      </script>
+
+      <div class="page-wrapper">
+        <h1>IRB Submission Log</h1>
+        ${submissions
+          .map(
+            (s) => `
               <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc;">
                 <p><strong>${s.title}</strong> by ${s.pi} — ${s.timestamp}</p>
                 <p>Risk: ${s.risk_level} | Consent: ${s.consent}</p>
               </div>
             `
-            )
-            .join("")}
-          <p><a href="/intake.html">← Submit another</a></p>
-        </div>
-      </body>
-    </html>
-  `;
+          )
+          .join("")}
+        <p><a href="/intake.html">← Submit another</a></p>
+      </div>
+    </body>
+  </html>
+`;
 
   res.send(html);
 });

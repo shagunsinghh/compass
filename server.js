@@ -13,11 +13,39 @@ const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 
 
+//To identify/map which forms are needed
+const formLibrary = {
+  involves_minors: {
+    name: "Assent to Participate in Research (minors)",
+    url: "https://couhes.mit.edu/forms/assent.doc"
+  },
+  uses_mturk: {
+    name: "MTurk Consent Text",
+    url: "https://couhes.mit.edu/forms/mturk_consent.doc"
+  },
+  uses_phi: {
+    name: "Authorization for Release of Protected Health Information",
+    url: "https://couhes.mit.edu/forms/phi_release.doc"
+  },
+  is_genomic: {
+    name: "Genomic Data Sharing Certification",
+    url: "https://couhes.mit.edu/forms/genomic_cert.doc"
+  },
+  wants_waiver: {
+    name: "Waiver or Alteration of Informed Consent Request",
+    url: "https://couhes.mit.edu/forms/waiver_consent.docx"
+  }
+};
 app.use(express.urlencoded({ extended: true }));
 
 
 // Serve static files from ./public
 app.use(express.static(path.join(__dirname, "public")));
+
+//home page route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "home.html"));
+});
 
 // In‐memory “shared document”
 // (This is a very minimal baseline; it will reset if the server restarts.)
@@ -48,6 +76,8 @@ server.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
 
+
+
 // Intake Form Handling
 app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
   const formData = {
@@ -61,6 +91,15 @@ app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
     consent: req.body.consent,
     uploaded_file: req.file?.originalname || null,
   };
+
+  // Identify recommended forms
+  const requiredForms = [];
+  for (const key of Object.keys(formLibrary)) {
+    if (req.body[key]) {
+      requiredForms.push(formLibrary[key]);
+    }
+  }
+formData.recommended_forms = requiredForms;
 
   const filePath = path.join(__dirname, "intake_submissions.json");
   let submissions = [];
@@ -88,7 +127,18 @@ app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
           <p><strong>Risk Level:</strong> ${formData.risk_level}</p>
           <p><strong>Consent Required:</strong> ${formData.consent}</p>
           <p><strong>Submitted At:</strong> ${formData.timestamp}</p>
-          <p><a href="/intake.html">← Submit another</a> | <a href="/submissions">View all submissions</a></p>
+      ${formData.recommended_forms.length > 0 ? `
+  <h2>Recommended COUHES Forms</h2>
+  <ul>
+    ${formData.recommended_forms.map(f => `
+      <li><a href="${f.url}" target="_blank">${f.name}</a></li>
+    `).join("")}
+  </ul>
+` : `<p><em>No additional forms required based on your answers.</em></p>`}
+
+<p><a href="/intake.html">← Submit another</a> | <a href="/submissions">View all submissions</a></p>
+
+
         </div>
       </body>
     </html>

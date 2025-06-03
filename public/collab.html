@@ -1,0 +1,71 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Baseline Collaboration</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <nav class="tab-nav">
+      <a href="index.html" class="tab active">Collaborative Editor</a>
+      <a href="rag.html" class="tab">Medical RAG LLM</a>
+    </nav>
+    <div id="container">
+      <h1>Collaborative IRB Draft</h1>
+      <p>Everyone who visits this page will see edits in real time.</p>
+      <textarea
+        id="editor"
+        placeholder="Start typing your IRB protocol…"
+      ></textarea>
+      <div id="status">Connecting to server…</div>
+    </div>
+
+    <!-- Include Socket.io client library -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      (function () {
+        const socket = io();
+
+        const editor = document.getElementById("editor");
+        const status = document.getElementById("status");
+
+        let isApplyingRemote = false;
+
+        // When the server sends us the initial content, populate the editor
+        socket.on("init-content", (text) => {
+          editor.value = text;
+          status.textContent = "Connected. You are editing in real time.";
+        });
+
+        // When another client makes an edit, update our textarea
+        socket.on("remote-edit", (newText) => {
+          isApplyingRemote = true;
+          const cursorPos = editor.selectionStart;
+          editor.value = newText;
+          // Try to restore cursor (rough heuristic)
+          editor.selectionStart = editor.selectionEnd = cursorPos;
+          isApplyingRemote = false;
+          status.textContent = "Updated by a collaborator.";
+          setTimeout(() => {
+            status.textContent = "Connected. You are editing in real time.";
+          }, 1500);
+        });
+
+        // On local edits, notify the server
+        editor.addEventListener("input", () => {
+          if (isApplyingRemote) return;
+          const content = editor.value;
+          socket.emit("editor-change", content);
+          status.textContent = "Sending your changes…";
+        });
+
+        socket.on("connect", () => {
+          status.textContent = "Connected. Loading document…";
+        });
+
+        socket.on("disconnect", () => {
+          status.textContent = "Disconnected. Reconnecting…";
+        });
+      })();
+    </script>
+  </body>
+</html>

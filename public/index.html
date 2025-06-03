@@ -1,71 +1,52 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Baseline Collaboration</title>
-    <link rel="stylesheet" href="main.css" />
-  </head>
-  <body>
-    <nav class="tab-nav">
-      <a href="index.html" class="tab active">Collaborative Editor</a>
-      <a href="rag.html" class="tab">Medical RAG LLM</a>
-    </nav>
-    <div id="container">
-      <h1>Collaborative IRB Draft</h1>
-      <p>Everyone who visits this page will see edits in real time.</p>
-      <textarea
-        id="editor"
-        placeholder="Start typing your IRB protocol…"
-      ></textarea>
-      <div id="status">Connecting to server…</div>
+<head>
+  <meta charset="UTF-8">
+  <title>Compass | Home</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body class="homepage-body">
+  <nav class="navbar">
+    <div class="logo">🧭 Compass</div>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/intake.html">IRB Intake Form</a></li>
+      <li><a href="/rag.html">AI Draft Assistant</a></li>
+      <li><a href="/submissions">View Submissions</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <h1>Welcome to Compass</h1>
+    <p class="subtitle">Streamlining IRB protocol drafting, submission, and collaboration.</p>
+    <a class="cta-button" href="/intake.html">Start a Submission</a>
+  </header>
+
+
+
+  <section class="features">
+    <div class="feature-card">
+      <h2>📝 Smart Intake</h2>
+      <p>Use our intelligent form to determine which IRB documents your study needs.</p>
     </div>
+    <div class="feature-card">
+      <h2>🤝 Real-time Collaboration</h2>
+      <p>Edit your IRB protocol draft live with your PI or research team.</p>
+    </div>
+    <div class="feature-card">
+      <h2>📎 Auto Form Suggestions</h2>
+      <p>Automatically receive links to relevant COUHES documents based on your responses.</p>
+    </div>
+  </section>
+  <footer class="footer">
+  <div class="footer-content">
+    <p>© 2025 Compass Clinical Tools. All rights reserved.</p>
+    <p>
+      <a href="mailto:support@compassai.io">Contact Us</a> |
+      <a href="https://www.mit.edu" target="_blank">MIT</a>
+    </p>
+  </div>
+</footer>
 
-    <!-- Include Socket.io client library -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      (function () {
-        const socket = io();
-
-        const editor = document.getElementById("editor");
-        const status = document.getElementById("status");
-
-        let isApplyingRemote = false;
-
-        // When the server sends us the initial content, populate the editor
-        socket.on("init-content", (text) => {
-          editor.value = text;
-          status.textContent = "Connected. You are editing in real time.";
-        });
-
-        // When another client makes an edit, update our textarea
-        socket.on("remote-edit", (newText) => {
-          isApplyingRemote = true;
-          const cursorPos = editor.selectionStart;
-          editor.value = newText;
-          // Try to restore cursor (rough heuristic)
-          editor.selectionStart = editor.selectionEnd = cursorPos;
-          isApplyingRemote = false;
-          status.textContent = "Updated by a collaborator.";
-          setTimeout(() => {
-            status.textContent = "Connected. You are editing in real time.";
-          }, 1500);
-        });
-
-        // On local edits, notify the server
-        editor.addEventListener("input", () => {
-          if (isApplyingRemote) return;
-          const content = editor.value;
-          socket.emit("editor-change", content);
-          status.textContent = "Sending your changes…";
-        });
-
-        socket.on("connect", () => {
-          status.textContent = "Connected. Loading document…";
-        });
-
-        socket.on("disconnect", () => {
-          status.textContent = "Disconnected. Reconnecting…";
-        });
-      })();
-    </script>
-  </body>
+</body>
 </html>

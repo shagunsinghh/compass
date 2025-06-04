@@ -2,72 +2,101 @@ const express = require("express");
 const http = require("http");
 const path = require("path");
 const socketIo = require("socket.io");
+const multer = require("multer");
+const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Intake Form Handling
-const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
-const fs = require("fs");
 
-
-//To identify/map which forms are needed
 const formLibrary = {
   involves_minors: {
     name: "Assent to Participate in Research (minors)",
-    url: "https://couhes.mit.edu/forms/assent.doc"
+    url: "https://couhes.mit.edu/forms/assent.doc",
   },
   uses_mturk: {
     name: "MTurk Consent Text",
-    url: "https://couhes.mit.edu/forms/mturk_consent.doc"
+    url: "https://couhes.mit.edu/forms/mturk_consent.doc",
   },
   uses_phi: {
     name: "Authorization for Release of Protected Health Information",
-    url: "https://couhes.mit.edu/forms/phi_release.doc"
+    url: "https://couhes.mit.edu/forms/phi_release.doc",
   },
   is_genomic: {
     name: "Genomic Data Sharing Certification",
-    url: "https://couhes.mit.edu/forms/genomic_cert.doc"
+    url: "https://couhes.mit.edu/forms/genomic_cert.doc",
   },
   wants_waiver: {
     name: "Waiver or Alteration of Informed Consent Request",
-    url: "https://couhes.mit.edu/forms/waiver_consent.docx"
-  }
+    url: "https://couhes.mit.edu/forms/waiver_consent.docx",
+  },
 };
+
 app.use(express.urlencoded({ extended: true }));
-
-
-// Serve static files from ./public
 app.use(express.static(path.join(__dirname, "public")));
 
-//home page route
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// In‐memory “shared document”
-// (This is a very minimal baseline; it will reset if the server restarts.)
 let sharedText = "";
+let sectionStates = {
+  "section-1": "",
+  "section-2": "",
+  "section-3": "",
+  "section-4": "",
+  "section-5": "",
+  "section-6": "",
+  "section-7": "",
+  "section-8": "",
+  "section-9": "",
+  "section-10": "",
+  "section-11": "",
+  "section-12": "",
+};
 
-// When a client connects:
-let currentViewers = 0;
+const users = {};
 
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
-  currentViewers++;
-  io.emit("viewer-count", currentViewers); // Notify all clients
 
-  // --- For original collab.html ---
   socket.emit("init-content", sharedText);
 
-  socket.on("editor-change", (newText) => {
-    sharedText = newText;
-    socket.broadcast.emit("remote-edit", newText);
+  socket.on("join", ({ name, color }) => {
+    users[socket.id] = { name, color };
+    io.emit(
+      "user-list",
+      Object.entries(users).map(([id, u]) => ({
+        socketId: id,
+        ...u,
+      }))
+    );
   });
 
-  // --- For collab2.html ---
+  socket.on("text-change", (payload) => {
+    const fullPayload = [...payload, socket.id];
+    sharedText = payload[0].ops.reduce(
+      (acc, op) => acc + (op.insert || ""),
+      ""
+    );
+    socket.broadcast.emit("remote-text-change", fullPayload);
+  });
+
+  socket.on("cursor-change", ({ index, length }) => {
+    const user = users[socket.id];
+    if (user) {
+      io.emit("remote-cursor-update", {
+        socketId: socket.id,
+        index,
+        length,
+        name: user.name,
+        color: user.color,
+      });
+    }
+  });
+
   Object.entries(sectionStates).forEach(([id, content]) => {
     socket.emit(`${id}-init`, content);
   });
@@ -77,23 +106,24 @@ io.on("connection", (socket) => {
     socket.broadcast.emit(`${section}-update`, content);
   });
 
+  socket.on("editor-change", (newText) => {
+    sharedText = newText;
+    socket.broadcast.emit("remote-edit", newText);
+  });
+
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
-    currentViewers--;
-    io.emit("viewer-count", currentViewers); // Notify all clients
+    delete users[socket.id];
+    io.emit(
+      "user-list",
+      Object.entries(users).map(([id, u]) => ({
+        socketId: id,
+        ...u,
+      }))
+    );
   });
 });
 
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
-});
-
-
-
-// Intake Form Handling
 app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
   const formData = {
     timestamp: new Date().toISOString(),
@@ -107,14 +137,11 @@ app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
     uploaded_file: req.file?.originalname || null,
   };
 
-  // Identify recommended forms
   const requiredForms = [];
   for (const key of Object.keys(formLibrary)) {
-    if (req.body[key]) {
-      requiredForms.push(formLibrary[key]);
-    }
+    if (req.body[key]) requiredForms.push(formLibrary[key]);
   }
-formData.recommended_forms = requiredForms;
+  formData.recommended_forms = requiredForms;
 
   const filePath = path.join(__dirname, "intake_submissions.json");
   let submissions = [];
@@ -122,11 +149,9 @@ formData.recommended_forms = requiredForms;
     const existing = fs.readFileSync(filePath);
     submissions = JSON.parse(existing);
   }
-
   submissions.push(formData);
   fs.writeFileSync(filePath, JSON.stringify(submissions, null, 2));
 
-  // Render confirmation in HTML
   const html = `
     <!DOCTYPE html>
     <html>
@@ -135,95 +160,79 @@ formData.recommended_forms = requiredForms;
         <link rel="stylesheet" href="/main.css">
       </head>
       <body>
-  <div id="navbar-placeholder"></div>
-  <script>
-    fetch('/navbar.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('navbar-placeholder').innerHTML = html;
-      });
-  </script>
-
-  <div class="page-wrapper">
-
+        <div id="navbar-placeholder"></div>
+        <script>
+          fetch('/navbar.html').then(res => res.text()).then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+          });
+        </script>
+        <div class="page-wrapper">
           <h1>Submission Received 🎉</h1>
           <p><strong>Study Title:</strong> ${formData.title}</p>
           <p><strong>PI:</strong> ${formData.pi}</p>
           <p><strong>Risk Level:</strong> ${formData.risk_level}</p>
           <p><strong>Consent Required:</strong> ${formData.consent}</p>
           <p><strong>Submitted At:</strong> ${formData.timestamp}</p>
-      ${formData.recommended_forms.length > 0 ? `
-  <h2>Recommended COUHES Forms</h2>
-  <ul>
-    ${formData.recommended_forms.map(f => `
-      <li><a href="${f.url}" target="_blank">${f.name}</a></li>
-    `).join("")}
-  </ul>
-` : `<p><em>No additional forms required based on your answers.</em></p>`}
-
-<p><a href="/intake.html">← Submit another</a> | <a href="/submissions">View all submissions</a></p>
-
-
+          ${
+            requiredForms.length
+              ? `
+            <h2>Recommended COUHES Forms</h2>
+            <ul>
+              ${requiredForms
+                .map(
+                  (f) =>
+                    `<li><a href="${f.url}" target="_blank">${f.name}</a></li>`
+                )
+                .join("")}
+            </ul>`
+              : `<p><em>No additional forms required based on your answers.</em></p>`
+          }
+          <p><a href="/intake.html">← Submit another</a> | <a href="/submissions">View all submissions</a></p>
         </div>
       </body>
     </html>
   `;
-
   res.send(html);
 });
 
-//Show submissions in browser
 app.get("/submissions", (req, res) => {
   const filePath = path.join(__dirname, "intake_submissions.json");
 
-  if (!fs.existsSync(filePath)) {
-    return res.send("<p>No submissions yet.</p>");
-  }
+  if (!fs.existsSync(filePath)) return res.send("<p>No submissions yet.</p>");
 
   const submissions = JSON.parse(fs.readFileSync(filePath));
-const html = `
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>All IRB Submissions</title>
-      <link rel="stylesheet" href="/main.css">
-    </head>
-    <body>
-      <div id="navbar-placeholder"></div>
-      <script>
-        fetch('/navbar.html')
-          .then(res => res.text())
-          .then(html => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head><title>All IRB Submissions</title><link rel="stylesheet" href="/main.css"></head>
+      <body>
+        <div id="navbar-placeholder"></div>
+        <script>
+          fetch('/navbar.html').then(res => res.text()).then(html => {
             document.getElementById('navbar-placeholder').innerHTML = html;
           });
-      </script>
-
-      <div class="page-wrapper">
-        <h1>IRB Submission Log</h1>
-        ${submissions
-          .map(
-            (s) => `
-              <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc;">
-                <p><strong>${s.title}</strong> by ${s.pi} — ${s.timestamp}</p>
-                <p>Risk: ${s.risk_level} | Consent: ${s.consent}</p>
-              </div>
-            `
-          )
-          .join("")}
-        <p><a href="/intake.html">← Submit another</a></p>
-      </div>
-    </body>
-  </html>
-`;
-
+        </script>
+        <div class="page-wrapper">
+          <h1>IRB Submission Log</h1>
+          ${submissions
+            .map(
+              (s) => `
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc;">
+              <p><strong>${s.title}</strong> by ${s.pi} — ${s.timestamp}</p>
+              <p>Risk: ${s.risk_level} | Consent: ${s.consent}</p>
+            </div>
+          `
+            )
+            .join("")}
+          <p><a href="/intake.html">← Submit another</a></p>
+        </div>
+      </body>
+    </html>
+  `;
   res.send(html);
 });
 
-
-//collab2
-// Server-side shared state per section
-let sectionStates = {
-  "section-1": "", "section-2": "", "section-3": "", "section-4": "",
-  "section-5": "", "section-6": "", "section-7": "", "section-8": "",
-  "section-9": "", "section-10": "", "section-11": "", "section-12": ""
-};
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server listening on http://localhost:${PORT}`);
+});

@@ -1,75 +1,229 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Baseline Collaboration</title>
     <link rel="stylesheet" href="main.css" />
+
+    <!-- Quill core CSS (Snow theme) -->
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f5f5f5;
+      }
+
+      .page-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      #user-panel {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      #user-panel span {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      #user-list {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-left: 0;
+      }
+
+      #user-list li {
+        background: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+      }
+
+      .user-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+
+      #editor {
+        height: 400px;
+        background: #fff;
+      }
+
+      #status {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #666;
+      }
+    </style>
   </head>
   <body>
     <div id="navbar-placeholder"></div>
-<script>
-  fetch('/navbar.html')
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById('navbar-placeholder').innerHTML = html;
-    });
-</script>
-  <div class="page-wrapper">
-    <div id="container">
+    <script>
+      fetch("/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("navbar-placeholder").innerHTML = html;
+        });
+    </script>
+
+    <div class="page-wrapper">
       <h1>Collaborative IRB Draft</h1>
       <p>Everyone who visits this page will see edits in real time.</p>
-      <textarea
-        id="editor"
-        placeholder="Start typing your IRB protocol…"
-      ></textarea>
+
+      <div id="user-panel">
+        <span>Connected:</span>
+        <span id="user-count">0</span>
+        <span>users</span>
+      </div>
+      <ul id="user-list"></ul>
+
+      <div id="editor"></div>
+
       <div id="status">Connecting to server…</div>
     </div>
-  <div>
 
-    <!-- Include Socket.io client library -->
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill-cursors@1.0.1/dist/quill-cursors.min.js"></script>
+
     <script>
       (function () {
+        function randomName() {
+          const adjectives = [
+            "Sunny",
+            "Swift",
+            "Calm",
+            "Bright",
+            "Mighty",
+            "Quick",
+            "Brave",
+            "Clever",
+          ];
+          const animals = [
+            "Eagle",
+            "Tiger",
+            "Fox",
+            "Wolf",
+            "Falcon",
+            "Lion",
+            "Hawk",
+            "Otter",
+          ];
+          return (
+            adjectives[Math.floor(Math.random() * adjectives.length)] +
+            " " +
+            animals[Math.floor(Math.random() * animals.length)]
+          );
+        }
+
+        function randomColor() {
+          const r = Math.floor(100 + Math.random() * 155);
+          const g = Math.floor(100 + Math.random() * 155);
+          const b = Math.floor(100 + Math.random() * 155);
+          return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        const myName = randomName();
+        const myColor = randomColor();
+
+        Quill.register("modules/cursors", QuillCursors);
+
+        const quill = new Quill("#editor", {
+          theme: "snow",
+          modules: {
+            cursors: true,
+            toolbar: [
+              [{ header: [1, 2, false] }],
+              ["bold", "italic", "underline"],
+              ["code-block"],
+            ],
+          },
+        });
+
+        const cursorsModule = quill.getModule("cursors");
         const socket = io();
 
-        const editor = document.getElementById("editor");
-        const status = document.getElementById("status");
-
-        let isApplyingRemote = false;
-
-        // When the server sends us the initial content, populate the editor
-        socket.on("init-content", (text) => {
-          editor.value = text;
-          status.textContent = "Connected. You are editing in real time.";
-        });
-
-        // When another client makes an edit, update our textarea
-        socket.on("remote-edit", (newText) => {
-          isApplyingRemote = true;
-          const cursorPos = editor.selectionStart;
-          editor.value = newText;
-          // Try to restore cursor (rough heuristic)
-          editor.selectionStart = editor.selectionEnd = cursorPos;
-          isApplyingRemote = false;
-          status.textContent = "Updated by a collaborator.";
-          setTimeout(() => {
-            status.textContent = "Connected. You are editing in real time.";
-          }, 1500);
-        });
-
-        // On local edits, notify the server
-        editor.addEventListener("input", () => {
-          if (isApplyingRemote) return;
-          const content = editor.value;
-          socket.emit("editor-change", content);
-          status.textContent = "Sending your changes…";
-        });
+        const statusEl = document.getElementById("status");
+        const userCountEl = document.getElementById("user-count");
+        const userListEl = document.getElementById("user-list");
 
         socket.on("connect", () => {
-          status.textContent = "Connected. Loading document…";
+          statusEl.textContent = "Connected. Loading document…";
+          socket.emit("join", { name: myName, color: myColor });
         });
 
         socket.on("disconnect", () => {
-          status.textContent = "Disconnected. Reconnecting…";
+          statusEl.textContent = "Disconnected. Reconnecting…";
+        });
+
+        socket.on("init-content", (deltaOrText) => {
+          if (typeof deltaOrText === "string") {
+            quill.setText(deltaOrText);
+          } else {
+            quill.setContents(deltaOrText);
+          }
+          statusEl.textContent = "Connected. You are editing in real time.";
+        });
+
+        socket.on("remote-text-change", (payload) => {
+          const [delta, oldDelta, source, fromSocketId] = payload;
+          if (fromSocketId === socket.id) return;
+          quill.updateContents(delta);
+          statusEl.textContent = "Updated by a collaborator.";
+          setTimeout(() => {
+            statusEl.textContent = "Connected. You are editing in real time.";
+          }, 1500);
+        });
+
+        quill.on("text-change", (delta, oldDelta, source) => {
+          if (source !== "user") return;
+          socket.emit("text-change", [delta, oldDelta, source]);
+          statusEl.textContent = "Sending your changes…";
+        });
+
+        socket.on("remote-cursor-update", (data) => {
+          const { socketId, index, length, name, color } = data;
+          cursorsModule.createCursor(socketId, name, color);
+          cursorsModule.moveCursor(socketId, { index, length });
+        });
+
+        quill.on("selection-change", (range, oldRange, source) => {
+          if (source !== "user" || !range) return;
+          const { index, length } = range;
+          socket.emit("cursor-change", { index, length });
+        });
+
+        socket.on("user-list", (users) => {
+          userCountEl.textContent = users.length;
+          userListEl.innerHTML = "";
+          users.forEach((u) => {
+            const li = document.createElement("li");
+            const dot = document.createElement("span");
+            dot.classList.add("user-dot");
+            dot.style.backgroundColor = u.color;
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = u.name;
+            li.appendChild(dot);
+            li.appendChild(nameSpan);
+            userListEl.appendChild(li);
+          });
         });
       })();
     </script>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IRB Protocol Drafting - Sectioned Collaboration</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+  <script>
+    fetch('/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+      });
+  </script>
+
+  <div class="page-wrapper">
+
+    <div class="intro-banner">
+  <h1>Collaborative IRB Draft</h1>
+  <p>Work together on your IRB protocol, section by section. </p>
+</div>
+    <p id="live-users" style="color: green; font-weight: bold;">👥 Live viewers: 1</p>
+
+    <p>Each section below is collaborative and auto-synced across users.</p>
+
+    <div class="collab-section">
+      <h2>1. Study Title</h2>
+      <textarea id="section-1" placeholder="Enter Study Title..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>2. Principal Investigator</h2>
+      <textarea id="section-2" placeholder="Name, email, department..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>3. Purpose of the Study</h2>
+      <textarea id="section-3" placeholder="Brief description of study aims..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>4. Background and Significance</h2>
+      <textarea id="section-4" placeholder="Background literature, rationale..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>5. Subject Population</h2>
+      <textarea id="section-5" placeholder="Age, sex, inclusion/exclusion criteria..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>6. Recruitment Methods</h2>
+      <textarea id="section-6" placeholder="Flyers, MTurk, databases, etc..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>7. Research Procedures</h2>
+      <textarea id="section-7" placeholder="Step-by-step breakdown..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>8. Risks and Discomforts</h2>
+      <textarea id="section-8" placeholder="Describe all risks involved..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>9. Benefits</h2>
+      <textarea id="section-9" placeholder="What do participants gain? Society?"></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>10. Data and Confidentiality</h2>
+      <textarea id="section-10" placeholder="How will data be stored, de-identified, shared..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>11. Informed Consent Process</h2>
+      <textarea id="section-11" placeholder="Who will obtain consent? Describe process..."></textarea>
+    </div>
+
+    <div class="collab-section">
+      <h2>12. Attachments (e.g. Consent Forms)</h2>
+      <textarea id="section-12" placeholder="Describe supporting documents..."></textarea>
+    </div>
+    <button id="download-draft" style="margin-top: 30px;">📥 Download Full Draft</button>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const sectionIds = [
+      "section-1", "section-2", "section-3", "section-4", "section-5", "section-6",
+      "section-7", "section-8", "section-9", "section-10", "section-11", "section-12"
+    ];
+
+    const autosaveTimers = {};
+
+    sectionIds.forEach((id) => {
+      const textarea = document.getElementById(id);
+
+      // Load initial content from server
+      socket.on(`${id}-init`, (text) => {
+        textarea.value = text;
+      });
+
+      // Receive updates from others
+      socket.on(`${id}-update`, (text) => {
+        textarea.value = text;
+      });
+
+      // Autosave logic
+      textarea.addEventListener("input", () => {
+        if (autosaveTimers[id]) clearTimeout(autosaveTimers[id]);
+        autosaveTimers[id] = setTimeout(() => {
+          const content = textarea.value;
+          socket.emit("section-edit", { section: id, content });
+        }, 2000); // autosave after 2 sec pause
+      });
+    });
+  </script>
+  <script>
+  socket.on("viewer-count", (count) => {
+    const viewerText = count === 1 ? "👤 1 viewer online" : `👥 ${count} viewers online`;
+    document.getElementById("live-users").textContent = viewerText;
+  });
+</script>
+
+  <script>
+  document.getElementById("download-draft").addEventListener("click", () => {
+    const lines = [];
+    sectionIds.forEach((id, idx) => {
+      const textarea = document.getElementById(id);
+      const title = document.querySelector(`label[for="${id}"]`)?.textContent ||
+                    document.querySelector(`h2[for="${id}"]`)?.textContent ||
+                    `Section ${idx + 1}`;
+      lines.push(`\n\n=== ${title} ===\n${textarea.value.trim()}`);
+    });
+
+    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "IRB_Draft.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+</script>
+
+</body>
+</html>

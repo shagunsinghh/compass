@@ -52,23 +52,38 @@ app.get("/", (req, res) => {
 let sharedText = "";
 
 // When a client connects:
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+let currentViewers = 0;
 
-  // Send the current document to the newly connected client
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+  currentViewers++;
+  io.emit("viewer-count", currentViewers); // Notify all clients
+
+  // --- For original collab.html ---
   socket.emit("init-content", sharedText);
 
-  // When a client sends an update (the entire textarea value),
-  // broadcast it to everyone (including the sender, so everyone stays in sync).
   socket.on("editor-change", (newText) => {
     sharedText = newText;
     socket.broadcast.emit("remote-edit", newText);
   });
 
+  // --- For collab2.html ---
+  Object.entries(sectionStates).forEach(([id, content]) => {
+    socket.emit(`${id}-init`, content);
+  });
+
+  socket.on("section-edit", ({ section, content }) => {
+    sectionStates[section] = content;
+    socket.broadcast.emit(`${section}-update`, content);
+  });
+
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log("Client disconnected:", socket.id);
+    currentViewers--;
+    io.emit("viewer-count", currentViewers); // Notify all clients
   });
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
@@ -203,3 +218,12 @@ const html = `
 
   res.send(html);
 });
+
+
+//collab2
+// Server-side shared state per section
+let sectionStates = {
+  "section-1": "", "section-2": "", "section-3": "", "section-4": "",
+  "section-5": "", "section-6": "", "section-7": "", "section-8": "",
+  "section-9": "", "section-10": "", "section-11": "", "section-12": ""
+};

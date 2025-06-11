@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= user.group_name %> Dashboard | Compass</title>
+  <link rel="stylesheet" href="/main.css" />
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+
+  <div class="page-wrapper">
+    <div class="intro-banner">
+      <h1>Welcome, <%= user.group_name %></h1>
+      <p class="subtitle">Manage your IRB protocols here.</p>
+    </div>
+
+    <a class="cta-button" href="/intake.html">➕ Start New Submission</a>
+
+    <section style="margin-top: 40px;">
+      <h2>Your IRB Submissions</h2>
+      <% if (submissions.length === 0) { %>
+        <p>No IRBs submitted yet.</p>
+      <% } else { %>
+        <ul style="margin-top: 10px;">
+          <% submissions.forEach(sub => { %>
+            <li style="margin-bottom: 16px;">
+              <strong><%= sub.title %></strong> — <%= sub.timestamp %><br>
+              Risk Level: <%= sub.risk_level %> | Consent: <%= sub.consent %>
+            </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,15 +1,23 @@
+
+
 const express = require("express");
 const http = require("http");
 const path = require("path");
 const socketIo = require("socket.io");
 const multer = require("multer");
 const fs = require("fs");
+const bcrypt = require('bcrypt');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
 const upload = multer({ dest: "uploads/" });
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+
 
 const formLibrary = {
   involves_minors: {
@@ -235,4 +243,59 @@ app.get("/submissions", (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
+});
+
+const session = require('express-session');
+
+app.use(session({
+  secret: 'secure_irb_platform_key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+
+// dashboard for group-specific IRB hub
+app.get('/dashboard', (req, res) => {
+  if (!req.session.user) return res.redirect('/login.html');
+
+  const user = usersDB[req.session.user.email];
+  const submissions = user.submissions || [];
+
+  res.render('dashboard', {
+    user: req.session.user,
+    submissions
+  });
+});
+
+app.use(express.urlencoded({ extended: true }));
+
+let usersDB = {}; // In-memory store (replace later with DB)
+
+app.post('/register', async (req, res) => {
+  const { email, password, group_name } = req.body;
+
+  if (usersDB[email]) {
+    return res.send("❌ Group already registered.");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  usersDB[email] = {
+    password: hashedPassword,
+    group_name,
+    submissions: []
+  };
+
+  res.redirect('/login.html');
+});
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = usersDB[email];
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.send("❌ Invalid credentials.");
+  }
+
+  req.session.user = { email, group_name: user.group_name };
+  res.redirect('/dashboard');
 });

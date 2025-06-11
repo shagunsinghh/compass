@@ -30,7 +30,6 @@
         overflow: hidden;
       }
 
-
       .header {
         background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
         color: white;
@@ -310,16 +309,15 @@
       }
     </style>
   </head>
-<body>
-  <div id="navbar-placeholder"></div>
-  <script>
-    fetch('/navbar.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('navbar-placeholder').innerHTML = html;
-      });
-  </script>
-
+  <body>
+    <div id="navbar-placeholder"></div>
+    <script>
+      fetch("/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("navbar-placeholder").innerHTML = html;
+        });
+    </script>
 
     <div class="container">
       <div class="header">

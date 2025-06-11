@@ -12,22 +12,18 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.9.0",
-<<<<<<< Updated upstream
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-=======
     "bcrypt": "^6.0.0",
->>>>>>> Stashed changes
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-<<<<<<< Updated upstream
     "lucide-react": "^0.513.0",
-=======
     "express-session": "^1.18.1",
->>>>>>> Stashed changes
     "multer": "^2.0.0",
+    "node-fetch": "^3.3.2",
+    "openai": "^5.3.0",
     "socket.io": "^4.8.1",
     "tailwind-merge": "^3.3.0",
     "tw-animate-css": "^1.3.4"

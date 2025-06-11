@@ -5,6 +5,9 @@ const socketIo = require("socket.io");
 const multer = require("multer");
 const fs = require("fs");
 const bcrypt = require('bcrypt'); // From remote
+const session = require('express-session');
+
+
 
 // Add these for OpenAI API support
 require("dotenv").config();
@@ -14,6 +17,13 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const upload = multer({ dest: "uploads/" });
+
+
+app.use(session({
+  secret: 'supersecret-key', //  can make this anything
+  resave: false,
+  saveUninitialized: false,
+}));
 
 // EJS setup from remote
 app.set('view engine', 'ejs');
@@ -29,6 +39,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "10mb" })); // Increased limit for PDF text
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
 
 // Check environment variables
 console.log("🔍 Environment Check:");
@@ -147,7 +158,7 @@ Extract the following information and return as JSON. Each field should contain 
   "section1": "Complete study title with any subtitle or additional descriptive information found in the document",
   "section2": "Principal Investigator's full name, title, institutional affiliation, department, and contact information if available. Look for corresponding author, PI, or lead researcher - often marked with * or 'corresponding author'",
   "section3": "Detailed study purpose, research objectives, hypotheses, and specific aims. Include what the study hopes to achieve and any research questions being addressed",
-  "section4": "Comprehensive background information, scientific rationale, literature context, and significance of the research. Include why this study is needed and what gaps it addresses", 
+  "section4": "Comprehensive background information, scientific rationale, literature context, and significance of the research. Include why this study is needed and what gaps it addresses",
   "section5": "Detailed description of target population, demographics, sample size, inclusion criteria, exclusion criteria, and any special population considerations",
   "section6": "Comprehensive recruitment methods, strategies for participant identification, recruitment materials, and how participants will be approached and enrolled",
   "section7": "Detailed research procedures, methodology, study design, data collection methods, interventions, and step-by-step description of what participants will experience",
@@ -253,60 +264,60 @@ IMPORTANT: Each JSON value must be a detailed paragraph (2-4 sentences minimum) 
 // Enhanced fallback function with detailed paragraph responses
 function createDetailedFallback(pdfText) {
   console.log("🔄 Creating detailed fallback analysis");
-  
+
   const text = pdfText.toLowerCase();
   const suggestions = {};
 
   // Create detailed fallback responses based on document content
   if (text.includes("conformable ultrasound") && text.includes("breast")) {
     suggestions.section1 = "Conformable ultrasound breast patch for deep tissue scanning and imaging. This study focuses on developing a wearable ultrasound technology specifically designed for breast tissue monitoring and imaging applications.";
-    
+
     suggestions.section2 = "Canan Dagdeviren serves as the corresponding author and principal investigator for this research. She is affiliated with the Media Lab at Massachusetts Institute of Technology in Cambridge, MA, where she leads research in conformable electronics and biomedical applications.";
-    
+
     suggestions.section3 = "The primary purpose of this study is to develop and evaluate a wearable conformable ultrasound breast patch (cUSBr-Patch) that enables standardized and reproducible image acquisition over the entire breast. The research aims to reduce reliance on operator training and applied transducer compression while providing large-area, deep scanning capabilities. The study seeks to overcome fundamental challenges in ultrasound integration with wearable technologies, particularly for imaging over large-area curvilinear organs like the breast.";
-    
+
     suggestions.section4 = "Current ultrasound technologies face significant challenges in wearable integration, specifically in imaging over large-area curvilinear organs such as the breast. Existing methods like handheld ultrasonography rely heavily on technician expertise and manual compression, while automated breast ultrasound systems suffer from poor skin contact due to bulky, stationary machines. This research addresses critical gaps in automated, repeatable breast screening technology by developing a nature-inspired honeycomb patch design that provides consistent placement and orientation for comprehensive breast imaging.";
-    
+
     suggestions.section5 = "The study targets adult participants who are suitable candidates for breast ultrasound imaging procedures. Inclusion criteria focus on individuals who can safely undergo ultrasound examination, while exclusion criteria include participants with significant health problems such as chronic or acute cardiovascular diseases and skin diseases that might interfere with device placement or imaging quality. The research aims to accommodate a wide range of breast sizes and anatomical variations through the flexible patch design.";
-    
+
     suggestions.section6 = "Participant recruitment will be conducted through institutional channels and voluntary participation from eligible candidates. The recruitment strategy emphasizes identifying individuals who meet the study criteria and are willing to participate in the ultrasound imaging procedures. Recruitment materials will clearly explain the study purpose, procedures, and any potential risks or benefits to ensure informed decision-making by prospective participants.";
-    
+
     suggestions.section7 = "Participants will wear the conformable ultrasound breast patch while imaging is performed using a phased array system at multiple positions and angles around the breast. The procedure involves placing the nature-inspired honeycomb patch on the breast, positioning the ultrasound array at various predetermined locations, and conducting imaging sessions with 360-degree rotation capabilities. The study protocol includes systematic scanning of different breast quadrants to obtain comprehensive imaging data while maintaining standardized positioning and minimizing operator-dependent variables.";
-    
+
     suggestions.section8 = "The study involves minimal risk as it utilizes non-invasive ultrasound imaging technology with standard safety protocols. Ultrasound imaging is considered safe with no exposure to ionizing radiation, and the conformable patch design minimizes pressure application compared to traditional handheld methods. Potential risks are limited to minor skin irritation from the patch adhesive or temporary discomfort during device placement. Safety monitoring will be maintained throughout all imaging procedures with immediate discontinuation if any adverse reactions occur.";
-    
+
     suggestions.section9 = "This research offers significant benefits for the advancement of wearable medical imaging technology with potential applications in improved breast cancer screening and early detection. The development of a conformable ultrasound patch could provide more accessible, cost-effective, and user-friendly breast imaging options compared to current methods. The technology may enable more frequent monitoring and earlier detection of breast abnormalities, potentially improving patient outcomes. Additionally, the research contributes to the broader field of wearable medical devices and may inspire similar innovations for other medical applications.";
-    
+
     suggestions.section10 = "All collected data will be de-identified and stored securely according to institutional data protection guidelines and regulations. Imaging data and related measurements will be coded with unique identifiers rather than personal information to maintain participant confidentiality. Data storage will utilize secure, encrypted systems with restricted access limited to authorized research personnel. Any data sharing for research purposes will follow established protocols for de-identified medical data, ensuring participant privacy is maintained throughout the research process and any subsequent analyses.";
-    
+
     suggestions.section11 = "Written informed consent will be obtained by trained research personnel prior to any study procedures. The consent process will include detailed explanation of the study purpose, procedures, potential risks and benefits, and participants' rights including the right to withdraw at any time. Research staff will ensure participants understand all aspects of the study and have opportunities to ask questions before providing consent. Documentation of the consent process will be maintained according to institutional requirements for human subjects research.";
-    
+
     suggestions.section12 = "Supporting documentation includes informed consent forms, device technical specifications, imaging protocols, and safety documentation. Additional materials encompass the ultrasound patch design specifications, imaging system operational procedures, data collection protocols, and quality assurance measures. Safety documentation includes device testing results, biocompatibility assessments, and risk mitigation procedures to ensure participant safety throughout the study period.";
-    
+
   } else {
     // Generic detailed fallback for other types of documents
     suggestions.section1 = "Research study title and focus area as identified in the document header or introduction section. Additional descriptive information about the study scope and objectives may be included in subtitle or abstract sections of the document.";
-    
+
     suggestions.section2 = "Principal Investigator identification based on author information, corresponding author designation, or institutional affiliation details provided in the document. Contact information and institutional department may be included if specified in the research publication or study protocol.";
-    
+
     suggestions.section3 = "Study objectives and research aims as described in the document's purpose or objectives section. This includes the primary research questions, hypotheses being tested, and specific goals the study aims to achieve through its methodology and data collection procedures.";
-    
+
     suggestions.section4 = "Background information and scientific rationale based on literature review and contextual information provided in the document. This encompasses the research gaps being addressed, previous work in the field, and the significance of the proposed study in advancing scientific knowledge.";
-    
+
     suggestions.section5 = "Study population characteristics and participant criteria as specified in the research protocol or methodology section. This includes demographic requirements, inclusion and exclusion criteria, sample size considerations, and any special population considerations relevant to the research objectives.";
-    
+
     suggestions.section6 = "Participant recruitment strategies and identification methods outlined in the study methodology. This encompasses the approaches for reaching potential participants, recruitment materials and procedures, and methods for enrolling eligible individuals in the research study.";
-    
+
     suggestions.section7 = "Research procedures and experimental protocols as detailed in the methodology section of the document. This includes step-by-step descriptions of data collection procedures, interventions or treatments, measurement protocols, and the overall study design implementation.";
-    
+
     suggestions.section8 = "Risk assessment and safety considerations identified in the study design and methodology. This includes potential physical, psychological, social, or economic risks to participants, along with safety monitoring procedures and risk mitigation strategies implemented to protect participant welfare.";
-    
+
     suggestions.section9 = "Expected benefits to participants and broader scientific or societal impact as described in the study rationale. This encompasses both direct benefits that participants may receive and the potential contributions to scientific knowledge and societal advancement resulting from the research findings.";
-    
+
     suggestions.section10 = "Data management and confidentiality procedures following institutional guidelines and regulatory requirements. This includes data collection, storage, security protocols, de-identification procedures, and any planned data sharing or publication protocols while maintaining participant privacy.";
-    
+
     suggestions.section11 = "Informed consent process and documentation procedures as outlined in the research protocol. This includes who will obtain consent, how the consent process will be conducted, documentation requirements, and any special considerations for ensuring participant understanding and voluntary participation.";
-    
+
     suggestions.section12 = "Supporting documentation and materials referenced in the study protocol. This includes consent forms, data collection instruments, questionnaires, technical specifications, and any additional materials necessary for conducting the research study according to the established protocol.";
   }
 
@@ -526,6 +537,77 @@ app.get("/submissions", (req, res) => {
   `;
   res.send(html);
 });
+
+app.post("/register", (req, res) => {
+  const { group_name, email, password } = req.body;
+  const newUser = { group_name, email, password };
+
+  const usersFile = path.join(__dirname, "users.json");
+  let users = [];
+
+  if (fs.existsSync(usersFile)) {
+    users = JSON.parse(fs.readFileSync(usersFile));
+  }
+
+  // Prevent duplicate accounts
+  if (users.find((u) => u.email === email)) {
+    return res.status(400).send("User already exists.");
+  }
+
+  users.push(newUser);
+  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+
+  // Set session and redirect
+  req.session.user = newUser;
+  res.redirect("/dashboard");
+});
+
+app.get("/dashboard", (req, res) => {
+  const user = req.session.user;
+if (!user) return res.redirect("/login.html");
+
+
+  // Load stored submissions if available
+  let submissions = [];
+  const filePath = path.join(__dirname, "intake_submissions.json");
+  if (fs.existsSync(filePath)) {
+    submissions = JSON.parse(fs.readFileSync(filePath));
+  }
+
+  res.render("dashboard", { user, submissions });
+});
+
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const usersFile = path.join(__dirname, "users.json");
+  let users = [];
+
+  if (fs.existsSync(usersFile)) {
+    users = JSON.parse(fs.readFileSync(usersFile));
+  }
+
+  const user = users.find((u) => u.email === email && u.password === password);
+  if (!user) {
+    return res.status(401).send("Invalid email or password.");
+  }
+
+  req.session.user = user;
+  res.redirect("/dashboard");
+});
+
+
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).send("Error logging out.");
+    }
+    res.redirect("/login.html");
+  });
+});
+
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

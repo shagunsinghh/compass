@@ -1,0 +1,86 @@
+<!-- scientific_review.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scientific Review Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      fieldset {
+        margin-top: 1em;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Review of Scientific and Scholarly Validity</h1>
+    <form>
+      <div class="section">
+        <label
+          >COUHES Protocol #<input type="text" name="protocol" required
+        /></label>
+        <label
+          >Department Head Name<input type="text" name="dept_head" required
+        /></label>
+      </div>
+
+      <div class="section">
+        <h2>Review Questions</h2>
+        <fieldset>
+          <legend>1. Least risky procedures?</legend>
+          <label><input type="radio" name="q1" value="yes" /> Yes</label>
+          <label><input type="radio" name="q1" value="no" /> No</label>
+        </fieldset>
+        <fieldset>
+          <legend>2. Likely to achieve aims?</legend>
+          <label><input type="radio" name="q2" value="yes" /> Yes</label>
+          <label><input type="radio" name="q2" value="no" /> No</label>
+        </fieldset>
+        <fieldset>
+          <legend>3. Sufficient scientific importance?</legend>
+          <label><input type="radio" name="q3" value="yes" /> Yes</label>
+          <label><input type="radio" name="q3" value="no" /> No</label>
+        </fieldset>
+        <fieldset>
+          <legend>4. Adequate resources?</legend>
+          <label><input type="radio" name="q4" value="yes" /> Yes</label>
+          <label><input type="radio" name="q4" value="no" /> No</label>
+        </fieldset>
+        <label
+          >5. Reviewer’s Comments<textarea name="comments"></textarea>
+        </label>
+        <label
+          >Signature & Date<input type="text" name="signature" /><input
+            type="date"
+            name="sig_date"
+        /></label>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

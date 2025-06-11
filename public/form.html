@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Consent to Participate in Research</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h2 {
+        margin-top: 1.5em;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      textarea {
+        height: 100px;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+      .field-inline {
+        display: flex;
+        gap: 10px;
+      }
+      .field-inline > div {
+        flex: 1;
+      }
+      .signature-block {
+        margin-top: 40px;
+      }
+      .signature-line {
+        margin-top: 30px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Consent to Participate in Research</h1>
+    <form action="#" method="post">
+      <div class="section">
+        <label for="study_title">Title of the Study</label>
+        <input
+          type="text"
+          id="study_title"
+          name="study_title"
+          placeholder="Enter study title"
+          required
+        />
+
+        <label for="investigator_names"
+          >Investigators (names and degrees)</label
+        >
+        <textarea
+          id="investigator_names"
+          name="investigator_names"
+          placeholder="List all investigators and affiliations"
+          required
+        ></textarea>
+
+        <label for="department">Department Affiliation</label>
+        <input
+          type="text"
+          id="department"
+          name="department"
+          placeholder="Enter department"
+          required
+        />
+
+        <label for="sponsor">Sponsor/Funding Source</label>
+        <input
+          type="text"
+          id="sponsor"
+          name="sponsor"
+          placeholder="Enter sponsor or funding source"
+        />
+
+        <label for="eligibility">Why you were selected</label>
+        <textarea
+          id="eligibility"
+          name="eligibility"
+          placeholder="Explain selection criteria"
+          required
+        ></textarea>
+
+        <label for="max_participants">Maximum number of participants</label>
+        <input
+          type="text"
+          id="max_participants"
+          name="max_participants"
+          placeholder="e.g., 50"
+        />
+
+        <label for="purpose_short">Brief Purpose</label>
+        <textarea
+          id="purpose_short"
+          name="purpose_short"
+          placeholder="1-2 sentences"
+          required
+        ></textarea>
+
+        <label for="procedures_short">Brief Study Procedures</label>
+        <textarea
+          id="procedures_short"
+          name="procedures_short"
+          placeholder="1-2 sentences"
+          required
+        ></textarea>
+
+        <label for="risks_short">Risks & Potential Discomforts</label>
+        <textarea
+          id="risks_short"
+          name="risks_short"
+          placeholder="1-2 sentences"
+          required
+        ></textarea>
+      </div>
+
+      <h2>Purpose of the Study</h2>
+      <textarea
+        id="purpose"
+        name="purpose"
+        placeholder="Describe the purpose of the research in lay language"
+        required
+      ></textarea>
+
+      <h2>Procedures</h2>
+      <textarea
+        id="procedures"
+        name="procedures"
+        placeholder="Describe procedures chronologically"
+        required
+      ></textarea>
+
+      <h2>Potential Risks and Discomforts</h2>
+      <textarea
+        id="risks"
+        name="risks"
+        placeholder="Describe potential risks and management"
+        required
+      ></textarea>
+
+      <h2>Anticipated Benefits</h2>
+      <select id="benefit_type" name="benefit_type">
+        <option value="none">No direct benefits</option>
+        <option value="direct">Potential direct benefits</option>
+      </select>
+      <textarea
+        id="benefit_details"
+        name="benefit_details"
+        placeholder="Describe anticipated benefits if any"
+      ></textarea>
+
+      <h2>Participation and Withdrawal</h2>
+      <textarea
+        id="withdrawal"
+        name="withdrawal"
+        placeholder="Describe voluntariness and withdrawal"
+        required
+      ></textarea>
+
+      <h2>Alternatives to Participation</h2>
+      <textarea
+        id="alternatives"
+        name="alternatives"
+        placeholder="Describe alternatives or state none"
+        required
+      ></textarea>
+
+      <h2>Payment for Participation</h2>
+      <textarea
+        id="payment"
+        name="payment"
+        placeholder="Describe payments or state none"
+      ></textarea>
+
+      <h2>Privacy and Confidentiality</h2>
+      <textarea
+        id="privacy"
+        name="privacy"
+        placeholder="Describe privacy measures"
+        required
+      ></textarea>
+
+      <h2>Future Data Use</h2>
+      <textarea
+        id="future_use"
+        name="future_use"
+        placeholder="Describe future data use"
+        required
+      ></textarea>
+
+      <div class="signature-block">
+        <h2>Signatures</h2>
+        <div class="field-inline">
+          <div>
+            <label for="participant_name">Name of Participant</label>
+            <input
+              type="text"
+              id="participant_name"
+              name="participant_name"
+              required
+            />
+          </div>
+          <div>
+            <label for="participant_date">Date</label>
+            <input
+              type="date"
+              id="participant_date"
+              name="participant_date"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="field-inline signature-line">
+          <div>
+            <label for="representative_name"
+              >Name of Legal Representative</label
+            >
+            <input
+              type="text"
+              id="representative_name"
+              name="representative_name"
+            />
+          </div>
+          <div>
+            <label for="representative_date">Date</label>
+            <input
+              type="date"
+              id="representative_date"
+              name="representative_date"
+            />
+          </div>
+        </div>
+
+        <div class="field-inline signature-line">
+          <div>
+            <label for="consenter_name">Name of Person Obtaining Consent</label>
+            <input
+              type="text"
+              id="consenter_name"
+              name="consenter_name"
+              required
+            />
+          </div>
+          <div>
+            <label for="consenter_date">Date</label>
+            <input
+              type="date"
+              id="consenter_date"
+              name="consenter_date"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="field-inline signature-line">
+          <div>
+            <label for="witness_name">Name of Witness</label>
+            <input type="text" id="witness_name" name="witness_name" />
+          </div>
+          <div>
+            <label for="witness_date">Date</label>
+            <input type="date" id="witness_date" name="witness_date" />
+          </div>
+        </div>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!-- local_context_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Local Context Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      fieldset {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Local Context Form for Relying Site</h1>
+    <form>
+      <label
+        >Title of Study<input type="text" name="study_title" required
+      /></label>
+      <label>MIT PI Name<input type="text" name="mit_pi" required /></label>
+      <label
+        >MIT Point of Contact<input type="text" name="mit_contact"
+      /></label>
+      <label
+        >Relying Site Institution<input type="text" name="site_institution"
+      /></label>
+      <label>Relying Site PI<input type="text" name="site_pi" /></label>
+
+      <fieldset>
+        <legend>Site-Specific Requirements</legend>
+        <label
+          >State Laws?<br /><select name="state_laws">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select></label
+        >
+        <label
+          >If yes, describe<textarea name="state_laws_desc"></textarea>
+        </label>
+        <label
+          >Community/Cultural Differences?<br /><select name="cultural">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select></label
+        >
+        <label
+          >If yes, describe<textarea name="cultural_desc"></textarea>
+        </label>
+        <label
+          >IRB Policies?<br /><select name="policies">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select></label
+        >
+        <label
+          >If yes, describe<textarea name="policies_desc"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ancillary Reviews & COI</legend>
+        <label
+          >Ancillary Reviews Complete?<br /><select name="ancillary">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="na">N/A</option>
+          </select></label
+        >
+        <label
+          >COI Identified?<br /><select name="coi">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select></label
+        >
+        <label>If yes, describe<textarea name="coi_desc"></textarea></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Site IRB Representative</legend>
+        <label>Name<input type="text" name="irb_rep" /></label>
+        <label>Email<input type="email" name="irb_email" /></label>
+        <label
+          >Signature & Date<input type="text" name="irb_sig" /><input
+            type="date"
+            name="irb_date"
+        /></label>
+      </fieldset>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

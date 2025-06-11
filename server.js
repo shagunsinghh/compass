@@ -20,26 +20,74 @@ app.set('views', path.join(__dirname, 'views'));
 
 
 const formLibrary = {
-  involves_minors: {
-    name: "Assent to Participate in Research (minors)",
-    url: "https://couhes.mit.edu/forms/assent.doc",
-  },
-  uses_mturk: {
-    name: "MTurk Consent Text",
-    url: "https://couhes.mit.edu/forms/mturk_consent.doc",
-  },
-  uses_phi: {
-    name: "Authorization for Release of Protected Health Information",
-    url: "https://couhes.mit.edu/forms/phi_release.doc",
-  },
-  is_genomic: {
-    name: "Genomic Data Sharing Certification",
-    url: "https://couhes.mit.edu/forms/genomic_cert.doc",
-  },
-  wants_waiver: {
-    name: "Waiver or Alteration of Informed Consent Request",
-    url: "https://couhes.mit.edu/forms/waiver_consent.docx",
-  },
+  required_for_all: [
+    {
+      name: "ICF Template: Consent to Participate in Research",
+      url: "/static/forms/icf-template-consent-participate-research_mit.docx",
+    },
+    {
+      name: "Additional Standard Language for Informed Consent",
+      url: "/static/forms/additional-standard-language-informed-consent.docx",
+    },
+    {
+      name: "Supplement for Disclosure of Financial Interest",
+      url: "/static/forms/supplement-disclosure-finance-2019-03-11.doc",
+    },
+  ],
+  conditional: {
+    involves_minors: {
+      name: "Assent to Participate in Research (minors)",
+      url: "/static/forms/assent-form-2019-01-22.doc",
+    },
+    uses_mturk: {
+      name: "MTurk Consent Text",
+      url: "https://couhes.mit.edu/guidelines/couhes-policy-using-amazons-mechanical-turk", // Add if available
+    },
+    uses_phi: {
+      name: "Authorization for Release of Protected Health Information",
+      url: "/static/forms/release-protected-health-information-2019-03-11_mit.doc",
+    },
+    is_genomic: {
+      name: "Genomic Data Sharing Certification",
+      url: "/static/forms/data-sharing-submission-certification-request-form.docx",
+    },
+    wants_waiver: {
+      name: "Waiver or Alteration of Informed Consent Request",
+      url: "/static/forms/informed-consent-waiver-or-alteration-2019-03-11-doc.docx",
+    },
+    not_in_english: {
+      name: "Translation Attestation",
+      url: "/static/forms/translation-attestation-2019-03-11.doc",
+    },
+    study_complete: {
+      name: "Final Report Closure Form",
+      url: "/static/forms/final-report-closure-form-2019-03-11.docx",
+    },
+    adverse_events: {
+      name: "Protocol Event Reporting Form",
+      url: "/static/forms/protocol-event-reporting-form.doc",
+    },
+    lincoln_lab: {
+      name: "Scientific Review Form (Lincoln Lab only)",
+      url: "/static/forms/scientific-review-form-2019-03-11.docx",
+    },
+    submitting_genomic_data: {
+      name: "Genomic Data Sharing Certification",
+      url: "/static/forms/data-sharing-submission-certification-request-form.docx",
+    },
+    conducting_interviews: {
+      name: "Consent to Participate in Interview",
+      url: "/static/forms/consent-participate-interview-june-2022_mit.docx",
+    },
+    mit_reviewing_irb: {
+      name: "Local Context Form",
+      url: "/static/forms/local-context-form.docx",
+    },
+    dod_funded: {
+      name: "DoD Exempt Research Application",
+      url: "/static/forms/application-department-defense-supported-exempt-research.docx",
+    },
+  }
 };
 
 app.use(express.urlencoded({ extended: true }));
@@ -145,11 +193,13 @@ app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
     uploaded_file: req.file?.originalname || null,
   };
 
-  const requiredForms = [];
-  for (const key of Object.keys(formLibrary)) {
-    if (req.body[key]) requiredForms.push(formLibrary[key]);
-  }
-  formData.recommended_forms = requiredForms;
+const conditionalForms = [];
+for (const key of Object.keys(formLibrary.conditional)) {
+  if (req.body[key]) conditionalForms.push(formLibrary.conditional[key]);
+}
+formData.recommended_forms = conditionalForms;
+formData.required_for_all = formLibrary.required_for_all;
+
 
   const filePath = path.join(__dirname, "intake_submissions.json");
   let submissions = [];
@@ -181,20 +231,22 @@ app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
           <p><strong>Risk Level:</strong> ${formData.risk_level}</p>
           <p><strong>Consent Required:</strong> ${formData.consent}</p>
           <p><strong>Submitted At:</strong> ${formData.timestamp}</p>
-          ${
-            requiredForms.length
-              ? `
-            <h2>Recommended COUHES Forms</h2>
-            <ul>
-              ${requiredForms
-                .map(
-                  (f) =>
-                    `<li><a href="${f.url}" target="_blank">${f.name}</a></li>`
-                )
-                .join("")}
-            </ul>`
-              : `<p><em>No additional forms required based on your answers.</em></p>`
-          }
+          <h2>Forms Required for All Studies</h2>
+<ul>
+  ${formLibrary.required_for_all.map(f => `<li><a href="${f.url}" target="_blank">${f.name}</a></li>`).join("")}
+</ul>
+
+${
+  conditionalForms.length
+    ? `
+    <h2>Additional Recommended Forms (Based on Your Responses)</h2>
+    <ul>
+      ${conditionalForms.map(f => `<li><a href="${f.url}" target="_blank">${f.name}</a></li>`).join("")}
+    </ul>
+    `
+    : `<p><em>No additional forms required based on your answers.</em></p>`
+}
+
           <p><a href="/intake.html">← Submit another</a> | <a href="/submissions">View all submissions</a></p>
         </div>
       </body>

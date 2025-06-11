@@ -131,14 +131,34 @@
         <label for="supporting_docs">Supporting Documents (optional)</label>
         <input type="file" name="supporting_docs" id="supporting_docs" />
       </div>
-    <div class="form-group">
-    <label>Will this study involve any of the following?</label>
-    <label><input type="checkbox" name="involves_minors" /> Minors (under 18)</label>
-    <label><input type="checkbox" name="uses_mturk" /> Amazon Mechanical Turk</label>
-    <label><input type="checkbox" name="uses_phi" /> PHI shared outside MIT</label>
-    <label><input type="checkbox" name="is_genomic" /> NIH-funded with genomic data</label>
-    <label><input type="checkbox" name="wants_waiver" /> Requesting waiver/alteration of consent</label>
-    </div>
+<div class="form-group">
+  <h2>Will this study involve any of the following?</h2>
+  <label><input type="checkbox" name="involves_minors" /> Minors (ages 8–17)</label><br>
+  <label><input type="checkbox" name="uses_mturk" /> Amazon Mechanical Turk participants</label><br>
+  <label><input type="checkbox" name="uses_phi" /> Disclosure of PHI outside of MIT</label><br>
+  <label><input type="checkbox" name="is_genomic" /> NIH-funded study involving genomic data</label><br>
+  <label><input type="checkbox" name="wants_waiver" /> Requesting waiver or alteration of informed consent</label><br>
+  <label><input type="checkbox" name="not_in_english" /> Study will be conducted in a language other than English</label><br>
+  <label><input type="checkbox" name="study_complete" /> This is a final report – study is now complete</label><br>
+  <label><input type="checkbox" name="adverse_events" /> Reporting complaints, deviations, or adverse events</label><br>
+  <label><input type="checkbox" name="lincoln_lab" /> Study is affiliated with Lincoln Laboratory</label><br>
+  <label><input type="checkbox" name="submitting_genomic_data" /> Submitting genomic data to NIH repository</label><br>
+  <label><input type="checkbox" name="conducting_interviews" /> Conducting interviews with participants</label><br>
+  <label><input type="checkbox" name="mit_reviewing_irb" /> MIT will serve as the reviewing IRB (Single IRB)</label><br>
+  <label><input type="checkbox" name="dod_funded" /> Department of Defense-funded or supported research</label><br>
+</div>
+
+
+<div class="form-section">
+  <h2>Forms Required for All Studies</h2>
+  <ul>
+    <li>ICF Template: Consent to Participate in Research</li>
+    <li>Additional Standard Language for Informed Consent (as needed)</li>
+    <li>Supplement for Disclosure of Financial Interest (required for all key personnel with financial interest)</li>
+  </ul>
+</div>
+
+
       <button type="submit">Submit Protocol</button>
 
 

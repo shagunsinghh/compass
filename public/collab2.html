@@ -526,79 +526,153 @@
       }
 
       async function analyzeWithAI(pdfText) {
-        // Truncate text significantly for free tier (roughly 2000 chars)
-        const truncatedText =
-          pdfText.length > 2000 ? pdfText.substring(0, 2000) + "..." : pdfText;
-
-        console.log(
-          "Sending to OpenAI (free tier), text length:",
-          truncatedText.length
-        );
-
-        const prompt = `Extract key info from this research document for IRB sections. Be very concise.
-
-Text: ${truncatedText}
-
-Return JSON format:
-{"section1":"title","section2":"PI name","section3":"study purpose","section4":"background","section5":"participants","section6":"recruitment","section7":"procedures","section8":"risks","section9":"benefits","section10":"data handling","section11":"consent","section12":"attachments"}`;
+        console.log("Sending to OpenAI API, text length:", pdfText.length);
 
         try {
-          const response = await fetch(
-            "https://api.openai.com/v1/chat/completions",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization:
-                  "Bearer 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",
-              },
-              body: JSON.stringify({
-                model: "gpt-3.5-turbo", // Free tier model
-                messages: [
-                  {
-                    role: "user",
-                    content: prompt,
-                  },
-                ],
-                max_tokens: 500, // Much smaller for free tier
-                temperature: 0.3,
-              }),
-            }
-          );
+          const response = await fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pdfText: pdfText }), // Send full text, let server handle size
+          });
 
-          console.log("OpenAI response status:", response.status);
+          console.log("API response status:", response.status);
 
           if (!response.ok) {
-            const errorData = await response.text();
-            console.error(
-              "OpenAI API error (likely rate limit or quota):",
-              errorData
-            );
-
-            // For free tier, immediately use fallback
-            console.log("Using fallback due to API limitations");
-            return createIntelligentFallback(truncatedText);
+            const errorData = await response.json();
+            console.error("API error:", errorData);
+            throw new Error("API request failed: " + errorData.error);
           }
 
           const data = await response.json();
-          console.log("OpenAI response received");
+          console.log("API response received successfully");
+          console.log("Full API response:", data); // Debug log
 
+          // Extract the content from OpenAI's response
           const content = data.choices[0].message.content;
+          console.log("OpenAI content:", content); // Debug log
 
           try {
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              return JSON.parse(jsonMatch[0]);
+            // Try to parse JSON from the response
+            let parsedContent;
+
+            // Handle case where content might already be a JSON object or string
+            if (typeof content === "string") {
+              // Look for JSON in the string
+              const jsonMatch = content.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                parsedContent = JSON.parse(jsonMatch[0]);
+              } else {
+                throw new Error("No JSON found in response");
+              }
+            } else if (typeof content === "object") {
+              // Content is already an object
+              parsedContent = content;
             } else {
-              return createIntelligentFallback(truncatedText);
+              throw new Error("Unexpected content type");
             }
+
+            console.log("Parsed suggestions:", parsedContent); // Debug log
+            return parsedContent;
           } catch (parseError) {
-            console.log("Using fallback due to parsing error");
-            return createIntelligentFallback(truncatedText);
+            console.log("JSON parsing failed:", parseError);
+            console.log("Raw content:", content);
+            return createIntelligentFallback(pdfText);
           }
         } catch (error) {
-          console.log("API call failed, using intelligent fallback");
-          return createIntelligentFallback(truncatedText);
+          console.error("API call failed:", error);
+          showError(
+            `AI analysis failed: ${error.message}. Using document analysis fallback.`
+          );
+          return createIntelligentFallback(pdfText);
+        }
+      }
+
+      function displaySuggestions(suggestions) {
+        console.log("Displaying suggestions:", suggestions); // Debug log
+
+        // Check if suggestions is valid
+        if (!suggestions || typeof suggestions !== "object") {
+          console.error("Invalid suggestions object:", suggestions);
+          showError("Invalid suggestions received from AI");
+          return;
+        }
+
+        // Map section keys to section numbers
+        const sectionMapping = {
+          section1: "1",
+          section2: "2",
+          section3: "3",
+          section4: "4",
+          section5: "5",
+          section6: "6",
+          section7: "7",
+          section8: "8",
+          section9: "9",
+          section10: "10",
+          section11: "11",
+          section12: "12",
+        };
+
+        let hasAnySuggestions = false;
+
+        Object.keys(suggestions).forEach((key) => {
+          const sectionNum = sectionMapping[key];
+
+          if (!sectionNum) {
+            console.warn(`Unknown section key: ${key}`);
+            return;
+          }
+
+          const suggestionValue = suggestions[key];
+
+          // Check if suggestion has meaningful content
+          if (
+            suggestionValue &&
+            typeof suggestionValue === "string" &&
+            suggestionValue.trim() !== "" &&
+            suggestionValue !== "Not specified in document" &&
+            suggestionValue !== "[object Object]"
+          ) {
+            console.log(
+              `Setting suggestion for section ${sectionNum}:`,
+              suggestionValue
+            );
+
+            const suggestionDiv = document.getElementById(
+              `suggestion-${sectionNum}`
+            );
+            const suggestionText =
+              suggestionDiv?.querySelector(".suggestion-text");
+            const sectionDiv = document.querySelector(
+              `[data-section="${sectionNum}"]`
+            );
+
+            if (suggestionDiv && suggestionText && sectionDiv) {
+              suggestionText.textContent = suggestionValue;
+              suggestionDiv.style.display = "block";
+              sectionDiv.classList.add("has-suggestion");
+              aiSuggestions[sectionNum] = suggestionValue;
+              hasAnySuggestions = true;
+            } else {
+              console.error(
+                `Could not find elements for section ${sectionNum}`
+              );
+            }
+          } else {
+            console.log(
+              `Skipping empty/invalid suggestion for section ${sectionNum}:`,
+              suggestionValue
+            );
+          }
+        });
+
+        if (hasAnySuggestions) {
+          console.log("Successfully displayed suggestions");
+        } else {
+          console.warn("No valid suggestions to display");
+          showError(
+            "AI analysis completed but no valid suggestions were generated. Please try again or check your document."
+          );
         }
       }
 
@@ -670,30 +744,6 @@ Return JSON format:
         }
 
         return suggestions;
-      }
-
-      function displaySuggestions(suggestions) {
-        Object.keys(suggestions).forEach((key) => {
-          const sectionNum = key.replace("section", "");
-          const suggestionDiv = document.getElementById(
-            `suggestion-${sectionNum}`
-          );
-          const suggestionText =
-            suggestionDiv.querySelector(".suggestion-text");
-          const sectionDiv = document.querySelector(
-            `[data-section="${sectionNum}"]`
-          );
-
-          if (
-            suggestions[key] &&
-            suggestions[key] !== "Not specified in document"
-          ) {
-            suggestionText.textContent = suggestions[key];
-            suggestionDiv.style.display = "block";
-            sectionDiv.classList.add("has-suggestion");
-            aiSuggestions[sectionNum] = suggestions[key];
-          }
-        });
       }
 
       function acceptSuggestion(sectionNum) {

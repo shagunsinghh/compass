@@ -241,3 +241,69 @@ h1 {
 .collab-section:last-child {
   border-bottom: none;
 }
+
+.auth-section {
+  background: #f9f9f9;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+}
+
+.auth-box h3 {
+  margin-bottom: 20px;
+}
+
+.auth-box form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-box input {
+  margin: 8px 0;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.auth-box button {
+  margin-top: 16px;
+  padding: 12px;
+  font-size: 15px;
+  background-color: #003366;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-box button:hover {
+  background-color: #002244;
+}
+
+.auth-toggle {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.auth-toggle a {
+  color: #003366;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.navbar .logo {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}

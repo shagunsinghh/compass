@@ -13,17 +13,25 @@ const session = require('express-session');
 require("dotenv").config();
 
 const app = express();
+
+app.use(session({
+  secret: 'supersecret-key',
+  resave: false,
+  saveUninitialized: false,
+}));
+
 const server = http.createServer(app);
 const io = socketIo(server);
 
 const upload = multer({ dest: "uploads/" });
 
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect('/');
+  }
+  next();
+}
 
-app.use(session({
-  secret: 'supersecret-key', //  can make this anything
-  resave: false,
-  saveUninitialized: false,
-}));
 
 // EJS setup from remote
 app.set('view engine', 'ejs');
@@ -33,6 +41,28 @@ app.set('views', path.join(__dirname, 'views'));
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
+});
+
+app.get("/intake.html", requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "intake.html"));
+});
+
+app.get("/collab2.html", requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "collab2.html"));
+});
+
+app.get("/rag.html", requireLogin, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "rag.html"));
+});
+
+
+
+app.get('/session', (req, res) => {
+  if (req.session.user) {
+    return res.json(req.session.user); // ✅ Success
+  } else {
+    return res.status(401).send('Not logged in');
+  }
 });
 
 // Important: Make sure JSON parsing middleware comes BEFORE your routes
@@ -427,6 +457,7 @@ io.on("connection", (socket) => {
 // Submit intake route
 app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {
   const formData = {
+    user_email: req.session.user?.email || "unknown",
     timestamp: new Date().toISOString(),
     title: req.body.title,
     pi: req.body.pi,
@@ -538,18 +569,40 @@ app.get("/submissions", (req, res) => {
   res.send(html);
 });
 
-app.post("/register", (req, res) => {
-  const { group_name, email, password } = req.body;
-  const newUser = { group_name, email, password };
+// Protect all routes except login, register, and public files
+app.use((req, res, next) => {
+  const openPaths = ["/", "/login", "/register", "/login.html", "/register.html"];
+  const isStatic = req.path.startsWith("/public") || req.path.startsWith("/static");
 
-  const usersFile = path.join(__dirname, "users.json");
-  let users = [];
+  if (openPaths.includes(req.path) || isStatic) {
+    return next();
+  }
+
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
+  next();
+});
+
+app.post("/register", (req, res) => {
+  const { name, email, institution, group_name, password } = req.body;
+
+  const newUser = {
+    name,
+    email,
+    institution,
+    group_name,
+    password,
+  };
+
+  const users = JSON.parse(fs.readFileSync("users.json", "utf8"));
+
 
   if (fs.existsSync(usersFile)) {
     users = JSON.parse(fs.readFileSync(usersFile));
   }
 
-  // Prevent duplicate accounts
   if (users.find((u) => u.email === email)) {
     return res.status(400).send("User already exists.");
   }
@@ -557,14 +610,48 @@ app.post("/register", (req, res) => {
   users.push(newUser);
   fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
 
-  // Set session and redirect
+  // ✅ This must be inside the route
   req.session.user = newUser;
+
   res.redirect("/dashboard");
 });
 
-app.get("/dashboard", (req, res) => {
+
+
+
+app.get("/dashboard", requireLogin, (req, res) => {
   const user = req.session.user;
-if (!user) return res.redirect("/login.html");
+  if (!user) return res.redirect("/login.html");
+
+  // ✅ Step 1: Declare the variable FIRST
+  let allSubmissions = [];
+
+  // ✅ Step 2: Read from file if it exists
+  const filePath = path.join(__dirname, "intake_submissions.json");
+  if (fs.existsSync(filePath)) {
+    try {
+      const fileData = fs.readFileSync(filePath, "utf-8");
+      allSubmissions = JSON.parse(fileData);
+    } catch (error) {
+      console.error("❌ Error reading intake_submissions.json:", error);
+    }
+  }
+
+  // ✅ Step 3: Use it to filter by user
+  const userSubmissions = allSubmissions.filter(
+    (s) => s.user_email === user.email
+  );
+
+  // ✅ Step 4: Render the dashboard
+  res.render("dashboard", {
+    user,
+    submissions: userSubmissions,
+  });
+
+});
+
+
+
 
 
   // Load stored submissions if available
@@ -574,27 +661,39 @@ if (!user) return res.redirect("/login.html");
     submissions = JSON.parse(fs.readFileSync(filePath));
   }
 
-  res.render("dashboard", { user, submissions });
-});
 
-app.post("/login", (req, res) => {
+
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const usersFile = path.join(__dirname, "users.json");
-  let users = [];
+  // ✅ Correctly parse users.json
+  const users = JSON.parse(fs.readFileSync("users.json", "utf8"));
 
-  if (fs.existsSync(usersFile)) {
-    users = JSON.parse(fs.readFileSync(usersFile));
+  // ✅ Check that it's an array
+  if (!Array.isArray(users)) {
+    console.error("users.json is not an array!");
+    return res.status(500).send("Internal error.");
   }
 
-  const user = users.find((u) => u.email === email && u.password === password);
+  // ✅ Look up user
+  const user = users.find((u) => u.email === email);
   if (!user) {
-    return res.status(401).send("Invalid email or password.");
+    return res.send("User not found.");
   }
 
+  // ✅ Simple password check (plaintext for now — switch to bcrypt later)
+  if (user.password !== password) {
+    return res.send("Incorrect password.");
+  }
+
+  // ✅ Save session
   req.session.user = user;
+  console.log("Logged in user, session now:", req.session);
+
   res.redirect("/dashboard");
 });
+
+
 
 
 app.post("/logout", (req, res) => {

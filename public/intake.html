@@ -65,15 +65,72 @@
 <div id="navbar-placeholder"></div>
 
 <script>
+  console.log("🚀 Script started");
+
   fetch('/navbar.html')
     .then(res => res.text())
     .then(html => {
+      console.log("✅ navbar.html loaded");
       document.getElementById('navbar-placeholder').innerHTML = html;
+
+      // Wait a moment to let HTML insert
+      setTimeout(() => {
+        const navLinks = document.querySelector(".nav-links");
+        if (!navLinks) {
+          console.error("❌ navLinks element missing");
+          return;
+        }
+
+        fetch('/session')
+          .then(res => {
+            if (!res.ok) throw new Error("Not logged in");
+            return res.json();
+          })
+          .then(user => {
+            console.log("✅ Logged in:", user);
+            navLinks.innerHTML = `
+              <li><a href="/">Home</a></li>
+              <li><a href="/intake.html">IRB Intake Form</a></li>
+              <li><a href="/collab2.html">Collaborative Draft IRB Full</a></li>
+              <li><a href="/dashboard">My Lab</a></li>
+              <li>
+                <form action="/logout" method="POST" style="display:inline;">
+                  <button style="background:none;border:none;color:white;cursor:pointer;">Logout</button>
+                </form>
+              </li>
+            `;
+
+            const authSection = document.querySelector('.auth-section');
+            if (authSection) authSection.style.display = 'none';
+
+            const cta = document.querySelector('.cta-button');
+            if (cta) {
+              cta.href = '/dashboard';
+              cta.innerText = 'Go to Dashboard';
+            }
+          })
+          .catch(err => {
+            console.warn("⚠️ Not logged in:", err);
+            navLinks.innerHTML = `
+              <li><a href="/">Home</a></li>
+              <li><a href="/login.html">Log In</a></li>
+              <li><a href="/register.html">Register</a></li>
+            `;
+
+            const authSection = document.querySelector('.auth-section');
+            if (authSection) authSection.style.display = 'block';
+          });
+      }, 50); // Short delay to make sure navbar is fully in DOM
     });
 </script>
+
+
 <div class="hero" style="background: #e0f2ff; text-align: center; padding: 40px;">
   <h1>IRB Intake Form</h1>
   <p class="subtitle">Answer a few questions and we’ll generate the forms you need.</p>
+</div>
+<div id="group-display" style="text-align: center; margin-bottom: 20px; font-size: 16px; color: #333;">
+  <!-- Group name will appear here -->
 </div>
 
 
@@ -157,6 +214,7 @@
     <li>Supplement for Disclosure of Financial Interest (required for all key personnel with financial interest)</li>
   </ul>
 </div>
+      <input type="hidden" name="group_name" id="group_name_hidden" />
 
 
       <button type="submit">Submit Protocol</button>
@@ -165,5 +223,22 @@
     </form>
   </div>
 </div>
+<script>
+  // Fetch session user data and insert group name
+  fetch('/session')
+    .then(res => res.json())
+    .then(data => {
+      if (data.group_name) {
+        document.getElementById('group_name_hidden').value = data.group_name;
+
+        // ✅ Display group name at top of form
+        document.getElementById('group-display').innerText =
+          `Logged in as group: ${data.group_name}`;
+      }
+    })
+    .catch(err => console.error("Couldn't load session group:", err));
+</script>
+
+
 </body>
 </html>

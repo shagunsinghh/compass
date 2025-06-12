@@ -7,13 +7,71 @@
 </head>
 <body class="homepage-body">
 <div id="navbar-placeholder"></div>
+
 <script>
+  console.log("🚀 Script started");
+
   fetch('/navbar.html')
     .then(res => res.text())
     .then(html => {
+      console.log("✅ navbar.html loaded");
       document.getElementById('navbar-placeholder').innerHTML = html;
+
+      // Wait a moment to let HTML insert
+      setTimeout(() => {
+        const navLinks = document.querySelector(".nav-links");
+        if (!navLinks) {
+          console.error("❌ navLinks element missing");
+          return;
+        }
+
+        fetch('/session')
+          .then(res => {
+            if (!res.ok) throw new Error("Not logged in");
+            return res.json();
+          })
+          .then(user => {
+            console.log("✅ Logged in:", user);
+            navLinks.innerHTML = `
+              <li><a href="/">Home</a></li>
+              <li><a href="/intake.html">IRB Intake Form</a></li>
+              <li><a href="/collab2.html">Collaborative Draft IRB Full</a></li>
+              <li><a href="/dashboard">My Lab</a></li>
+              <li>
+                <form action="/logout" method="POST" style="display:inline;">
+                  <button style="background:none;border:none;color:white;cursor:pointer;">Logout</button>
+                </form>
+              </li>
+            `;
+
+            const authSection = document.querySelector('.auth-section');
+            if (authSection) authSection.style.display = 'none';
+
+            const cta = document.querySelector('.cta-button');
+            if (cta) {
+              cta.href = '/dashboard';
+              cta.innerText = 'Go to Dashboard';
+            }
+          })
+          .catch(err => {
+            console.warn("⚠️ Not logged in:", err);
+            navLinks.innerHTML = `
+              <li><a href="/">Home</a></li>
+              <li><a href="/login.html">Log In</a></li>
+              <li><a href="/register.html">Register</a></li>
+            `;
+
+            const authSection = document.querySelector('.auth-section');
+            if (authSection) authSection.style.display = 'block';
+          });
+      }, 50); // Short delay to make sure navbar is fully in DOM
     });
 </script>
+
+
+
+
+
 
 <div class="page-wrapper">
 
@@ -39,6 +97,37 @@
       <p>Automatically receive links to relevant COUHES documents based on your responses.</p>
     </div>
   </section>
+
+<section class="auth-section">
+  <div class="auth-container">
+    <h2>🔐 Access Your Compass Dashboard</h2>
+
+    <div id="login-form" class="auth-box">
+      <h3>Log In</h3>
+      <form method="POST" action="/login">
+        <input name="email" type="email" placeholder="Email" required />
+        <input name="password" type="password" placeholder="Password" required />
+        <button type="submit">Log In</button>
+      </form>
+      <p class="auth-toggle">Don't have an account? <a href="/register.html">Register here</a>.</p>
+
+    </div>
+
+
+
+  </div>
+</section>
+
+<script>
+  function toggleForms() {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+    registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+  }
+</script>
+
+
 </div>
   <footer class="footer">
   <div class="footer-content">

@@ -17,8 +17,9 @@
 
 
   <div class="page-wrapper">
-    <div class="intro-banner">
-      <h1>Welcome, <%= user.group_name %></h1>
+    <div style="text-align: center; margin: 30px 0;">
+        <h1>Welcome, <%= user.name || "Researcher" %></h1>
+        <p style="font-size: 18px; color: #555;"><%= user.group_name %></p>
       <p class="subtitle">Manage your IRB protocols here.</p>
     </div>
 
@@ -32,13 +33,19 @@
         <ul style="margin-top: 10px;">
           <% submissions.forEach(sub => { %>
             <li style="margin-bottom: 16px;">
-              <strong><%= sub.title %></strong> — <%= sub.timestamp %><br>
-              Risk Level: <%= sub.risk_level %> | Consent: <%= sub.consent %>
+            <strong><%= sub.title %></strong> — <%= new Date(sub.timestamp).toLocaleString() %><br>
+            Risk Level: <%= sub.risk_level %> | Consent: <%= sub.consent %><br>
+            <a href="#">📝 View Draft</a> | <a href="#">📥 Download</a>
             </li>
+
           <% }) %>
         </ul>
       <% } %>
     </section>
   </div>
+  <form action="/logout" method="POST" style="position: absolute; top: 20px; right: 20px;">
+  <button style="padding: 8px 12px; font-weight: bold;">Logout</button>
+</form>
+
 </body>
 </html>

@@ -1,7 +1,16 @@
 [
   {
-    "group_name": "Shagun",
+    "name": "Shagun",
     "email": "shagun@mit.edu",
+    "institution": "MIT",
+    "group_name": "Media Lab",
     "password": "shagun"
+  },
+  {
+    "name": "Lara",
+    "email": "lara@mit.edu",
+    "institution": "MIT",
+    "group_name": "Media Lab",
+    "password": "lara"
   }
 ]

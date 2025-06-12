@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Protocol Event Reporting Form - Auto-Fill DOCX</title>
+    <!-- Load dependencies: PizZip, Docxtemplater, FileSaver -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.39.1/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 2.2em;
+        font-weight: 300;
+      }
+      .header h2 {
+        margin: 0;
+        font-size: 1.1em;
+        opacity: 0.9;
+        font-weight: 300;
+      }
+      .form-content {
+        padding: 40px;
+      }
+      fieldset {
+        border: 2px solid #e8ecf3;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        background: #fafbfc;
+      }
+      legend {
+        font-weight: 600;
+        color: #2c3e50;
+        background: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+      }
+      .form-row {
+        margin-bottom: 20px;
+      }
+      .form-row label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #34495e;
+      }
+      .form-row input,
+      .form-row textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e8ecf3;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+      .checkbox-group,
+      .radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .action-buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 0 10px;
+      }
+      .btn-primary {
+        background: #3498db;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #2980b9;
+      }
+      .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+      .alert-success {
+        background: #e8f8f5;
+        border-left: 4px solid #27ae60;
+        color: #229954;
+      }
+      .alert-danger {
+        background: #fdf2f2;
+        border-left: 4px solid #e74c3c;
+        color: #c0392b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Massachusetts Institute of Technology</h1>
+        <h2>
+          Committee on the Use of Humans as Experimental Subjects (COUHES)
+        </h2>
+      </div>
+      <div class="form-content">
+        <form id="protocol-event-form">
+          <!-- Section I -->
+          <fieldset>
+            <legend>I. What is being reported?</legend>
+            <div class="checkbox-group">
+              <label
+                ><input
+                  type="checkbox"
+                  name="reportTypes"
+                  value="SubjectComplaint"
+                />
+                Subject Complaint</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  name="reportTypes"
+                  value="UnanticipatedProblem"
+                />
+                Unanticipated Problem</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  name="reportTypes"
+                  value="ProtocolDeviation"
+                />
+                Protocol Deviation</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  name="reportTypes"
+                  value="AdverseEvent"
+                />
+                Adverse Event</label
+              >
+            </div>
+          </fieldset>
+          <!-- Section II -->
+          <fieldset>
+            <legend>II. BASIC INFORMATION</legend>
+            <div class="form-row">
+              <label
+                >1. Title of Study <input type="text" name="titleOfStudy"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label>2A. PI Name <input type="text" name="piName" /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >2B. PI Building/Room <input type="text" name="piBuilding"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label>2C. PI Title <input type="text" name="piTitle" /></label>
+            </div>
+            <div class="form-row">
+              <label>2D. PI Email <input type="email" name="piEmail" /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >2E. PI Department <input type="text" name="piDepartment"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label>2F. PI Phone <input type="text" name="piPhone" /></label>
+            </div>
+          </fieldset>
+          <!-- Section III -->
+          <fieldset>
+            <legend>III. REPORTABLE EVENT</legend>
+            <div class="form-row">
+              <label>A. Date(s) <input type="date" name="eventDate" /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >B. Subject Study ID(s)
+                <input type="text" name="subjectStudyIds"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >C. Event Description
+                <textarea name="eventDescription"></textarea>
+              </label>
+            </div>
+            <fieldset>
+              <legend>D. Relationship</legend>
+              <div class="radio-group">
+                <label
+                  ><input type="radio" name="seriousness" value="Serious" />
+                  Serious</label
+                >
+                <label
+                  ><input type="radio" name="seriousness" value="NotSerious" />
+                  Not Serious</label
+                >
+                <label
+                  ><input type="radio" name="expected" value="Expected" />
+                  Expected</label
+                >
+                <label
+                  ><input type="radio" name="expected" value="Unexpected" />
+                  Unexpected</label
+                >
+                <label
+                  ><input type="radio" name="related" value="Related" />
+                  Related</label
+                >
+                <label
+                  ><input type="radio" name="related" value="Unrelated" />
+                  Unrelated</label
+                >
+                <label
+                  ><input
+                    type="radio"
+                    name="unanticipatedProblem"
+                    value="Yes"
+                  />
+                  UP: Yes</label
+                >
+                <label
+                  ><input type="radio" name="unanticipatedProblem" value="No" />
+                  UP: No</label
+                >
+              </div>
+            </fieldset>
+            <div class="form-row">
+              <label
+                >Additional Comments
+                <textarea name="additionalComments"></textarea>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>2. Treatment <textarea name="treatment"></textarea></label>
+            </div>
+            <div class="form-row">
+              <label
+                >3. Preventive Measures
+                <textarea name="preventiveMeasures"></textarea>
+              </label>
+            </div>
+          </fieldset>
+          <!-- Signatures -->
+          <fieldset>
+            <legend>Signatures</legend>
+            <div class="form-row">
+              <label
+                >PI Signature <input type="text" name="piSignature"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >PI Date <input type="date" name="piSignatureDate"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >PI Print Name/Title <input type="text" name="piPrintNameTitle"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >DH Signature <input type="text" name="dhSignature"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >DH Date <input type="date" name="dhSignatureDate"
+              /></label>
+            </div>
+            <div class="form-row">
+              <label
+                >DH Print Name/Title <input type="text" name="dhPrintNameTitle"
+              /></label>
+            </div>
+          </fieldset>
+          <!-- Action -->
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="generateDOCX()"
+            >
+              Generate DOCX
+            </button>
+          </div>
+          <div id="output"></div>
+        </form>
+      </div>
+    </div>
+    <script>
+      function collectFormData() {
+        const form = document.getElementById("protocol-event-form");
+        const data = {};
+        [
+          "titleOfStudy",
+          "piName",
+          "piBuilding",
+          "piTitle",
+          "piEmail",
+          "piDepartment",
+          "piPhone",
+          "eventDate",
+          "subjectStudyIds",
+          "eventDescription",
+          "additionalComments",
+          "treatment",
+          "preventiveMeasures",
+          "piSignature",
+          "piSignatureDate",
+          "piPrintNameTitle",
+          "dhSignature",
+          "dhSignatureDate",
+          "dhPrintNameTitle",
+        ].forEach((name) => {
+          const el = form.elements[name];
+          data[name] = el ? el.value : "";
+        });
+        data.reportTypes = Array.from(
+          form.querySelectorAll("input[name=reportTypes]:checked")
+        ).map((cb) => cb.value);
+        ["seriousness", "expected", "related", "unanticipatedProblem"].forEach(
+          (name) => {
+            const sel = form.querySelector(`input[name=${name}]:checked`);
+            data[name] = sel ? sel.value : "";
+          }
+        );
+        return data;
+      }
+      async function createDocxFromTemplate(data) {
+        const res = await fetch("/template_protocol_event_reporting_form.docx");
+        if (!res.ok) throw new Error("Failed to load template");
+        const buf = await res.arrayBuffer();
+        const zip = new PizZip(buf);
+        const doc = new Docxtemplater(zip, {
+          paragraphLoop: true,
+          linebreaks: true,
+        });
+        doc.render(data);
+        return doc.getZip().generate({ type: "arraybuffer" });
+      }
+      async function generateDOCX() {
+        const out = document.getElementById("output");
+        out.innerHTML = "";
+        try {
+          const data = collectFormData();
+          const content = await createDocxFromTemplate(data);
+          const blob = new Blob([content], {
+            type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          });
+          saveAs(
+            blob,
+            `protocol-event-report-${new Date()
+              .toISOString()
+              .slice(0, 10)}.docx`
+          );
+          out.innerHTML =
+            '<div class="alert alert-success">Downloading filled DOCX...</div>';
+        } catch (e) {
+          console.error(e);
+          out.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+        }
+      }
+    </script>
+  </body>
+</html>

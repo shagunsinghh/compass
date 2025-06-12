@@ -6,6 +6,32 @@
     <link rel="stylesheet" href="main.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
+      .tabs-nav {
+        display: flex;
+        border-bottom: 2px solid #ccc;
+        margin-bottom: 1em;
+        list-style: none;
+        padding: 0;
+      }
+      .tabs-nav li {
+        margin-right: 1em;
+        padding: 0.5em 1em;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+      .tabs-nav li.active {
+        border-color: #ccc;
+        border-bottom-color: white;
+        background: white;
+      }
+      .tab-content > div {
+        display: none;
+      }
+      .tab-content > div.active {
+        display: block;
+      }
       .ai-upload-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -173,252 +199,313 @@
 </script>
 
     <div class="page-wrapper">
-      <div class="intro-banner">
-        <h1>🤖 AI-Enhanced Collaborative IRB Draft</h1>
-        <p>
-          Upload your existing study document and let AI help fill out your IRB
-          protocol sections.
-        </p>
-      </div>
-
-      <p id="live-users" style="color: green; font-weight: bold">
-        👥 Live viewers: 1
-      </p>
-
-      <!-- AI Upload Section -->
-      <div class="ai-upload-section">
-        <h2>📄 Upload Study Document for AI Analysis</h2>
-        <p>
-          Upload a PDF of your existing study materials, and our AI will analyze
-          it to suggest content for each IRB section.
-        </p>
-
-        <div class="upload-area" id="uploadArea">
-          <div id="uploadPrompt">
-            <h3>📎 Drop PDF here or click to upload</h3>
-            <p>Supported format: PDF (max 10MB)</p>
-            <input
-              type="file"
-              id="pdfInput"
-              accept=".pdf"
-              style="display: none"
-            />
+      <ul class="tabs-nav" id="tabs-nav">
+        <li class="active" data-tab="protocol">Protocol Draft</li>
+      </ul>
+      <div class="tab-content">
+        <!-- Protocol Draft Tab -->
+        <div id="tab-protocol" class="active">
+          <div class="intro-banner">
+            <h1>🤖 AI-Enhanced Collaborative IRB Draft</h1>
+            <p>
+              Upload your existing study document and let AI help fill out your
+              IRB protocol sections.
+            </p>
           </div>
 
-          <div class="processing-indicator" id="processingIndicator">
-            <div class="spinner"></div>
-            <p>🧠 AI is analyzing your document...</p>
-            <p><small>This may take 30-60 seconds</small></p>
-          </div>
-        </div>
-
-        <div class="error-message" id="errorMessage"></div>
-
-        <div id="analysisResults" style="display: none">
-          <h3>✅ Analysis Complete!</h3>
-          <p>
-            AI has generated suggestions for your IRB sections. Look for the
-            green "AI Suggestion" badges on each section below.
+          <p id="live-users" style="color: green; font-weight: bold">
+            👥 Live viewers: 1
           </p>
-          <button
-            id="applyAllSuggestions"
-            style="
-              background: #4caf50;
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              border-radius: 4px;
-              cursor: pointer;
-              margin: 10px 0;
-            "
-          >
-            🚀 Apply All AI Suggestions
+
+          <!-- AI Upload Section -->
+          <div class="ai-upload-section">
+            <h2>📄 Upload Study Document for AI Analysis</h2>
+            <p>
+              Upload a PDF of your existing study materials, and our AI will
+              analyze it to suggest content for each IRB section.
+            </p>
+
+            <div class="upload-area" id="uploadArea">
+              <div id="uploadPrompt">
+                <h3>📎 Drop PDF here or click to upload</h3>
+                <p>Supported format: PDF (max 10MB)</p>
+                <input
+                  type="file"
+                  id="pdfInput"
+                  accept=".pdf"
+                  style="display: none"
+                />
+              </div>
+
+              <div class="processing-indicator" id="processingIndicator">
+                <div class="spinner"></div>
+                <p>🧠 AI is analyzing your document...</p>
+                <p><small>This may take 30-60 seconds</small></p>
+              </div>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div id="analysisResults" style="display: none">
+              <h3>✅ Analysis Complete!</h3>
+              <p>
+                AI has generated suggestions for your IRB sections. Look for the
+                green "AI Suggestion" badges on each section below.
+              </p>
+              <button
+                id="applyAllSuggestions"
+                style="
+                  background: #4caf50;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  margin: 10px 0;
+                "
+              >
+                🚀 Apply All AI Suggestions
+              </button>
+            </div>
+          </div>
+
+          <p>
+            Each section below is collaborative and auto-synced across users.
+          </p>
+
+          <div class="collab-section" data-section="1">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>1. Study Title</h2>
+            <div id="suggestion-1" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(1)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-1"
+              placeholder="Enter Study Title..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="2">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>2. Principal Investigator</h2>
+            <div id="suggestion-2" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(2)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-2"
+              placeholder="Name, email, department..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="3">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>3. Purpose of the Study</h2>
+            <div id="suggestion-3" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(3)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-3"
+              placeholder="Brief description of study aims..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="4">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>4. Background and Significance</h2>
+            <div id="suggestion-4" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(4)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-4"
+              placeholder="Background literature, rationale..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="5">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>5. Subject Population</h2>
+            <div id="suggestion-5" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(5)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-5"
+              placeholder="Age, sex, inclusion/exclusion criteria..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="6">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>6. Recruitment Methods</h2>
+            <div id="suggestion-6" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(6)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-6"
+              placeholder="Flyers, MTurk, databases, etc..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="7">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>7. Research Procedures</h2>
+            <div id="suggestion-7" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(7)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-7"
+              placeholder="Step-by-step breakdown..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="8">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>8. Risks and Discomforts</h2>
+            <div id="suggestion-8" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(8)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-8"
+              placeholder="Describe all risks involved..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="9">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>9. Benefits</h2>
+            <div id="suggestion-9" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(9)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-9"
+              placeholder="What do participants gain? Society?"
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="10">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>10. Data and Confidentiality</h2>
+            <div id="suggestion-10" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(10)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-10"
+              placeholder="How will data be stored, de-identified, shared..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="11">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>11. Informed Consent Process</h2>
+            <div id="suggestion-11" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(11)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-11"
+              placeholder="Who will obtain consent? Describe process..."
+            ></textarea>
+          </div>
+
+          <div class="collab-section" data-section="12">
+            <div class="suggestion-overlay">AI Suggestion Available</div>
+            <h2>12. Attachments (e.g. Consent Forms)</h2>
+            <div id="suggestion-12" class="ai-suggestion" style="display: none">
+              <strong>AI Suggestion:</strong>
+              <span class="suggestion-text"></span>
+              <button
+                class="accept-suggestion-btn"
+                onclick="acceptSuggestion(12)"
+              >
+                Accept
+              </button>
+            </div>
+            <textarea
+              id="section-12"
+              placeholder="Describe supporting documents..."
+            ></textarea>
+          </div>
+
+          <button id="download-draft" style="margin-top: 30px">
+            📥 Download Full Draft
           </button>
         </div>
       </div>
-
-      <p>Each section below is collaborative and auto-synced across users.</p>
-
-      <div class="collab-section" data-section="1">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>1. Study Title</h2>
-        <div id="suggestion-1" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(1)">
-            Accept
-          </button>
-        </div>
-        <textarea id="section-1" placeholder="Enter Study Title..."></textarea>
-      </div>
-
-      <div class="collab-section" data-section="2">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>2. Principal Investigator</h2>
-        <div id="suggestion-2" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(2)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-2"
-          placeholder="Name, email, department..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="3">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>3. Purpose of the Study</h2>
-        <div id="suggestion-3" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(3)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-3"
-          placeholder="Brief description of study aims..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="4">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>4. Background and Significance</h2>
-        <div id="suggestion-4" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(4)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-4"
-          placeholder="Background literature, rationale..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="5">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>5. Subject Population</h2>
-        <div id="suggestion-5" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(5)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-5"
-          placeholder="Age, sex, inclusion/exclusion criteria..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="6">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>6. Recruitment Methods</h2>
-        <div id="suggestion-6" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(6)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-6"
-          placeholder="Flyers, MTurk, databases, etc..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="7">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>7. Research Procedures</h2>
-        <div id="suggestion-7" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(7)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-7"
-          placeholder="Step-by-step breakdown..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="8">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>8. Risks and Discomforts</h2>
-        <div id="suggestion-8" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(8)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-8"
-          placeholder="Describe all risks involved..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="9">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>9. Benefits</h2>
-        <div id="suggestion-9" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(9)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-9"
-          placeholder="What do participants gain? Society?"
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="10">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>10. Data and Confidentiality</h2>
-        <div id="suggestion-10" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(10)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-10"
-          placeholder="How will data be stored, de-identified, shared..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="11">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>11. Informed Consent Process</h2>
-        <div id="suggestion-11" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(11)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-11"
-          placeholder="Who will obtain consent? Describe process..."
-        ></textarea>
-      </div>
-
-      <div class="collab-section" data-section="12">
-        <div class="suggestion-overlay">AI Suggestion Available</div>
-        <h2>12. Attachments (e.g. Consent Forms)</h2>
-        <div id="suggestion-12" class="ai-suggestion" style="display: none">
-          <strong>AI Suggestion:</strong> <span class="suggestion-text"></span>
-          <button class="accept-suggestion-btn" onclick="acceptSuggestion(12)">
-            Accept
-          </button>
-        </div>
-        <textarea
-          id="section-12"
-          placeholder="Describe supporting documents..."
-        ></textarea>
-      </div>
-
-      <button id="download-draft" style="margin-top: 30px">
-        📥 Download Full Draft
-      </button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -864,6 +951,121 @@
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
         });
+      document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const formMappings = [
+          {
+            field: "dod_funded",
+            title: "DoD Exempt Application",
+            file: "dodexempt.html",
+          },
+          {
+            field: "mit_reviewing_irb",
+            title: "Local Context ",
+            file: "localcontext.html",
+          },
+          {
+            field: "conducting_interviews",
+            title: "Consent to Participate in Interview",
+            file: "consentpart.html",
+          },
+          {
+            field: "submitting_genomic_data",
+            title: "Genomic Data Sharing Certification",
+            file: "datasharing.html",
+          },
+          {
+            field: "lincoln_lab",
+            title: "Scientific Review (Lincoln Lab only)",
+            file: "scientific.html",
+          },
+          {
+            field: "adverse_events",
+            title: "Protocol Event Reporting",
+            file: "protocol.html",
+          },
+          {
+            field: "study_complete",
+            title: "Final Report Closure",
+            file: "finalreport.html",
+          },
+          {
+            field: "not_in_english",
+            title: "Translation Attestation",
+            file: "translation.html",
+          },
+          {
+            field: "wants_waiver",
+            title: "Waiver or Alteration of Informed Consent Request",
+            file: "waiver.html",
+          },
+          {
+            field: "is_genomic",
+            title: "Genomic Data Sharing Certification",
+            file: "datasharing.html",
+          },
+          {
+            field: "uses_phi",
+            title: "Authorization for Release of Protected Health Information",
+            file: "release.html",
+          },
+
+          {
+            field: "involves_minors",
+            title: "Assent to Participate in Research (Minors)",
+            file: "assentform.html",
+          },
+
+          // add more mappings here as needed
+        ];
+        const nav = document.getElementById("tabs-nav");
+        const content = document.querySelector(".tab-content");
+
+        formMappings.forEach((mapping) => {
+          if (params.has(mapping.field)) {
+            // Create tab nav item
+            const li = document.createElement("li");
+            li.textContent = mapping.title;
+            li.dataset.tab = mapping.field;
+            nav.appendChild(li);
+
+            // Create content container
+            const tabDiv = document.createElement("div");
+            tabDiv.id = `tab-${mapping.field}`;
+            content.appendChild(tabDiv);
+
+            // Fetch and insert form HTML
+            fetch(mapping.file)
+              .then((res) => res.text())
+              .then((html) => {
+                tabDiv.innerHTML = html;
+              })
+              .catch((err) => {
+                tabDiv.innerHTML = "<p>Error loading form.</p>";
+              });
+          }
+        });
+
+        // Tab switching behavior
+        nav.addEventListener("click", (e) => {
+          if (e.target.tagName === "LI") {
+            const selectedTab = e.target.dataset.tab;
+            // Highlight nav
+            nav
+              .querySelectorAll("li")
+              .forEach((item) =>
+                item.classList.toggle(
+                  "active",
+                  item.dataset.tab === selectedTab
+                )
+              );
+            // Show content
+            content.querySelectorAll(":scope > div").forEach((div) => {
+              div.classList.toggle("active", div.id === `tab-${selectedTab}`);
+            });
+          }
+        });
+      });
     </script>
   </body>
 </html>

@@ -1,0 +1,195 @@
+<!-- consent_participate_interview.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Consent to Participate in Interview</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      fieldset {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+        border-radius: 4px;
+      }
+      fieldset {
+        border: 1px solid #ccc;
+        padding: 15px;
+      }
+      .inline {
+        display: flex;
+        gap: 10px;
+      }
+      .inline > * {
+        flex: 1;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Consent to Participate in Interview</h1>
+    <form>
+      <fieldset>
+        <legend>Study & Investigator</legend>
+        <label
+          >Study Title<input type="text" name="study_title" required
+        /></label>
+        <label
+          >Investigator Name & Dept<input
+            type="text"
+            name="investigator"
+            required
+        /></label>
+        <label
+          >Estimated Interview Time<input
+            type="text"
+            name="time_estimate"
+            placeholder="e.g. 45 minutes"
+            required
+        /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Voluntary Participation</legend>
+        <p>
+          This interview is voluntary. You may skip questions or stop at any
+          time.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Risks & Benefits</legend>
+        <label
+          >Risks & Discomforts<textarea name="risks" required></textarea>
+        </label>
+        <label>Benefits<textarea name="benefits"></textarea></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Compensation</legend>
+        <label
+          >Will you be compensated?
+          <select name="compensation">
+            <option value="no">No</option>
+            <option value="yes">Yes—describe below</option>
+          </select>
+        </label>
+        <label>Details<textarea name="compensation_details"></textarea></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Confidentiality & Recording</legend>
+        <label
+          ><input type="checkbox" name="record_permission" value="yes" /> I give
+          permission to record this interview.</label
+        >
+        <label
+          >Recording Revocation Policy<textarea
+            name="revocation"
+            placeholder="Explain how to revoke permission"
+          ></textarea>
+        </label>
+        <label
+          >Storage Duration<textarea
+            name="storage_duration"
+            placeholder="e.g. stored securely for 5 years"
+          ></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Publication Permissions</legend>
+        <label><input type="checkbox" name="pub_name" /> Include my name</label>
+        <label
+          ><input type="checkbox" name="pub_title" /> Include my title</label
+        >
+        <label
+          ><input type="checkbox" name="pub_quotes" /> Include direct
+          quotes</label
+        >
+      </fieldset>
+
+      <fieldset>
+        <legend>Data Protection (GDPR/UK)</legend>
+        <label
+          >Personal Data Types<textarea
+            name="gdpr_data"
+            placeholder="List types of personal data collected"
+          ></textarea>
+        </label>
+        <label
+          >Data Security<textarea
+            name="gdpr_security"
+            placeholder="Describe storage & transfer safeguards"
+          ></textarea>
+        </label>
+        <label
+          >Retention Period<textarea name="gdpr_retention"></textarea>
+        </label>
+        <label
+          >Withdrawal Contact<input
+            type="text"
+            name="withdrawal_contact"
+            placeholder="Investigator contact info"
+        /></label>
+        <label
+          >International Transfer<textarea
+            name="data_transfer"
+            placeholder="Explain transfer to U.S. if applicable"
+          ></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Signatures</legend>
+        <div class="inline">
+          <div>
+            <label
+              >Participant Name<input
+                type="text"
+                name="participant_name"
+                required
+            /></label>
+          </div>
+          <div>
+            <label
+              >Date<input type="date" name="participant_date" required
+            /></label>
+          </div>
+        </div>
+        <div class="inline">
+          <div>
+            <label
+              >Consent Obtainer<input
+                type="text"
+                name="consenter_name"
+                required
+            /></label>
+          </div>
+          <div>
+            <label
+              >Date<input type="date" name="consenter_date" required
+            /></label>
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

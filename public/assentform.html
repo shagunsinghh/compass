@@ -1,0 +1,72 @@
+<!-- assent_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assent to Participate in Research</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+        border-radius: 4px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Assent to Participate in Research</h1>
+    <form>
+      <label
+        >Study Title<input type="text" name="study_title" required
+      /></label>
+      <label>My Name<input type="text" name="child_name" required /></label>
+      <label
+        >Why You Are Asked<textarea
+          name="purpose"
+          placeholder="Explain in child-friendly terms"
+          required
+        ></textarea>
+      </label>
+      <label
+        >What Will Happen<textarea
+          name="procedures"
+          placeholder="Describe what will happen"
+          required
+        ></textarea>
+      </label>
+      <label>Risks<textarea name="risks" required></textarea></label>
+      <label>Benefits<textarea name="benefits"></textarea></label>
+      <label
+        >Questions Contact<input
+          type="text"
+          name="phone"
+          placeholder="Phone number to call"
+      /></label>
+
+      <p>You can say “no” or stop at any time, and no one will be upset.</p>
+
+      <label
+        >Child’s Signature<input type="text" name="signature" required
+      /></label>
+      <label>Date<input type="date" name="date" required /></label>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

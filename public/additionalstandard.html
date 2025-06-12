@@ -1,0 +1,143 @@
+<!-- additional_standard_language.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Additional Standard Language for Consent</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+        border-radius: 4px;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Additional Standard Language for Informed Consent</h1>
+    <form>
+      <div class="section">
+        <h2>Participation & Withdrawal</h2>
+        <label
+          >PI Name for Student/Lab Clause<input
+            type="text"
+            name="pi_lab_name"
+            placeholder="e.g. Dr. Smith"
+        /></label>
+        <p>
+          If you are a student or lab member of <strong>____</strong>, your
+          decision to participate will not affect your grade, funding, or other
+          relationship with <strong>____</strong>.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Procedures</h2>
+        <label
+          ><input type="checkbox" name="lang_selfexp" /> Include
+          self-experimentation language</label
+        >
+        <p>
+          I am an investigator or key personnel on this study and intend to
+          perform these procedures on myself voluntarily.
+        </p>
+        <label
+          ><input type="checkbox" name="lang_random" /> Include randomization
+          language</label
+        >
+        <textarea
+          name="random_text"
+          placeholder="Customize odds or description"
+        ></textarea>
+        <label
+          ><input type="checkbox" name="lang_focus" /> Include focus group
+          confidentiality note</label
+        >
+        <p>
+          Although we ask everyone to respect privacy, we cannot guarantee group
+          confidentiality.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2>Potential Risks & Discomforts</h2>
+        <label
+          ><input type="checkbox" name="lang_mri" /> Include MRI risk
+          language</label
+        >
+        <p>[Standard MRI safety text...]</p>
+        <label
+          ><input type="checkbox" name="lang_sim" /> Include simulator sickness
+          language</label
+        >
+        <p>[Standard simulator sickness text...]</p>
+        <label
+          ><input type="checkbox" name="lang_vr" /> Include virtual reality
+          side-effects language</label
+        >
+        <p>[Standard VR side-effects text...]</p>
+      </div>
+
+      <div class="section">
+        <h2>Incidental Findings</h2>
+        <label
+          ><input type="checkbox" name="lang_incident_mri" /> Include MRI
+          incidental findings process</label
+        >
+        <p>[Standard incidental findings text...]</p>
+      </div>
+
+      <div class="section">
+        <h2>Genomic Information</h2>
+        <label
+          ><input type="checkbox" name="lang_genomic" /> Include whole
+          genome/exome language</label
+        >
+        <textarea
+          name="genomic_details"
+          placeholder="Customize disease scope or risks"
+        ></textarea>
+        <label
+          ><input type="checkbox" name="lang_optin" /> Include sequencing
+          opt-in/out options</label
+        >
+        <p>My sample may be used for genetic research:</p>
+        <label><input type="checkbox" name="optin_yes" /> Yes</label>
+        <label><input type="checkbox" name="optin_no" /> No</label>
+      </div>
+
+      <div class="section">
+        <h2>Future Data Use</h2>
+        <label
+          ><input type="checkbox" name="lang_gds" /> Include NIH Genomic Data
+          Sharing policy language</label
+        >
+        <p>[Standard GDS policy text...]</p>
+      </div>
+
+      <button type="submit">Generate Selected Language</button>
+    </form>
+  </body>
+</html>

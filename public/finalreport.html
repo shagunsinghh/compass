@@ -1,0 +1,81 @@
+<!-- final_report_closure.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Final Report Closure Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Final Report Closure Form</h1>
+    <form>
+      <div class="section">
+        <label>Title of Study<input type="text" name="study_title" /></label>
+        <label>PI Name & Contact<textarea name="pi_info"></textarea></label>
+      </div>
+
+      <div class="section">
+        <label
+          >Reason for Closure<textarea name="closure_reason"></textarea>
+        </label>
+        <label
+          >Subjects Consented (Adults/Minors)<input
+            type="text"
+            name="subjects_count"
+        /></label>
+        <label>Withdrawals<input type="text" name="withdrawals" /></label>
+        <label
+          >Any Unreported AEs or Complaints?<br /><select name="unreported">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select></label
+        >
+        <label
+          >Summary of Final Findings<textarea name="findings"></textarea>
+        </label>
+      </div>
+
+      <div class="section">
+        <label
+          >PI Signature & Date<input type="text" name="pi_sig" /><input
+            type="date"
+            name="pi_date"
+        /></label>
+        <label
+          >Dept Head Signature & Date<input type="text" name="dept_sig" /><input
+            type="date"
+            name="dept_date"
+        /></label>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

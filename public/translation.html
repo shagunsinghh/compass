@@ -1,0 +1,103 @@
+<!-- translation_attestation.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Translation Attestation Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .section {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+      label {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row > div {
+        flex: 1;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Translation Attestation Form</h1>
+    <form>
+      <div class="section">
+        <h2>I. Basic Information</h2>
+        <label
+          >Title of Study<input type="text" name="study_title" required
+        /></label>
+        <div class="row">
+          <div>
+            <label>PI Name<input type="text" name="pi_name" required /></label>
+          </div>
+          <div>
+            <label>Building & Room<input type="text" name="pi_room" /></label>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Title<input type="text" name="pi_title" /></label>
+          </div>
+          <div>
+            <label>Email<input type="email" name="pi_email" /></label>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Department<input type="text" name="pi_dept" /></label>
+          </div>
+          <div>
+            <label>Phone<input type="tel" name="pi_phone" /></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>II. Translation Attestation</h2>
+        <label
+          >List of Translated Documents<textarea
+            name="doc_list"
+            placeholder="Title | Language(s) | Preparer | Translator(s)"
+          ></textarea>
+        </label>
+        <label
+          >PI Signature & Date<input
+            type="text"
+            name="pi_signature"
+            placeholder="Signature" /><input type="date" name="pi_date"
+        /></label>
+        <label
+          >Translator Signature & Date<input
+            type="text"
+            name="translator_signature"
+            placeholder="Signature" /><input type="date" name="translator_date"
+        /></label>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

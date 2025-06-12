@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Genomic Data Sharing Certification Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    label, legend { display: block; margin-top: 1em; font-weight: bold; }
+    input, textarea, select { width: 100%; padding: 8px; margin-top: 4px; }
+    fieldset { border: 1px solid #ccc; padding: 10px; margin-top: 10px; border-radius: 5px; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Genomic Data Sharing Submission Certification Request</h1>
+  <form action="#" method="post">
+    <fieldset>
+      <legend>I. General Information</legend>
+      <label for="study_title">Title of Study</label>
+      <input type="text" id="study_title" name="study_title" required>
+
+      <label for="pi_name">Principal Investigator Name</label>
+      <input type="text" id="pi_name" name="pi_name" required>
+
+      <label for="contact_person">Contact Person</label>
+      <input type="text" id="contact_person" name="contact_person">
+
+      <label for="contact_email">Contact Email</label>
+      <input type="email" id="contact_email" name="contact_email">
+    </fieldset>
+
+    <fieldset>
+      <legend>II. Request Type</legend>
+      <label><input type="checkbox" name="dataset_type" value="prospective"> Prospective Dataset</label>
+      <label><input type="checkbox" name="dataset_type" value="retrospective"> Retrospective Dataset</label>
+      <label><input type="checkbox" name="dataset_type" value="not_hsr"> Not Human Subjects Research</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>III. Data Use Limitations</legend>
+      <label><input type="checkbox" name="dul" value="unrestricted"> Unrestricted Access</label>
+      <label><input type="checkbox" name="dul" value="controlled"> Controlled Access</label>
+      <label for="controlled_uses">If Controlled Access, Allowed Uses</label>
+      <textarea id="controlled_uses" name="controlled_uses" placeholder="Describe permitted data uses"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>IV. Study Population & Data</legend>
+      <label for="pop_desc">Population Description</label>
+      <textarea id="pop_desc" name="pop_desc" placeholder="Describe the study population"></textarea>
+
+      <label for="data_fields">Data Fields Submitted</label>
+      <textarea id="data_fields" name="data_fields" placeholder="List data fields to be shared"></textarea>
+
+      <label for="seq_type">Sequencing Type</label>
+      <select id="seq_type" name="seq_type">
+        <option value="none">N/A</option>
+        <option value="wgs">Whole Genome</option>
+        <option value="wes">Whole Exome</option>
+        <option value="targeted">Targeted Panel</option>
+      </select>
+
+      <label for="coding_method">Coding Method</label>
+      <textarea id="coding_method" name="coding_method" placeholder="Describe coding/key maintenance"></textarea>
+
+      <label for="key_maintenance">Code Key Maintenance</label>
+      <textarea id="key_maintenance" name="key_maintenance" placeholder="Explain how codes are maintained securely"></textarea>
+
+      <label for="sensitive_info">Sensitive Populations</label>
+      <textarea id="sensitive_info" name="sensitive_info" placeholder="Identify any sensitive sub-populations"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>V. Institutional Certification</legend>
+      <label for="pi_sig">Investigator Signature</label>
+      <input type="text" id="pi_sig" name="pi_sig" placeholder="Signature" required>
+
+      <label for="pi_date">Date</label>
+      <input type="date" id="pi_date" name="pi_date" required>
+    </fieldset>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>

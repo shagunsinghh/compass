@@ -1,0 +1,288 @@
+<!-- dod_exempt_application.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DoD-Sponsored Exempt Research Application</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label,
+      legend {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      select,
+      fieldset {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+        border-radius: 4px;
+      }
+      fieldset {
+        border: 1px solid #ccc;
+        padding: 15px;
+      }
+      .inline {
+        display: flex;
+        gap: 10px;
+      }
+      .inline > * {
+        flex: 1;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Application for DoD-Sponsored Exempt Research</h1>
+    <form>
+      <fieldset>
+        <legend>I. Basic Information</legend>
+        <label>Title of Study<input type="text" name="title" required /></label>
+        <label>Exempt Eval #<input type="text" name="exempt_number" /></label>
+        <label
+          >Principal Investigator<input type="text" name="pi_name" required
+        /></label>
+        <label
+          >Faculty Sponsor<input type="text" name="faculty_sponsor"
+        /></label>
+        <label>PoC Name<input type="text" name="poc_name" /></label>
+        <label>PoC Email<input type="email" name="poc_email" /></label>
+        <label
+          >Funding—Current Proposal #<input type="text" name="prop_number"
+        /></label>
+        <label>Funding—Sponsor<input type="text" name="prop_sponsor" /></label>
+        <label>Funding—Title<input type="text" name="prop_title" /></label>
+        <label
+          >Funding—Current Award #<input type="text" name="award_number"
+        /></label>
+        <label
+          >Funding—Award Sponsor<input type="text" name="award_sponsor"
+        /></label>
+        <label
+          >Institutional Funding (Gift/Dept/Other)<input
+            type="text"
+            name="inst_funding"
+        /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>II. Financial Interests</legend>
+        <label
+          ><input type="radio" name="finA" value="yes" /> A. Investigator has
+          financial interest</label
+        >
+        <label
+          ><input type="radio" name="finA" value="no" /> No financial
+          interest</label
+        >
+        <label>If “Yes”, attach disclosure supplement.</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>III. Collaborations & Location</legend>
+        <label
+          >Collaborating Institutions<textarea name="collabs"></textarea>
+        </label>
+        <label>Location of Research<textarea name="location"></textarea></label>
+        <label
+          >EEA/UK Data?
+          <select name="intl_data">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label
+          >China/Russia/Saudi Funding?
+          <select name="intl_fund">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>IV. Study Plan & Procedures</legend>
+        <label>Purpose<textarea name="purpose" required></textarea></label>
+        <label
+          >Prospectively Assigned?
+          <select name="prospective">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label
+          >Evaluate Effect?
+          <select name="evaluate">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label
+          >Health-Related Outcome?
+          <select name="health_outcome">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label
+          >Experimental Procedures<textarea name="exp_procedures"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>V. Subjects & Recruitment</legend>
+        <div class="inline">
+          <div>
+            <label
+              >Max Subjects<input type="number" name="max_subjects"
+            /></label>
+          </div>
+          <div>
+            <label>Adults<input type="number" name="num_adults" /></label>
+          </div>
+          <div>
+            <label>Minors<input type="number" name="num_minors" /></label>
+          </div>
+        </div>
+        <label>Age Ranges<textarea name="age_ranges"></textarea></label>
+        <label
+          >Inclusion/Exclusion Criteria<textarea name="criteria"></textarea>
+        </label>
+        <label
+          >Vulnerable Populations<textarea name="vulnerable"></textarea>
+        </label>
+        <label
+          >Recruitment Methods<textarea name="recruitment"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>VI. Consent & Compensation</legend>
+        <label
+          >Attach Consent Form<input type="file" name="consent_form"
+        /></label>
+        <label>Subject Payment<textarea name="payment"></textarea></label>
+        <label
+          >Travel Reimbursement<textarea name="reimbursement"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>VII. Risks & Benefits</legend>
+        <label>Risks<textarea name="risks"></textarea></label>
+        <label
+          >Minimization Procedures<textarea name="minimization"></textarea>
+        </label>
+        <label
+          >Benefits to Subjects<textarea name="benefits_subjects"></textarea>
+        </label>
+        <label
+          >Benefits to Society<textarea name="benefits_society"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>VIII. Data & Confidentiality</legend>
+        <label
+          >Collection Methods<textarea name="data_collection"></textarea>
+        </label>
+        <label
+          >Audio/Video?
+          <select name="av">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label>If Yes, Explain<textarea name="av_explain"></textarea></label>
+        <label
+          >Coded or Identifiable?
+          <select name="coding">
+            <option value="identifiable">Identifiable</option>
+            <option value="coded">Coded</option>
+          </select>
+        </label>
+        <label>Storage & Security<textarea name="storage"></textarea></label>
+        <label
+          >Post-Study Disposition<textarea name="disposition"></textarea>
+        </label>
+        <label
+          >Relationship Impact<textarea name="relationship"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>IX. Deception & Adverse Events</legend>
+        <label
+          >Deception?
+          <select name="deception">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label
+          >If Yes, Justify<textarea name="deception_justify"></textarea>
+        </label>
+        <label
+          >Adverse Event Follow-up<textarea name="ae_followup"></textarea>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>X. HIPAA</legend>
+        <label
+          >Use of PHI?
+          <select name="use_phi">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+        <label
+          >Waiver of Auth?
+          <select name="waiver">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+            <option value="n/a">N/A</option>
+          </select>
+        </label>
+        <label
+          >If Yes, Rationale<textarea name="waiver_rationale"></textarea>
+        </label>
+        <label
+          >De-identified?
+          <select name="deidentified">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+            <option value="n/a">N/A</option>
+          </select>
+        </label>
+        <label
+          >Limited Data Set?
+          <select name="limited_ds">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>XI. Study Personnel</legend>
+        <label
+          >Attach Personnel List<input type="file" name="personnel_list"
+        /></label>
+      </fieldset>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

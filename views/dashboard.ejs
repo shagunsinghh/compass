@@ -41,8 +41,6 @@
 </h3>
         <p class="meta">🕒 <%= new Date(draft.timestamp || draft.updatedAt).toLocaleString() %></p>
 <a class="view-btn" href="/collab2.html?draftTitle=<%= encodeURIComponent(draft.title) %>">✏️ Resume Editing</a>
-
-        <a class="view-btn" href="/download-draft?title=<%= encodeURIComponent(draft.title) %>">📄 Download</a>
         <form method="POST" action="/delete-draft" style="display:inline;">
   <input type="hidden" name="title" value="<%= draft.title %>">
   <button type="submit" class="delete-btn">🗑️ Delete</button>
@@ -71,11 +69,11 @@
       %>
         <div class="submission-card">
           <h3><%= sub.title || "Untitled Study" %></h3>
-          <p class="meta">📅 <%= new Date(sub.timestamp).toLocaleString() %></p>
-          <p class="meta">👩‍🔬 PI: <%= sub.pi %></p>
-          <p class="meta">🔒 Risk: <%= sub.risk_level %>, Consent: <%= sub.consent %></p>
+          <p class="meta"><%= new Date(sub.timestamp).toLocaleString() %></p>
+          <p class="meta">PI: <%= sub.pi %></p>
+          <p class="meta">Risk: <%= sub.risk_level %>, Consent: <%= sub.consent %></p>
           <a class="view-btn" href="/collab2.html?<%= params %>">📝 View Draft</a>
-          <a class="view-btn" href="#">📥 Download</a>
+          <a class="view-btn" href="#">Download</a>
           <form action="/delete-submission" method="POST" style="display:inline;">
             <input type="hidden" name="timestamp" value="<%= sub.timestamp %>">
             <button type="submit" class="delete-btn">🗑 Delete</button>
@@ -86,7 +84,7 @@
   <% } %>
   </section>
 
-  <h2 style="margin-top: 40px;">✅ Finalized Protocol Submissions</h2>
+  <h2 style="margin-top: 40px;">Finalized Protocol Submissions</h2>
   <% if (finalized.length === 0) { %>
     <p>No finalized protocols yet.</p>
   <% } else { %>
@@ -94,13 +92,12 @@
       <% finalized.slice().reverse().forEach(sub => { %>
         <div class="submission-card">
   <h3><%= sub.title || "Untitled" %></h3>
-  <p class="meta">📅 Submitted: <%= new Date(sub.timestamp).toLocaleString() %></p>
+  <p class="meta">Submitted: <%= new Date(sub.timestamp).toLocaleString() %></p>
   <a class="view-btn" href="/collab2.html?draftTitle=<%= encodeURIComponent(sub.title) %>">📄 View</a>
-  <a class="view-btn" href="/download-draft?title=<%= encodeURIComponent(sub.title) %>">📥 Download</a>
 
   <form method="POST" action="/delete-finalized" style="display:inline;">
     <input type="hidden" name="title" value="<%= sub.title %>">
-    <button type="submit" class="delete-btn">🗑️ Delete</button>
+    <button type="submit" class="delete-btn">Delete</button>
   </form>
 </div>
       <% }) %>

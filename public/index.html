@@ -9,19 +9,19 @@
 <div id="navbar-placeholder"></div>
 
 <script>
-  console.log("🚀 Script started");
+  console.log("Script started");
 
   fetch('/navbar.html')
     .then(res => res.text())
     .then(html => {
-      console.log("✅ navbar.html loaded");
+      console.log("navbar.html loaded");
       document.getElementById('navbar-placeholder').innerHTML = html;
 
       // Wait a moment to let HTML insert
       setTimeout(() => {
         const navLinks = document.querySelector(".nav-links");
         if (!navLinks) {
-          console.error("❌ navLinks element missing");
+          console.error("navLinks element missing");
           return;
         }
 
@@ -31,7 +31,7 @@
             return res.json();
           })
           .then(user => {
-            console.log("✅ Logged in:", user);
+            console.log("Logged in:", user);
             navLinks.innerHTML = `
               <li><a href="/">Home</a></li>
               <li><a href="/intake.html">IRB Intake Form</a></li>
@@ -54,7 +54,7 @@
             }
           })
 .catch(err => {
-  console.warn("⚠️ Not logged in:", err);
+  console.warn("Not logged in:", err);
   navLinks.innerHTML = `
     <li><a href="/">Home</a></li>
     <li><a href="/login.html">Log In</a></li>
@@ -107,7 +107,7 @@
 
 <section class="auth-section">
   <div class="auth-container">
-    <h2>🔐 Access Your Compass Dashboard</h2>
+    <h2>Access Your Compass Dashboard</h2>
 
     <div id="login-form" class="auth-box">
       <h3>Log In</h3>

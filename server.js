@@ -556,7 +556,7 @@ app.post("/save-draft", requireLogin, (req, res) => {
 
 // Load draft when editing
 app.get("/load-draft", requireLogin, (req, res) => {
-  const draftPath = path.join(__dirname, "drafts.json");
+  const draftPath = path.join(__dirname, "drafts.json");  // ✅ Shared file
   if (!fs.existsSync(draftPath)) return res.status(404).send("No drafts found");
 
   const drafts = JSON.parse(fs.readFileSync(draftPath));
@@ -567,6 +567,7 @@ app.get("/load-draft", requireLogin, (req, res) => {
   if (!draft) return res.status(404).send("Draft not found");
   res.json(draft);
 });
+
 
 
 // Submissions route
@@ -657,7 +658,7 @@ if (fs.existsSync(usersFile)) {
 
 
 app.get("/dashboard", requireLogin, (req, res) => {
-  const draftPath = path.join(__dirname, "drafts.json");
+  const draftPath = path.join(__dirname, "drafts.json");  // ✅ Shared file
   let drafts = [];
   if (fs.existsSync(draftPath)) {
     drafts = JSON.parse(fs.readFileSync(draftPath)).filter(
@@ -681,21 +682,40 @@ app.get("/dashboard", requireLogin, (req, res) => {
 
 
 
-app.post("/delete-submission", requireLogin, (req, res) => {
-  const filePath = path.join(__dirname, "intake_submissions.json");
-  if (!fs.existsSync(filePath)) return res.redirect("/dashboard");
 
-  const allSubmissions = JSON.parse(fs.readFileSync(filePath, "utf8"));
+// Handle deleting a saved draft
+app.post("/delete-draft", (req, res) => {
+  const { title } = req.body;
+  if (!req.session.user) return res.status(403).send("Unauthorized");
 
-  // Only delete if the submission belongs to the logged-in user
-  const updatedSubmissions = allSubmissions.filter(
-    s => !(s.timestamp === req.body.timestamp && s.user_email === req.session.user.email)
-  );
+  const draftPath = path.join(__dirname, "drafts.json");
+  if (!fs.existsSync(draftPath)) return res.redirect("/dashboard");
 
-  fs.writeFileSync(filePath, JSON.stringify(updatedSubmissions, null, 2));
+  let drafts = JSON.parse(fs.readFileSync(draftPath));
+  drafts = drafts.filter(d => !(d.title === title && d.email === req.session.user.email));
 
+  fs.writeFileSync(draftPath, JSON.stringify(drafts, null, 2));
   res.redirect("/dashboard");
 });
+
+
+
+// Handle deleting a submitted IRB
+app.post("/delete-submission", (req, res) => {
+  const { timestamp } = req.body;
+  if (!req.session.user) return res.status(403).send("Unauthorized");
+
+  const submissionPath = path.join(__dirname, "intake_submissions.json");
+  if (!fs.existsSync(submissionPath)) return res.redirect("/dashboard");
+
+  let submissions = JSON.parse(fs.readFileSync(submissionPath));
+  submissions = submissions.filter(s => !(s.timestamp === timestamp && s.user_email === req.session.user.email));
+
+  fs.writeFileSync(submissionPath, JSON.stringify(submissions, null, 2));
+  res.redirect("/dashboard");
+});
+
+
 
 
 

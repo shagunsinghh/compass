@@ -549,6 +549,18 @@
               placeholder="Describe supporting documents..."
             ></textarea>
           </div>
+        <hr style="margin-top: 40px;" />
+        <div style="margin-top: 20px;">
+        <h3>Invite Collaborator</h3>
+        <input
+            type="email"
+            id="invite-email"
+            placeholder="Enter email to invite"
+            style="padding: 8px; width: 250px;"
+        />
+        <button onclick="inviteCollaborator()" style="padding: 8px 12px;">➕ Invite</button>
+        <p id="invite-status" style="margin-top: 10px; color: green;"></p>
+    </div>
 
           <button id="download-draft" style="margin-top: 30px">
             📥 Download Full Draft
@@ -1122,6 +1134,29 @@ const response = await fetch("/save-draft", {
     alert("❌ Error saving draft.");
   }
 });
+function inviteCollaborator() {
+  const inviteEmail = document.getElementById("invite-email").value;
+  const params = new URLSearchParams(window.location.search);
+  const draftTitle = params.get("draftTitle") || "Untitled";
+
+  fetch("/invite-collaborator", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ draftTitle, inviteEmail })
+  })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("invite-status").textContent = data.message;
+      document.getElementById("invite-email").value = "";
+    })
+    .catch(err => {
+      console.error("Error inviting collaborator:", err);
+      document.getElementById("invite-status").textContent = "❌ Invite failed.";
+    });
+
+
+}
+
 
     </script>
   </body>

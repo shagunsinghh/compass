@@ -579,11 +579,17 @@ app.post("/save-draft", requireLogin, (req, res) => {
     ? JSON.parse(fs.readFileSync(draftPath))
     : [];
 
+// Load existing draft if it exists, so we keep collaborators
+    let existingDraft = drafts.find(
+  (d) => d.email === req.session.user.email && d.title === req.body.title
+);
+
   const newDraft = {
     email: req.session.user.email,
     timestamp: new Date().toISOString(),
     title: req.body.title || "Untitled",
     sections: req.body.sections, // All 12 sections as a dictionary
+    collaborators: existingDraft?.collaborators || []  // 🧠 Keep existing collaborators
   };
 
   // Replace old draft with same title
@@ -706,10 +712,12 @@ app.get("/dashboard", requireLogin, (req, res) => {
   const draftPath = path.join(__dirname, "drafts.json");  // ✅ Shared file
   let drafts = [];
   if (fs.existsSync(draftPath)) {
-    drafts = JSON.parse(fs.readFileSync(draftPath)).filter(
-      (d) => d.email === req.session.user.email
-    );
-  }
+    const allDrafts = JSON.parse(fs.readFileSync(draftPath));
+    const userEmail = req.session.user.email;
+  drafts = allDrafts.filter(d =>
+    d.email === userEmail || (d.collaborators && d.collaborators.includes(userEmail))
+  );
+}
 
   const intakePath = path.join(__dirname, "intake_submissions.json");
   const submissions = fs.existsSync(intakePath)
@@ -815,3 +823,61 @@ server.listen(PORT, () => {
   console.log(`🧪 Test the API at: http://localhost:${PORT}/api/test`);
   console.log(`🤖 AI endpoint at: http://localhost:${PORT}/api/analyze`);
 });
+
+app.post("/invite-collaborator", requireLogin, (req, res) => {
+  const { draftTitle, inviteEmail } = req.body;
+  const draftPath = path.join(__dirname, "drafts.json");
+  const drafts = fs.existsSync(draftPath)
+    ? JSON.parse(fs.readFileSync(draftPath))
+    : [];
+
+  // Find the draft belonging to the logged-in user
+  const draft = drafts.find(
+    (d) => d.email === req.session.user.email && d.title === draftTitle
+  );
+
+  if (!draft) {
+    return res.status(404).json({ message: "Draft not found or unauthorized." });
+  }
+
+  if (!draft.collaborators) {
+    draft.collaborators = [];
+  }
+
+  if (!draft.collaborators.includes(inviteEmail)) {
+    draft.collaborators.push(inviteEmail);
+    fs.writeFileSync(draftPath, JSON.stringify(drafts, null, 2));
+    return res.json({ message: `✅ ${inviteEmail} invited to collaborate.` });
+  } else {
+    return res.json({ message: `${inviteEmail} is already a collaborator.` });
+  }
+});
+
+
+function loadCollaborators() {
+  const params = new URLSearchParams(window.location.search);
+  const draftTitle = params.get("draftTitle");
+
+  fetch(`/load-draft?title=${encodeURIComponent(draftTitle)}`)
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById("collaborator-list");
+      list.innerHTML = ""; // Clear existing
+      const collaborators = data.collaborators || [];
+
+      collaborators.forEach(email => {
+        const li = document.createElement("li");
+        li.textContent = email;
+        li.style.marginBottom = "4px";
+        list.appendChild(li);
+      });
+
+      // Show yourself at the top (optional)
+      if (data.email) {
+        const you = document.createElement("li");
+        you.innerHTML = `<strong>You:</strong> ${data.email}`;
+        list.prepend(you);
+      }
+    });
+    
+}

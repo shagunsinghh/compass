@@ -33,7 +33,12 @@
   <div class="submission-grid">
     <% drafts.slice().reverse().forEach(draft => { %>
       <div class="submission-card">
-        <h3><%= draft.title || "Untitled Draft" %></h3>
+        <h3>
+  <%= draft.title || "Untitled Draft" %>
+  <% if (draft.email !== user.email) { %>
+    <span style="color: green; font-weight: normal;">(invited)</span>
+  <% } %>
+</h3>
         <p class="meta">🕒 <%= new Date(draft.timestamp || draft.updatedAt).toLocaleString() %></p>
         <a class="view-btn" href="/collab2.html?draftTitle=<%= encodeURIComponent(draft.title) %>">✏️ Resume Editing</a>
         <a class="view-btn" href="/download-draft?title=<%= encodeURIComponent(draft.title) %>">📄 Download</a>

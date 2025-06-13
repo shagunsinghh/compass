@@ -714,3 +714,27 @@ server.listen(PORT, () => {
   console.log(`🧪 Test the API at: http://localhost:${PORT}/api/test`);
   console.log(`🤖 AI endpoint at: http://localhost:${PORT}/api/analyze`);
 });
+
+
+const fs = require("fs");
+const path = require("path");
+
+const DRAFT_PATH = path.join(__dirname, "drafts.json");
+
+app.post("/api/save-draft", (req, res) => {
+  const { draft, action } = req.body;
+  if (!draft || typeof draft !== "object") {
+    return res.status(400).json({ message: "Invalid draft" });
+  }
+
+  let existing = [];
+  if (fs.existsSync(DRAFT_PATH)) {
+    existing = JSON.parse(fs.readFileSync(DRAFT_PATH, "utf8"));
+  }
+
+  const timestamp = new Date().toISOString();
+  existing.push({ draft, action, timestamp });
+
+  fs.writeFileSync(DRAFT_PATH, JSON.stringify(existing, null, 2));
+  res.json({ message: action === "submit" ? "✅ Draft submitted!" : "✅ Draft saved!" });
+});

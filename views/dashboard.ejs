@@ -24,24 +24,36 @@
     </div>
 
     <a class="cta-button" href="/intake.html">➕ Start New Submission</a>
+<section style="margin-top: 40px;">
+  <h2>Your IRB Submissions</h2>
+  <% if (submissions.length === 0) { %>
+    <p>No IRBs submitted yet.</p>
+  <% } else { %>
+    <div class="submission-grid">
+      <% submissions.slice().reverse().forEach(sub => {
+        const params = new URLSearchParams({
+          title: sub.title,
+          pi: sub.pi,
+          irb_number: sub.irb_number,
+          description: sub.description,
+          recruitment: sub.recruitment,
+          risk_level: sub.risk_level,
+          consent: sub.consent
+        }).toString();
+      %>
+        <div class="submission-card">
+          <h3><%= sub.title || "Untitled Study" %></h3>
+          <p class="meta">📅 <%= new Date(sub.timestamp).toLocaleString() %></p>
+          <p class="meta">👩‍🔬 PI: <%= sub.pi %></p>
+          <p class="meta">🔒 Risk: <%= sub.risk_level %>, Consent: <%= sub.consent %></p>
+          <a class="view-btn" href="/collab2.html?<%= params %>">📝 View Draft</a>
+          <a class="view-btn" href="#">📥 Download</a>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
 
-    <section style="margin-top: 40px;">
-      <h2>Your IRB Submissions</h2>
-      <% if (submissions.length === 0) { %>
-        <p>No IRBs submitted yet.</p>
-      <% } else { %>
-        <ul style="margin-top: 10px;">
-          <% submissions.forEach(sub => { %>
-            <li style="margin-bottom: 16px;">
-            <strong><%= sub.title %></strong> — <%= new Date(sub.timestamp).toLocaleString() %><br>
-            Risk Level: <%= sub.risk_level %> | Consent: <%= sub.consent %><br>
-            <a href="#">📝 View Draft</a> | <a href="#">📥 Download</a>
-            </li>
-
-          <% }) %>
-        </ul>
-      <% } %>
-    </section>
   </div>
   <form action="/logout" method="POST" style="position: absolute; top: 20px; right: 20px;">
   <button style="padding: 8px 12px; font-weight: bold;">Logout</button>

@@ -1066,6 +1066,44 @@
           }
         });
       });
+// submission and save option
+      <div style="text-align: center; margin-top: 30px;">
+  <button id="save-draft" class="cta-button">💾 Save Draft</button>
+  <button id="submit-draft" class="cta-button" style="background-color: #28a745;">🚀 Submit Draft</button>
+</div>
+
+
+
     </script>
+    
+    <script>
+  // Save or Submit actions
+  document.getElementById('save-draft').addEventListener('click', () => saveDraft("save"));
+  document.getElementById('submit-draft').addEventListener('click', () => saveDraft("submit"));
+
+  function saveDraft(actionType) {
+    const draft = {};
+    sectionIds.forEach(id => {
+      draft[id] = document.getElementById(id).value;
+    });
+
+    fetch('/api/save-draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ draft, action: actionType })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to save");
+      return res.json();
+    })
+    .then(data => {
+      alert(data.message);
+    })
+    .catch(err => {
+      alert("Error saving draft: " + err.message);
+    });
+  }
+</script>
+
   </body>
 </html>

@@ -141,8 +141,12 @@
     <script>
       window.addEventListener("DOMContentLoaded", async () => {
         const params = new URLSearchParams(window.location.search);
-        const draftTitle = params.get("draftTitle");
-        if (!draftTitle) return;
+const draftTitle = params.get("draftTitle");
+if (!draftTitle || draftTitle === "new") {
+  console.log("🆕 Starting fresh draft");
+  return; // don't load anything
+}
+
 
         const res = await fetch(
           `/load-draft?title=${encodeURIComponent(draftTitle)}`
@@ -200,6 +204,10 @@
 
           const title =
             document.getElementById("section-1")?.value || "Untitled";
+            if (title === "Untitled") {
+  alert("Please enter a study title before saving.");
+  return;
+}
 
           const sections = {};
           for (let id of sectionIds) {
@@ -654,26 +662,30 @@
 
       const autosaveTimers = {};
       const aiSuggestions = {};
+      const params = new URLSearchParams(window.location.search);
+      const draftTitle = params.get("draftTitle") || "default";
+
 
       // Original collaboration functionality
       sectionIds.forEach((id) => {
         const textarea = document.getElementById(id);
 
-        socket.on(`${id}-init`, (text) => {
-          textarea.value = text;
-        });
+        socket.on(`${draftTitle}-${id}-init`, (text) => {
+  textarea.value = text;
+});
 
-        socket.on(`${id}-update`, (text) => {
-          textarea.value = text;
-        });
+socket.on(`${draftTitle}-${id}-update`, (text) => {
+  textarea.value = text;
+});
 
-        textarea.addEventListener("input", () => {
-          if (autosaveTimers[id]) clearTimeout(autosaveTimers[id]);
-          autosaveTimers[id] = setTimeout(() => {
-            const content = textarea.value;
-            socket.emit("section-edit", { section: id, content });
-          }, 2000);
-        });
+textarea.addEventListener("input", () => {
+  if (autosaveTimers[id]) clearTimeout(autosaveTimers[id]);
+  autosaveTimers[id] = setTimeout(() => {
+    const content = textarea.value;
+    socket.emit("section-edit", { section: id, content, draftTitle });
+  }, 2000);
+});
+
       });
 
       // Viewer count functionality
@@ -1064,12 +1076,19 @@
         // Step 1: Check if we have a saved draft to load
         const draftTitle = params.get("draftTitle");
         let savedDraft = null;
+if (draftTitle === "new") {
+  console.log("🧼 Clearing old inputs for new draft");
+  sectionIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  return;
+}
 
-        if (draftTitle) {
-          try {
-            const res = await fetch(
-              `/load-draft?title=${encodeURIComponent(draftTitle)}`
-            );
+        if (draftTitle && draftTitle !== "new") {
+  try {
+    const res = await fetch(`/load-draft?title=${encodeURIComponent(draftTitle)}`);
+
             if (res.ok) {
               savedDraft = await res.json();
               console.log("📋 Loaded saved draft:", savedDraft);

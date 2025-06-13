@@ -40,7 +40,8 @@
   <% } %>
 </h3>
         <p class="meta">🕒 <%= new Date(draft.timestamp || draft.updatedAt).toLocaleString() %></p>
-        <a class="view-btn" href="/collab2.html?draftTitle=<%= encodeURIComponent(draft.title) %>">✏️ Resume Editing</a>
+<a class="view-btn" href="/collab2.html?draftTitle=<%= encodeURIComponent(draft.title) %>">✏️ Resume Editing</a>
+
         <a class="view-btn" href="/download-draft?title=<%= encodeURIComponent(draft.title) %>">📄 Download</a>
         <form method="POST" action="/delete-draft" style="display:inline;">
   <input type="hidden" name="title" value="<%= draft.title %>">

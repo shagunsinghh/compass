@@ -1172,11 +1172,7 @@
               title: "Consent to Participate in Interview",
               file: "consentpart.html",
             },
-            {
-              field: "submitting_genomic_data",
-              title: "Genomic Data Sharing Certification",
-              file: "datasharing.html",
-            },
+
             {
               field: "lincoln_lab",
               title: "Scientific Review (Lincoln Lab only)",
@@ -1316,6 +1312,1012 @@
             } catch (err) {
               console.error(`❌ Failed to load ${mapping.file}:`, err);
               tabDiv.innerHTML = `<p style="color:red;">Error loading ${mapping.title} (${mapping.file})</p>`;
+            }
+
+            // If this was the Protocol Event Reporting form, hook up its download button:
+            // helper: hook a download button to grab fields, build a .txt and trigger download
+            function setupDownload(tabDiv, btnSelector, filename, fields) {
+              const btn = tabDiv.querySelector(btnSelector);
+              if (!btn) return;
+              btn.addEventListener("click", () => {
+                const lines = [];
+                fields.forEach(({ selector, label, multiple, isCheckbox }) => {
+                  const els = tabDiv.querySelectorAll(selector);
+                  let value;
+                  if (multiple) {
+                    value = Array.from(els)
+                      .filter((el) => el.checked)
+                      .map((el) => el.value);
+                  } else if (isCheckbox) {
+                    // single checkbox: show “Yes”/“No”
+                    const el = els[0];
+                    value = el && el.checked ? ["Yes"] : ["No"];
+                  } else {
+                    const el = els[0];
+                    if (!el) {
+                      value = [""];
+                    } else if (
+                      el.tagName === "SELECT" ||
+                      el.tagName === "INPUT" ||
+                      el.tagName === "TEXTAREA"
+                    ) {
+                      value = [el.value.trim()];
+                    } else {
+                      value = [el.textContent.trim()];
+                    }
+                  }
+                  lines.push(
+                    `\n\n=== ${label} ===\n${
+                      value.length ? value.join(", ") : "—"
+                    }`
+                  );
+                });
+                const blob = new Blob([lines.join("")], { type: "text/plain" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+              });
+            }
+
+            switch (mapping.field) {
+              // I. Protocol Event Reporting
+              case "adverse_events":
+                setupDownload(
+                  tabDiv,
+                  "#downloadTxtBtn",
+                  "Protocol_Event_Report.txt",
+                  [
+                    {
+                      selector: 'input[name="reportTypes"]',
+                      multiple: true,
+                      label: "What is being reported?",
+                    },
+                    { selector: "#titleOfStudy", label: "Title of Study" },
+                    { selector: "#piName", label: "Principal Investigator" },
+                    { selector: "#irbNumber", label: "Protocol/IRB Number" },
+                    { selector: "#eventDate", label: "Date of Event" },
+                    { selector: "#description", label: "Detailed Description" },
+                    { selector: "#actionsTaken", label: "Actions Taken" },
+                  ]
+                );
+                break;
+
+              // II. Genomic Data Sharing
+              case "is_genomic":
+                setupDownload(
+                  tabDiv,
+                  "#downloadDataSharingBtn",
+                  "Genomic_Data_Sharing.txt",
+                  [
+                    { selector: "#study_title", label: "Title of Study" },
+                    { selector: "#pi_name", label: "Principal Investigator" },
+                    { selector: "#contact_person", label: "Contact Person" },
+                    { selector: "#contact_email", label: "Contact Email" },
+                    {
+                      selector: 'input[name="dataset_type"]',
+                      multiple: true,
+                      label: "Request Type",
+                    },
+                    {
+                      selector: 'input[name="dul"]',
+                      multiple: true,
+                      label: "Data Use Limitations",
+                    },
+                    { selector: "#controlled_uses", label: "Allowed Uses" },
+                    { selector: "#pop_desc", label: "Population Description" },
+                    {
+                      selector: "#data_fields",
+                      label: "Data Fields Submitted",
+                    },
+                    { selector: "#seq_type", label: "Sequencing Type" },
+                    { selector: "#coding_method", label: "Coding Method" },
+                    {
+                      selector: "#key_maintenance",
+                      label: "Code Key Maintenance",
+                    },
+                    {
+                      selector: "#sensitive_info",
+                      label: "Sensitive Populations",
+                    },
+                    { selector: "#pi_sig", label: "Investigator Signature" },
+                    { selector: "#pi_date", label: "Date" },
+                  ]
+                );
+                break;
+
+              // III. Waiver/Alteration of Consent
+              case "wants_waiver":
+                setupDownload(
+                  tabDiv,
+                  "#downloadWaiverBtn",
+                  "Waiver_Alteration_Request.txt",
+                  [
+                    {
+                      selector: 'input[name="request_type"]',
+                      multiple: true,
+                      label: "Type of Request",
+                    },
+                    {
+                      selector: 'textarea[name="practicable"]',
+                      label: "Why Practicable Without Waiver?",
+                    },
+                    {
+                      selector: 'select[name="risk"]',
+                      label: "More Than Minimal Risk?",
+                    },
+                    {
+                      selector: 'textarea[name="risk_details"]',
+                      label: "Risk Details",
+                    },
+                    {
+                      selector: 'select[name="debrief"]',
+                      label: "Will Debrief?",
+                    },
+                    {
+                      selector: 'textarea[name="debrief_text"]',
+                      label: "Debriefing Text",
+                    },
+                  ]
+                );
+                break;
+
+              // IV. Translation Attestation
+              case "not_in_english":
+                setupDownload(
+                  tabDiv,
+                  "#downloadTranslationBtn",
+                  "Translation_Attestation.txt",
+                  [
+                    {
+                      selector: 'input[name="study_title"]',
+                      label: "Title of Study",
+                    },
+                    { selector: 'input[name="pi_name"]', label: "PI Name" },
+                    {
+                      selector: 'input[name="pi_room"]',
+                      label: "Building & Room",
+                    },
+                    { selector: 'input[name="pi_title"]', label: "Title" },
+                    { selector: 'input[name="pi_email"]', label: "Email" },
+                    { selector: 'input[name="pi_dept"]', label: "Department" },
+                    { selector: 'input[name="pi_phone"]', label: "Phone" },
+                    {
+                      selector: 'textarea[name="doc_list"]',
+                      label: "Translated Documents",
+                    },
+                    {
+                      selector: 'input[name="pi_signature"]',
+                      label: "PI Signature",
+                    },
+                    { selector: 'input[name="pi_date"]', label: "PI Date" },
+                    {
+                      selector: 'input[name="translator_signature"]',
+                      label: "Translator Signature",
+                    },
+                    {
+                      selector: 'input[name="translator_date"]',
+                      label: "Translator Date",
+                    },
+                  ]
+                );
+                break;
+
+              // V. Financial Interest Supplement
+              case "supplement_disclosure":
+                setupDownload(
+                  tabDiv,
+                  "#downloadSupplementBtn",
+                  "Financial_Interest_Supplement.txt",
+                  [
+                    {
+                      selector: 'input[name="study_title"]',
+                      label: "Title of Study",
+                    },
+                    { selector: 'input[name="pi_name"]', label: "PI Name" },
+                    {
+                      selector: 'input[name="pi_room"]',
+                      label: "Building & Room",
+                    },
+                    { selector: 'input[name="pi_title"]', label: "Title" },
+                    { selector: 'input[name="pi_email"]', label: "Email" },
+                    { selector: 'input[name="pi_dept"]', label: "Department" },
+                    { selector: 'input[name="pi_phone"]', label: "Phone" },
+                    {
+                      selector: 'textarea[name="name_role"]',
+                      label: "Name & Role",
+                    },
+                    {
+                      selector: 'textarea[name="entity_rel"]',
+                      label: "Entity & Relationship",
+                    },
+                    {
+                      selector: 'input[name="interest_type"]',
+                      multiple: true,
+                      label: "Type of Interest",
+                    },
+                    {
+                      selector: 'input[name="interest_other"]',
+                      label: "Other Interest",
+                    },
+                    {
+                      selector: 'textarea[name="supp_info"]',
+                      label: "Supplemental Info",
+                    },
+                    {
+                      selector: 'textarea[name="entity_desc"]',
+                      label: "Entity & Role Description",
+                    },
+                    {
+                      selector: 'textarea[name="relation_desc"]',
+                      label: "Relation to Research",
+                    },
+                    { selector: 'input[name="signature"]', label: "Signature" },
+                    { selector: 'input[name="sig_date"]', label: "Date" },
+                  ]
+                );
+                break;
+
+              // VI. Scientific Review
+              case "lincoln_lab":
+                setupDownload(
+                  tabDiv,
+                  "#downloadScientificBtn",
+                  "Scientific_Review.txt",
+                  [
+                    {
+                      selector: 'input[name="protocol"]',
+                      label: "COUHES Protocol #",
+                    },
+                    {
+                      selector: 'input[name="dept_head"]',
+                      label: "Department Head Name",
+                    },
+                    {
+                      selector: 'input[name="q1"]',
+                      multiple: true,
+                      label: "Least Risky Procedures?",
+                    },
+                    {
+                      selector: 'input[name="q2"]',
+                      multiple: true,
+                      label: "Likely to Achieve Aims?",
+                    },
+                    {
+                      selector: 'input[name="q3"]',
+                      multiple: true,
+                      label: "Sufficient Scientific Importance?",
+                    },
+                    {
+                      selector: 'input[name="q4"]',
+                      multiple: true,
+                      label: "Adequate Resources?",
+                    },
+                    {
+                      selector: 'textarea[name="comments"]',
+                      label: "Reviewer's Comments",
+                    },
+                    { selector: 'input[name="signature"]', label: "Signature" },
+                    { selector: 'input[name="sig_date"]', label: "Date" },
+                  ]
+                );
+                break;
+
+              // VII. Release of PHI
+              case "uses_phi":
+                setupDownload(
+                  tabDiv,
+                  "#downloadPHIReleaseBtn",
+                  "Release_PHI.txt",
+                  [
+                    {
+                      selector: 'textarea[name="study_title"]',
+                      label: "Study Title",
+                    },
+                    {
+                      selector: 'input[name="researcher"]',
+                      label: "Researcher Name",
+                    },
+                    {
+                      selector: 'textarea[name="phi_list"]',
+                      label: "PHI to be Used",
+                    },
+                    { selector: 'textarea[name="purpose"]', label: "Purpose" },
+                    {
+                      selector: 'textarea[name="recipients"]',
+                      label: "Recipients",
+                    },
+                    {
+                      selector: 'input[name="expiration"]',
+                      label: "Expiration",
+                    },
+                    {
+                      selector: 'textarea[name="revocation"]',
+                      label: "Revocation Process",
+                    },
+                    {
+                      selector: 'input[name="subj_name"]',
+                      label: "Subject Name",
+                    },
+                    {
+                      selector: 'input[name="subj_date"]',
+                      label: "Subject Date",
+                    },
+                    {
+                      selector: 'input[name="inv_name"]',
+                      label: "Investigator Name",
+                    },
+                    {
+                      selector: 'input[name="inv_date"]',
+                      label: "Investigator Date",
+                    },
+                    {
+                      selector: 'input[name="witness_name"]',
+                      label: "Witness Name",
+                    },
+                    {
+                      selector: 'input[name="witness_date"]',
+                      label: "Witness Date",
+                    },
+                  ]
+                );
+                break;
+
+              // VIII. Local Context
+              case "mit_reviewing_irb":
+                setupDownload(
+                  tabDiv,
+                  "#downloadLocalContextBtn",
+                  "Local_Context_Form.txt",
+                  [
+                    {
+                      selector: 'input[name="study_title"]',
+                      label: "Title of Study",
+                    },
+                    { selector: 'input[name="mit_pi"]', label: "MIT PI Name" },
+                    {
+                      selector: 'input[name="mit_contact"]',
+                      label: "MIT Point of Contact",
+                    },
+                    {
+                      selector: 'input[name="site_institution"]',
+                      label: "Relying Site Institution",
+                    },
+                    {
+                      selector: 'input[name="site_pi"]',
+                      label: "Relying Site PI",
+                    },
+                    {
+                      selector: 'select[name="state_laws"]',
+                      label: "State Laws?",
+                    },
+                    {
+                      selector: 'textarea[name="state_laws_desc"]',
+                      label: "State Laws Description",
+                    },
+                    {
+                      selector: 'select[name="cultural"]',
+                      label: "Community/Cultural Differences?",
+                    },
+                    {
+                      selector: 'textarea[name="cultural_desc"]',
+                      label: "Cultural Differences Description",
+                    },
+                    {
+                      selector: 'select[name="policies"]',
+                      label: "IRB Policies?",
+                    },
+                    {
+                      selector: 'textarea[name="policies_desc"]',
+                      label: "IRB Policies Description",
+                    },
+                    {
+                      selector: 'select[name="ancillary"]',
+                      label: "Ancillary Reviews Complete?",
+                    },
+                    {
+                      selector: 'select[name="coi"]',
+                      label: "COI Identified?",
+                    },
+                    {
+                      selector: 'textarea[name="coi_desc"]',
+                      label: "COI Description",
+                    },
+                    {
+                      selector: 'input[name="irb_rep"]',
+                      label: "IRB Rep Name",
+                    },
+                    {
+                      selector: 'input[name="irb_email"]',
+                      label: "IRB Rep Email",
+                    },
+                    {
+                      selector: 'input[name="irb_sig"]',
+                      label: "IRB Rep Signature",
+                    },
+                    {
+                      selector: 'input[name="irb_date"]',
+                      label: "IRB Rep Date",
+                    },
+                  ]
+                );
+                break;
+
+              // IX. Intake Form
+              case "intakenew":
+                setupDownload(
+                  tabDiv,
+                  "#downloadIntakeBtn",
+                  "IRB_Intake_Form.txt",
+                  [
+                    { selector: 'input[name="title"]', label: "Study Title" },
+                    {
+                      selector: 'input[name="pi"]',
+                      label: "Principal Investigator",
+                    },
+                    {
+                      selector: 'input[name="irb_number"]',
+                      label: "IRB Number",
+                    },
+                    {
+                      selector: 'select[name="risk_level"]',
+                      label: "Risk Level",
+                    },
+                    {
+                      selector: 'textarea[name="description"]',
+                      label: "Study Description",
+                    },
+                    {
+                      selector: 'textarea[name="recruitment"]',
+                      label: "Recruitment Details",
+                    },
+                    {
+                      selector: 'input[name="consent"]',
+                      isCheckbox: true,
+                      label: "Consent Required?",
+                    },
+                    {
+                      selector: 'input[name="involves_minors"]',
+                      isCheckbox: true,
+                      label: "Involves Minors?",
+                    },
+                    {
+                      selector: 'input[name="uses_mturk"]',
+                      isCheckbox: true,
+                      label: "Uses MTurk?",
+                    },
+                    {
+                      selector: 'input[name="uses_phi"]',
+                      isCheckbox: true,
+                      label: "Discloses PHI?",
+                    },
+                    {
+                      selector: 'input[name="is_genomic"]',
+                      isCheckbox: true,
+                      label: "NIH-genomic?",
+                    },
+                    {
+                      selector: 'input[name="wants_waiver"]',
+                      isCheckbox: true,
+                      label: "Waiver Requested?",
+                    },
+                    {
+                      selector: 'input[name="not_in_english"]',
+                      isCheckbox: true,
+                      label: "Non-English Study?",
+                    },
+                    {
+                      selector: 'input[name="study_complete"]',
+                      isCheckbox: true,
+                      label: "Final Report?",
+                    },
+                    {
+                      selector: 'input[name="adverse_events"]',
+                      isCheckbox: true,
+                      label: "Adverse Events?",
+                    },
+                    {
+                      selector: 'input[name="lincoln_lab"]',
+                      isCheckbox: true,
+                      label: "Lincoln Lab Affiliated?",
+                    },
+                    {
+                      selector: 'input[name="submitting_genomic_data"]',
+                      isCheckbox: true,
+                      label: "Submitting Genomic Data?",
+                    },
+                    {
+                      selector: 'input[name="conducting_interviews"]',
+                      isCheckbox: true,
+                      label: "Conducting Interviews?",
+                    },
+                    {
+                      selector: 'input[name="mit_reviewing_irb"]',
+                      isCheckbox: true,
+                      label: "MIT as Reviewing IRB?",
+                    },
+                    {
+                      selector: 'input[name="dod_funded"]',
+                      isCheckbox: true,
+                      label: "DoD-Funded?",
+                    },
+                  ]
+                );
+                break;
+
+              // X. Final Report Closure
+              case "study_complete":
+                setupDownload(
+                  tabDiv,
+                  "#downloadFinalReportBtn",
+                  "Final_Report_Closure.txt",
+                  [
+                    {
+                      selector: 'input[name="study_title"]',
+                      label: "Title of Study",
+                    },
+                    {
+                      selector: 'textarea[name="pi_info"]',
+                      label: "PI Name & Contact",
+                    },
+                    {
+                      selector: 'textarea[name="closure_reason"]',
+                      label: "Reason for Closure",
+                    },
+                    {
+                      selector: 'input[name="subjects_count"]',
+                      label: "Subjects Consented",
+                    },
+                    {
+                      selector: 'input[name="withdrawals"]',
+                      label: "Withdrawals",
+                    },
+                    {
+                      selector: 'select[name="unreported"]',
+                      label: "Unreported AEs or Complaints?",
+                    },
+                    {
+                      selector: 'textarea[name="findings"]',
+                      label: "Summary of Final Findings",
+                    },
+                    { selector: 'input[name="pi_sig"]', label: "PI Signature" },
+                    { selector: 'input[name="pi_date"]', label: "PI Date" },
+                    {
+                      selector: 'input[name="dept_sig"]',
+                      label: "Dept Head Signature",
+                    },
+                    {
+                      selector: 'input[name="dept_date"]',
+                      label: "Dept Head Date",
+                    },
+                  ]
+                );
+                break;
+
+              // XI. DoD-Exempt Application
+              case "dod_funded":
+                setupDownload(
+                  tabDiv,
+                  "#downloadDoDExemptBtn",
+                  "DoD_Exempt_Application.txt",
+                  [
+                    {
+                      selector: 'input[name="title"]',
+                      label: "Title of Study",
+                    },
+                    {
+                      selector: 'input[name="exempt_number"]',
+                      label: "Exempt Eval #",
+                    },
+                    {
+                      selector: 'input[name="pi_name"]',
+                      label: "Principal Investigator",
+                    },
+                    {
+                      selector: 'input[name="faculty_sponsor"]',
+                      label: "Faculty Sponsor",
+                    },
+                    { selector: 'input[name="poc_name"]', label: "PoC Name" },
+                    { selector: 'input[name="poc_email"]', label: "PoC Email" },
+                    {
+                      selector: 'input[name="prop_number"]',
+                      label: "Proposal #",
+                    },
+                    {
+                      selector: 'input[name="prop_sponsor"]',
+                      label: "Funding Sponsor",
+                    },
+                    {
+                      selector: 'input[name="prop_title"]',
+                      label: "Funding Title",
+                    },
+                    {
+                      selector: 'input[name="award_number"]',
+                      label: "Award #",
+                    },
+                    {
+                      selector: 'input[name="award_sponsor"]',
+                      label: "Award Sponsor",
+                    },
+                    {
+                      selector: 'input[name="inst_funding"]',
+                      label: "Institutional Funding",
+                    },
+                    {
+                      selector: 'input[name="finA"]',
+                      isCheckbox: true,
+                      label: "Financial Interest?",
+                    },
+                    {
+                      selector: 'textarea[name="collabs"]',
+                      label: "Collaborating Institutions",
+                    },
+                    {
+                      selector: 'textarea[name="location"]',
+                      label: "Location of Research",
+                    },
+                    {
+                      selector: 'select[name="intl_data"]',
+                      label: "EEA/UK Data?",
+                    },
+                    {
+                      selector: 'select[name="intl_fund"]',
+                      label: "China/Russia/Saudi Funding?",
+                    },
+                    {
+                      selector: 'textarea[name="purpose"]',
+                      label: "Purpose & Procedures",
+                    },
+                    {
+                      selector: 'select[name="prospective"]',
+                      label: "Prospectively Assigned?",
+                    },
+                    {
+                      selector: 'select[name="evaluate"]',
+                      label: "Evaluate Effect?",
+                    },
+                    {
+                      selector: 'select[name="health_outcome"]',
+                      label: "Health-Related Outcome?",
+                    },
+                    {
+                      selector: 'textarea[name="exp_procedures"]',
+                      label: "Experimental Procedures",
+                    },
+                    {
+                      selector: 'input[name="max_subjects"]',
+                      label: "Max Subjects",
+                    },
+                    { selector: 'input[name="num_adults"]', label: "Adults" },
+                    { selector: 'input[name="num_minors"]', label: "Minors" },
+                    {
+                      selector: 'textarea[name="age_ranges"]',
+                      label: "Age Ranges",
+                    },
+                    {
+                      selector: 'textarea[name="criteria"]',
+                      label: "Inclusion/Exclusion Criteria",
+                    },
+                    {
+                      selector: 'textarea[name="vulnerable"]',
+                      label: "Vulnerable Populations",
+                    },
+                    {
+                      selector: 'textarea[name="recruitment"]',
+                      label: "Recruitment Methods",
+                    },
+                    {
+                      selector: 'input[name="consent_form"]',
+                      isCheckbox: false,
+                      label: "Consent Form Attached?",
+                    },
+                    {
+                      selector: 'textarea[name="payment"]',
+                      label: "Subject Payment",
+                    },
+                    {
+                      selector: 'textarea[name="reimbursement"]',
+                      label: "Travel Reimbursement",
+                    },
+                    { selector: 'textarea[name="risks"]', label: "Risks" },
+                    {
+                      selector: 'textarea[name="minimization"]',
+                      label: "Minimization Procedures",
+                    },
+                    {
+                      selector: 'textarea[name="benefits_subjects"]',
+                      label: "Benefits to Subjects",
+                    },
+                    {
+                      selector: 'textarea[name="benefits_society"]',
+                      label: "Benefits to Society",
+                    },
+                    {
+                      selector: 'textarea[name="data_collection"]',
+                      label: "Collection Methods",
+                    },
+                    { selector: 'select[name="av"]', label: "Audio/Video?" },
+                    {
+                      selector: 'textarea[name="av_explain"]',
+                      label: "If Yes, Explain",
+                    },
+                    {
+                      selector: 'select[name="coding"]',
+                      label: "Coded or Identifiable?",
+                    },
+                    {
+                      selector: 'textarea[name="storage"]',
+                      label: "Storage & Security",
+                    },
+                    {
+                      selector: 'textarea[name="disposition"]',
+                      label: "Post-Study Disposition",
+                    },
+                    {
+                      selector: 'textarea[name="relationship"]',
+                      label: "Relationship Impact",
+                    },
+                    {
+                      selector: 'select[name="deception"]',
+                      label: "Deception?",
+                    },
+                    {
+                      selector: 'textarea[name="deception_justify"]',
+                      label: "Deception Justification",
+                    },
+                    {
+                      selector: 'textarea[name="ae_followup"]',
+                      label: "Adverse Event Follow-up",
+                    },
+                    {
+                      selector: 'select[name="use_phi"]',
+                      label: "Use of PHI?",
+                    },
+                    {
+                      selector: 'select[name="waiver"]',
+                      label: "Waiver of Auth?",
+                    },
+                    {
+                      selector: 'textarea[name="waiver_rationale"]',
+                      label: "Waiver Rationale",
+                    },
+                    {
+                      selector: 'select[name="deidentified"]',
+                      label: "De-identified?",
+                    },
+                    {
+                      selector: 'select[name="limited_ds"]',
+                      label: "Limited Data Set?",
+                    },
+                    {
+                      selector: 'input[name="personnel_list"]',
+                      label: "Personnel List Attached?",
+                    },
+                  ]
+                );
+                break;
+
+              // XII. Consent to Participate in Interview
+              case "conducting_interviews":
+                setupDownload(
+                  tabDiv,
+                  "#downloadConsentInterviewBtn",
+                  "Consent_Interview.txt",
+                  [
+                    {
+                      selector: 'input[name="study_title"]',
+                      label: "Study Title",
+                    },
+                    {
+                      selector: 'input[name="investigator"]',
+                      label: "Investigator Name & Dept",
+                    },
+                    {
+                      selector: 'input[name="time_estimate"]',
+                      label: "Estimated Interview Time",
+                    },
+                    {
+                      selector: 'textarea[name="risks"]',
+                      label: "Risks & Discomforts",
+                    },
+                    {
+                      selector: 'textarea[name="benefits"]',
+                      label: "Benefits",
+                    },
+                    {
+                      selector: 'select[name="compensation"]',
+                      label: "Compensation?",
+                    },
+                    {
+                      selector: 'textarea[name="compensation_details"]',
+                      label: "Compensation Details",
+                    },
+                    {
+                      selector: 'input[name="record_permission"]',
+                      multiple: true,
+                      label: "Recording Permission",
+                    },
+                    {
+                      selector: 'textarea[name="revocation"]',
+                      label: "Recording Revocation Policy",
+                    },
+                    {
+                      selector: 'textarea[name="storage_duration"]',
+                      label: "Storage Duration",
+                    },
+                    {
+                      selector: 'input[name="pub_name"]',
+                      multiple: true,
+                      label: "Include Name in Publication",
+                    },
+                    {
+                      selector: 'input[name="pub_title"]',
+                      multiple: true,
+                      label: "Include Title in Publication",
+                    },
+                    {
+                      selector: 'input[name="pub_quotes"]',
+                      multiple: true,
+                      label: "Include Direct Quotes",
+                    },
+                    {
+                      selector: 'textarea[name="gdpr_data"]',
+                      label: "GDPR Data Types",
+                    },
+                    {
+                      selector: 'textarea[name="gdpr_security"]',
+                      label: "GDPR Security",
+                    },
+                    {
+                      selector: 'textarea[name="gdpr_retention"]',
+                      label: "GDPR Retention Period",
+                    },
+                    {
+                      selector: 'input[name="withdrawal_contact"]',
+                      label: "Withdrawal Contact",
+                    },
+                    {
+                      selector: 'textarea[name="data_transfer"]',
+                      label: "International Transfer",
+                    },
+                    {
+                      selector: 'input[name="participant_name"]',
+                      label: "Participant Name",
+                    },
+                    {
+                      selector: 'input[name="participant_date"]',
+                      label: "Participant Date",
+                    },
+                    {
+                      selector: 'input[name="consenter_name"]',
+                      label: "Consent Obtainer",
+                    },
+                    {
+                      selector: 'input[name="consenter_date"]',
+                      label: "Consent Obtainer Date",
+                    },
+                  ]
+                );
+                break;
+
+              // XIII. Assent to Participate in Research
+              case "involves_minors":
+                setupDownload(tabDiv, "#downloadAssentBtn", "Assent_Form.txt", [
+                  {
+                    selector: 'input[name="study_title"]',
+                    label: "Study Title",
+                  },
+                  {
+                    selector: 'input[name="child_name"]',
+                    label: "Child’s Name",
+                  },
+                  {
+                    selector: 'textarea[name="purpose"]',
+                    label: "Why You Are Asked",
+                  },
+                  {
+                    selector: 'textarea[name="procedures"]',
+                    label: "What Will Happen",
+                  },
+                  { selector: 'textarea[name="risks"]', label: "Risks" },
+                  { selector: 'textarea[name="benefits"]', label: "Benefits" },
+                  {
+                    selector: 'input[name="phone"]',
+                    label: "Questions Contact",
+                  },
+                  {
+                    selector: 'input[name="signature"]',
+                    label: "Child’s Signature",
+                  },
+                  { selector: 'input[name="date"]', label: "Date" },
+                ]);
+                break;
+
+              // XIV. Additional Standard Language
+              case "additionalstandard":
+                setupDownload(
+                  tabDiv,
+                  "#downloadAdditionalLanguageBtn",
+                  "Additional_Standard_Language.txt",
+                  [
+                    {
+                      selector: 'input[name="pi_lab_name"]',
+                      label: "PI Name for Student/Lab Clause",
+                    },
+                    {
+                      selector: 'input[name="lang_selfexp"]',
+                      multiple: true,
+                      label: "Self-Experimentation Language?",
+                    },
+                    {
+                      selector: 'input[name="lang_random"]',
+                      multiple: true,
+                      label: "Randomization Language?",
+                    },
+                    {
+                      selector: 'textarea[name="random_text"]',
+                      label: "Randomization Details",
+                    },
+                    {
+                      selector: 'input[name="lang_focus"]',
+                      multiple: true,
+                      label: "Focus Group Confidentiality?",
+                    },
+                    {
+                      selector: 'input[name="lang_mri"]',
+                      multiple: true,
+                      label: "MRI Risk Language?",
+                    },
+                    {
+                      selector: 'input[name="lang_sim"]',
+                      multiple: true,
+                      label: "Simulator Sickness Language?",
+                    },
+                    {
+                      selector: 'input[name="lang_vr"]',
+                      multiple: true,
+                      label: "VR Side-Effects Language?",
+                    },
+                    {
+                      selector: 'input[name="lang_incident_mri"]',
+                      multiple: true,
+                      label: "Incidental Findings Language?",
+                    },
+                    {
+                      selector: 'input[name="lang_genomic"]',
+                      multiple: true,
+                      label: "Whole Genome Language?",
+                    },
+                    {
+                      selector: 'textarea[name="genomic_details"]',
+                      label: "Genomic Details",
+                    },
+                    {
+                      selector: 'input[name="lang_optin"]',
+                      multiple: true,
+                      label: "Sequencing Opt-In/Out?",
+                    },
+                    {
+                      selector: 'input[name="optin_yes"]',
+                      multiple: true,
+                      label: "Opt-In?",
+                    },
+                    {
+                      selector: 'input[name="optin_no"]',
+                      multiple: true,
+                      label: "Opt-Out?",
+                    },
+                    {
+                      selector: 'input[name="lang_gds"]',
+                      multiple: true,
+                      label: "GDS Policy Language?",
+                    },
+                  ]
+                );
+                break;
             }
           }
         }

@@ -1,28 +1,82 @@
 <!-- waiver_alteration.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Waiver or Alteration of Informed Consent</title>
-  <style>body{font-family:Arial,sans-serif;margin:20px}label,legend{display:block;margin-top:1em;font-weight:bold}input,textarea{width:100%;padding:8px;margin-top:4px}fieldset{border:1px solid #ccc;padding:10px;margin-top:10px;border-radius:5px}button{margin-top:20px;padding:10px 20px}</style>
-</head>
-<body>
-  <h1>Waiver or Alteration of Informed Consent Request</h1>
-  <form>
-    <fieldset>
-      <legend>Type of Request (check all that apply)</legend>
-      <label><input type="checkbox" name="request_type" value="full_waiver"> Full Waiver</label>
-      <label><input type="checkbox" name="request_type" value="alteration"> Alteration</label>
-      <label><input type="checkbox" name="request_type" value="doc_waiver"> Waiver of Documentation</label>
-    </fieldset>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Waiver or Alteration of Informed Consent</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label,
+      legend {
+        display: block;
+        margin-top: 1em;
+        font-weight: bold;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+      }
+      fieldset {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Waiver or Alteration of Informed Consent Request</h1>
+    <form>
+      <fieldset>
+        <legend>Type of Request (check all that apply)</legend>
+        <label
+          ><input type="checkbox" name="request_type" value="full_waiver" />
+          Full Waiver</label
+        >
+        <label
+          ><input type="checkbox" name="request_type" value="alteration" />
+          Alteration</label
+        >
+        <label
+          ><input type="checkbox" name="request_type" value="doc_waiver" />
+          Waiver of Documentation</label
+        >
+      </fieldset>
 
-    <label>Explain why practicable without waiver<textarea name="practicable"></textarea></label>
-    <label>More than minimal risk?<br><select name="risk"><option value="no">No</option><option value="yes">Yes</option></select></label>
-    <label>If yes, details<textarea name="risk_details"></textarea></label>
-    <label>Will debrief?<br><select name="debrief"><option value="no">No</option><option value="yes">Yes</option></select></label>
-    <label>If yes, attach debriefing<textarea name="debrief_text"></textarea></label>
+      <label
+        >Explain why practicable without waiver<textarea
+          name="practicable"
+        ></textarea>
+      </label>
+      <label
+        >More than minimal risk?<br /><select name="risk">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select></label
+      >
+      <label>If yes, details<textarea name="risk_details"></textarea></label>
+      <label
+        >Will debrief?<br /><select name="debrief">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select></label
+      >
+      <label
+        >If yes, attach debriefing<textarea name="debrief_text"></textarea>
+      </label>
+      <button type="button" id="downloadWaiverBtn">📥 Download Form</button>
 
-    <button type="submit">Submit</button>
-  </form>
-</body>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
 </html>

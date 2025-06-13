@@ -1,532 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
-    <script src="https://unpkg.com/nprogress/nprogress.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MIT Protocol Event Reporting Form</title>
-    <!-- Embedded jsPDF library -->
-    <script>
-      // Minimal jsPDF implementation for basic PDF generation
-      class SimplePDF {
-        constructor() {
-          this.content = [];
-          this.y = 50;
-          this.pageHeight = 800;
-        }
-
-        addText(text, x = 50, size = 12) {
-          this.content.push({
-            type: "text",
-            text: text,
-            x: x,
-            y: this.y,
-            size: size,
-          });
-          this.y += size * 1.2;
-
-          if (this.y > this.pageHeight - 50) {
-            this.addPageBreak();
-          }
-        }
-
-        addPageBreak() {
-          this.content.push({ type: "pagebreak" });
-          this.y = 50;
-        }
-
-        generateDataURL() {
-          // Convert content to a simple text format that can be downloaded
-          let text = "MIT PROTOCOL EVENT REPORTING FORM\n";
-          text += "=".repeat(50) + "\n\n";
-
-          this.content.forEach((item) => {
-            if (item.type === "text") {
-              text += item.text + "\n";
-            } else if (item.type === "pagebreak") {
-              text +=
-                "\n" +
-                "-".repeat(50) +
-                " PAGE BREAK " +
-                "-".repeat(50) +
-                "\n\n";
-            }
-          });
-
-          const blob = new Blob([text], { type: "text/plain" });
-          return URL.createObjectURL(blob);
-        }
-
-        download(filename = "document.txt") {
-          const url = this.generateDataURL();
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }
-      }
-
-      // HTML to PDF converter
-      function html2pdf() {
-        return {
-          set: function (options) {
-            this.options = options;
-            return this;
-          },
-          from: function (element) {
-            this.element = element;
-            return this;
-          },
-          save: function () {
-            return new Promise((resolve) => {
-              const pdf = new SimplePDF();
-              const formData = this.extractFormData();
-
-              pdf.addText("MASSACHUSETTS INSTITUTE OF TECHNOLOGY", 50, 16);
-              pdf.addText(
-                "Committee on the Use of Humans as Experimental Subjects (COUHES)",
-                50,
-                14
-              );
-              pdf.addText("Protocol Event Reporting Form", 50, 14);
-              pdf.addText("", 50, 10); // spacing
-              pdf.addText("Generated: " + new Date().toLocaleString(), 50, 10);
-              pdf.addText("", 50, 10);
-
-              // Add form sections
-              pdf.addText("I. WHAT IS BEING REPORTED?", 50, 14);
-              pdf.addText("Report Types: " + formData.reportTypes, 70, 12);
-              pdf.addText("", 50, 8);
-
-              pdf.addText("II. BASIC INFORMATION", 50, 14);
-              pdf.addText(
-                "1. Title of Study: " + formData.titleOfStudy,
-                70,
-                12
-              );
-              pdf.addText(
-                "2. Principal Investigator: " + formData.piName,
-                70,
-                12
-              );
-              pdf.addText(
-                "3. Protocol/IRB Number: " + formData.irbNumber,
-                70,
-                12
-              );
-              pdf.addText("", 50, 8);
-
-              pdf.addText("III. DESCRIPTION OF EVENT", 50, 14);
-              pdf.addText("4. Date of Event: " + formData.eventDate, 70, 12);
-              pdf.addText("5. Detailed Description:", 70, 12);
-
-              // Handle long text
-              const descLines = this.wrapText(formData.description, 60);
-              descLines.forEach((line) => {
-                pdf.addText("   " + line, 70, 10);
-              });
-              pdf.addText("", 50, 8);
-
-              pdf.addText("IV. ACTIONS TAKEN", 50, 14);
-              pdf.addText("6. Actions Taken:", 70, 12);
-              const actionLines = this.wrapText(formData.actionsTaken, 60);
-              actionLines.forEach((line) => {
-                pdf.addText("   " + line, 70, 10);
-              });
-
-              pdf.download(
-                this.options.filename || "Protocol_Event_Report.txt"
-              );
-              resolve();
-            });
-          },
-          extractFormData: function () {
-            const reportTypes = Array.from(
-              document.querySelectorAll('input[name="reportTypes"]:checked')
-            )
-              .map((cb) => cb.value)
-              .join(", ");
-
-            return {
-              reportTypes: reportTypes || "None selected",
-              titleOfStudy: document.getElementById("titleOfStudy").value || "",
-              piName: document.getElementById("piName").value || "",
-              irbNumber: document.getElementById("irbNumber").value || "",
-              eventDate: document.getElementById("eventDate").value || "",
-              description: document.getElementById("description").value || "",
-              actionsTaken: document.getElementById("actionsTaken").value || "",
-            };
-          },
-          wrapText: function (text, maxLength) {
-            if (!text) return [""];
-            const words = text.split(" ");
-            const lines = [];
-            let currentLine = "";
-
-            words.forEach((word) => {
-              if ((currentLine + word).length <= maxLength) {
-                currentLine += (currentLine ? " " : "") + word;
-              } else {
-                if (currentLine) lines.push(currentLine);
-                currentLine = word;
-              }
-            });
-
-            if (currentLine) lines.push(currentLine);
-            return lines;
-          },
-        };
-      }
-    </script>
+    <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
+    <script src="https://unpkg.com/nprogress/nprogress.js"></script>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
       body {
         font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        padding: 20px;
+        margin: 20px;
         line-height: 1.6;
       }
-
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        background: white;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      }
-
-      .header {
+      h1,
+      h2 {
         text-align: center;
-        margin-bottom: 30px;
-        border-bottom: 2px solid #8b0000;
-        padding-bottom: 20px;
+        margin-bottom: 20px;
       }
-
-      .header h1 {
-        color: #8b0000;
-        font-size: 24px;
-        margin-bottom: 10px;
-      }
-
-      .header h2 {
-        color: #333;
-        font-size: 18px;
-        margin-bottom: 5px;
-      }
-
-      .section {
-        margin-bottom: 25px;
-      }
-
-      .section-title {
-        background-color: #8b0000;
-        color: white;
-        padding: 12px 15px;
-        font-weight: bold;
-        margin-bottom: 15px;
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-
-      .form-row {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-
-      .form-row .form-group {
-        flex: 1;
-        min-width: 250px;
-      }
-
       label {
         display: block;
-        margin-bottom: 5px;
+        margin-top: 1em;
         font-weight: bold;
-        color: #333;
       }
-
-      input[type="text"],
-      input[type="date"],
+      input,
       textarea {
         width: 100%;
-        padding: 10px;
-        border: 2px solid #ddd;
+        padding: 8px;
+        margin-top: 4px;
+        border: 1px solid #ccc;
         border-radius: 4px;
         font-size: 14px;
+        box-sizing: border-box;
       }
-
-      textarea {
-        min-height: 100px;
-        resize: vertical;
-      }
-
       .checkbox-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 10px;
         margin-top: 10px;
-        padding: 15px;
-        background-color: #f9f9f9;
-        border-radius: 4px;
+        padding: 10px;
       }
-
       .checkbox-item {
         display: flex;
         align-items: center;
         gap: 8px;
       }
-
       .checkbox-item input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
+        width: auto;
       }
-
       .checkbox-item label {
-        margin-bottom: 0;
+        margin-top: 0;
         font-weight: normal;
       }
-
-      .generate-btn {
-        background-color: #8b0000;
-        color: white;
-        padding: 15px 30px;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        margin: 30px auto;
-        display: block;
-      }
-
-      .generate-btn:hover {
-        background-color: #660000;
-      }
-
-      .status {
+      button {
         margin-top: 20px;
-        padding: 15px;
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: #007bff;
+        color: white;
         border-radius: 4px;
-        font-weight: bold;
-        text-align: center;
+        cursor: pointer;
       }
-
-      .status.loading {
-        background-color: #fff3cd;
-        color: #856404;
-        border: 2px solid #ffeaa7;
-      }
-
-      .status.success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 2px solid #c3e6cb;
-      }
-
-      .status.error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 2px solid #f5c6cb;
+      button:hover {
+        background-color: #0056b3;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>Massachusetts Institute of Technology</h1>
-        <h2>
-          Committee on the Use of Humans as Experimental Subjects (COUHES)
-        </h2>
-        <h2>Protocol Event Reporting Form</h2>
+    <h1>Massachusetts Institute of Technology</h1>
+    <h2>Committee on the Use of Humans as Experimental Subjects (COUHES)</h2>
+    <h2>Protocol Event Reporting Form</h2>
+
+    <form id="protocolForm">
+      <label>I. What is being reported?</label>
+      <div class="checkbox-grid">
+        <div class="checkbox-item">
+          <input
+            type="checkbox"
+            id="reportType1"
+            name="reportTypes"
+            value="Subject Complaint"
+          />
+          <label for="reportType1">Subject Complaint</label>
+        </div>
+        <div class="checkbox-item">
+          <input
+            type="checkbox"
+            id="reportType2"
+            name="reportTypes"
+            value="Unanticipated Problem"
+          />
+          <label for="reportType2">Unanticipated Problem</label>
+        </div>
+        <div class="checkbox-item">
+          <input
+            type="checkbox"
+            id="reportType3"
+            name="reportTypes"
+            value="Protocol Deviation"
+          />
+          <label for="reportType3">Protocol Deviation</label>
+        </div>
+        <div class="checkbox-item">
+          <input
+            type="checkbox"
+            id="reportType4"
+            name="reportTypes"
+            value="Adverse Event"
+          />
+          <label for="reportType4">Adverse Event</label>
+        </div>
       </div>
 
-      <div class="form-content" id="pdfContent">
-        <form id="protocolForm">
-          <!-- Section I -->
-          <div class="section">
-            <div class="section-title">I. What is being reported?</div>
-            <div class="form-group">
-              <label>Report Types:</label>
-              <div class="checkbox-grid">
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="reportType1"
-                    name="reportTypes"
-                    value="Subject Complaint"
-                  />
-                  <label for="reportType1">Subject Complaint</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="reportType2"
-                    name="reportTypes"
-                    value="Unanticipated Problem"
-                  />
-                  <label for="reportType2">Unanticipated Problem</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="reportType3"
-                    name="reportTypes"
-                    value="Protocol Deviation"
-                  />
-                  <label for="reportType3">Protocol Deviation</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="reportType4"
-                    name="reportTypes"
-                    value="Adverse Event"
-                  />
-                  <label for="reportType4">Adverse Event</label>
-                </div>
-              </div>
-            </div>
-          </div>
+      <label for="titleOfStudy">II. Title of Study:</label>
+      <input type="text" id="titleOfStudy" name="titleOfStudy" required />
 
-          <!-- Section II -->
-          <div class="section">
-            <div class="section-title">II. BASIC INFORMATION</div>
-            <div class="form-group">
-              <label for="titleOfStudy">1. Title of Study:</label>
-              <input
-                type="text"
-                id="titleOfStudy"
-                name="titleOfStudy"
-                required
-              />
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="piName">2. Principal Investigator:</label>
-                <input type="text" id="piName" name="piName" required />
-              </div>
-              <div class="form-group">
-                <label for="irbNumber">3. Protocol/IRB Number:</label>
-                <input type="text" id="irbNumber" name="irbNumber" required />
-              </div>
-            </div>
-          </div>
+      <label for="piName">III. Principal Investigator:</label>
+      <input type="text" id="piName" name="piName" required />
 
-          <!-- Section III -->
-          <div class="section">
-            <div class="section-title">III. DESCRIPTION OF EVENT</div>
-            <div class="form-group">
-              <label for="eventDate">4. Date of Event:</label>
-              <input type="date" id="eventDate" name="eventDate" required />
-            </div>
-            <div class="form-group">
-              <label for="description">5. Detailed Description:</label>
-              <textarea id="description" name="description" required></textarea>
-            </div>
-          </div>
+      <label for="irbNumber">IV. Protocol/IRB Number:</label>
+      <input type="text" id="irbNumber" name="irbNumber" required />
 
-          <!-- Section IV -->
-          <div class="section">
-            <div class="section-title">IV. ACTIONS TAKEN</div>
-            <div class="form-group">
-              <label for="actionsTaken">6. Actions Taken:</label>
-              <textarea id="actionsTaken" name="actionsTaken"></textarea>
-            </div>
-          </div>
+      <label for="eventDate">V. Date of Event:</label>
+      <input type="date" id="eventDate" name="eventDate" required />
 
-          <button type="button" id="generateBtn" class="generate-btn">
-            📄 Generate Document
-          </button>
-        </form>
+      <label for="description">VI. Detailed Description:</label>
+      <textarea
+        id="description"
+        name="description"
+        rows="6"
+        required
+        placeholder="Provide a detailed description of the event..."
+      ></textarea>
 
-        <div id="status" class="status" style="display: none"></div>
-      </div>
-    </div>
+      <label for="actionsTaken">VII. Actions Taken:</label>
+      <textarea
+        id="actionsTaken"
+        name="actionsTaken"
+        rows="4"
+        placeholder="Describe any actions taken in response to this event..."
+      ></textarea>
+
+      <button type="button" id="downloadTxtBtn">📥 Download Report</button>
+    </form>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const btn = document.getElementById("generateBtn");
+        document
+          .getElementById("downloadTxtBtn")
+          .addEventListener("click", function () {
+            var lines = [];
 
-        btn.addEventListener("click", function (e) {
-          e.preventDefault();
+            // Section I: What is being reported (checkboxes)
+            var checked = [];
+            if (document.getElementById("reportType1").checked)
+              checked.push("Subject Complaint");
+            if (document.getElementById("reportType2").checked)
+              checked.push("Unanticipated Problem");
+            if (document.getElementById("reportType3").checked)
+              checked.push("Protocol Deviation");
+            if (document.getElementById("reportType4").checked)
+              checked.push("Adverse Event");
 
-          const statusEl = document.getElementById("status");
-          statusEl.style.display = "block";
-          statusEl.className = "status loading";
-          statusEl.textContent = "Generating document...";
+            lines.push(
+              "\n\n=== I. What is being reported ===\n" +
+                (checked.length > 0 ? checked.join(", ") : "None selected")
+            );
 
-          const element = document.getElementById("pdfContent");
+            // Section II-VII: Text fields
+            var sections = [
+              { id: "titleOfStudy", title: "II. Title of Study" },
+              { id: "piName", title: "III. Principal Investigator" },
+              { id: "irbNumber", title: "IV. Protocol/IRB Number" },
+              { id: "eventDate", title: "V. Date of Event" },
+              { id: "description", title: "VI. Detailed Description" },
+              { id: "actionsTaken", title: "VII. Actions Taken" },
+            ];
 
-          html2pdf()
-            .set({
-              filename: "Protocol_Event_Report.txt",
-            })
-            .from(element)
-            .save()
-            .then(() => {
-              statusEl.className = "status success";
-              statusEl.textContent =
-                "Document generated! Download should start shortly.";
+            for (var i = 0; i < sections.length; i++) {
+              var section = sections[i];
+              var element = document.getElementById(section.id);
+              var value = element ? element.value.trim() : "";
+              lines.push("\n\n=== " + section.title + " ===\n" + value);
+            }
 
-              setTimeout(() => {
-                statusEl.style.display = "none";
-              }, 3000);
-            })
-            .catch((err) => {
-              statusEl.className = "status error";
-              statusEl.textContent =
-                "Error generating document: " + err.message;
-            });
-        });
+            // Create and download file
+            var blob = new Blob([lines.join("")], { type: "text/plain" });
+            var url = URL.createObjectURL(blob);
+
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "Protocol_Event_Report.txt";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          });
       });
     </script>
+
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // 1️⃣ Configure & clear any leftover bar
+      document.addEventListener("DOMContentLoaded", function () {
         NProgress.configure({ showSpinner: false });
         NProgress.done();
 
-        // 2️⃣ Start on any <button> click
-        document.body.addEventListener("click", (e) => {
+        document.body.addEventListener("click", function (e) {
           if (e.target.closest("button")) {
             NProgress.start();
+            setTimeout(function () {
+              NProgress.done();
+            }, 1000);
           }
         });
 
-        // 3️⃣ Finish on full-page navigations
-        window.addEventListener("pageshow", () => {
+        window.addEventListener("pageshow", function () {
           NProgress.done();
         });
-
-        // 4️⃣ Wrap fetch() so AJAX calls drive the bar too
-        (function (origFetch) {
-          window.fetch = function (...args) {
-            NProgress.start();
-            return origFetch(...args)
-              .then((res) => {
-                NProgress.done();
-                return res;
-              })
-              .catch((err) => {
-                NProgress.done();
-                throw err;
-              });
-          };
-        })(window.fetch);
       });
     </script>
+    <button type="button" id="downloadTxtBtn">📥 Download Form</button>
+    <button type="submit">Submit</button>
   </body>
 </html>

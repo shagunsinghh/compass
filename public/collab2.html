@@ -639,6 +639,11 @@
           <button id="download-draft" style="margin-top: 30px">
             📥 Download Full Draft
           </button>
+          <button id="submit-final" style="margin-left: 10px; background: #2196f3; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+  ✅ Submit Final Protocol
+</button>
+
+
         </div>
       </div>
     </div>
@@ -693,6 +698,7 @@
           count === 1 ? "👤 1 viewer online" : `👥 ${count} viewers online`;
         document.getElementById("live-users").textContent = viewerText;
       });
+
 
       // AI Upload functionality
       const uploadArea = document.getElementById("uploadArea");
@@ -2485,5 +2491,35 @@
         })(window.fetch);
       });
     </script>
+    <script>
+  document.getElementById("submit-final").addEventListener("click", async () => {
+    const confirmed = confirm("Are you sure you want to submit this draft as final? You won’t be able to edit it afterward.");
+    if (!confirmed) return;
+
+    const draftTitle = new URLSearchParams(window.location.search).get("draftTitle") || "default";
+    const sections = {};
+    for (let id of sectionIds) {
+      const el = document.getElementById(id);
+      if (el) sections[id] = el.value;
+    }
+
+    const response = await fetch("/submit-final-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: draftTitle,
+        sections,
+      }),
+    });
+
+    if (response.ok) {
+      alert("✅ Submitted successfully!");
+      window.location.href = "/dashboard";
+    } else {
+      alert("❌ Submission failed. Try again.");
+    }
+  });
+</script>
+
   </body>
 </html>

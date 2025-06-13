@@ -87,42 +87,5 @@
       }
     },
     "collaborators": []
-  },
-  {
-    "email": "lara@mit.edu",
-    "timestamp": "2025-06-13T21:22:34.273Z",
-    "title": "efakgjnaeg",
-    "sections": {
-      "section-1": "efakgjnaeg",
-      "section-2": "",
-      "section-3": "",
-      "section-4": "",
-      "section-5": "",
-      "section-6": "",
-      "section-7": "",
-      "section-8": "",
-      "section-9": "",
-      "section-10": "",
-      "section-11": "",
-      "section-12": ""
-    },
-    "extraForms": {
-      "uses_phi": {
-        "study_title": "eg",
-        "researcher": "",
-        "phi_list": "",
-        "purpose": "",
-        "recipients": "",
-        "expiration": "",
-        "revocation": "",
-        "subj_name": "",
-        "subj_date": "",
-        "inv_name": "",
-        "inv_date": "",
-        "witness_name": "",
-        "witness_date": ""
-      }
-    },
-    "collaborators": []
   }
 ]

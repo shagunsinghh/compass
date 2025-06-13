@@ -33,16 +33,15 @@
           .then(user => {
             console.log("Logged in:", user);
             navLinks.innerHTML = `
-              <li><a href="/">Home</a></li>
-              <li><a href="/intake.html">IRB Intake Form</a></li>
-              <li><a href="/collab2.html">Collaborative Draft IRB Full</a></li>
-              <li><a href="/dashboard">My Lab</a></li>
-              <li>
-                <form action="/logout" method="POST" style="display:inline;">
-                  <button style="background:none;border:none;color:white;cursor:pointer;">Logout</button>
-                </form>
-              </li>
-            `;
+  <li><a href="/">Home</a></li>
+  <li><a href="/dashboard">My Lab</a></li>
+  <li>
+    <form action="/logout" method="POST" style="display:inline;">
+    <button style="padding: 8px 12px; font-weight: bold;">Logout</button>
+    <form>
+  </li>
+`;
+
 
             const authSection = document.querySelector('.auth-section');
             if (authSection) authSection.style.display = 'none';
@@ -92,15 +91,15 @@
 
   <section class="features">
     <div class="feature-card">
-      <h2>📝 Smart Intake</h2>
+      <h2>Smart Intake</h2>
       <p>Use our intelligent form to determine which IRB documents your study needs.</p>
     </div>
     <div class="feature-card">
-      <h2>🤝 Real-time Collaboration</h2>
+      <h2>Real-time Collaboration</h2>
       <p>Edit your IRB protocol draft live with your PI or research team.</p>
     </div>
     <div class="feature-card">
-      <h2>📎 Auto Form Suggestions</h2>
+      <h2>Auto Form Suggestions</h2>
       <p>Automatically receive links to relevant COUHES documents based on your responses.</p>
     </div>
   </section>

@@ -145,7 +145,7 @@
         const params = new URLSearchParams(window.location.search);
         const draftTitle = params.get("draftTitle");
         if (!draftTitle || draftTitle === "new") {
-          console.log("🆕 Starting fresh draft");
+          console.log("Starting fresh draft");
           return; // don't load anything
         }
 
@@ -195,13 +195,13 @@
         }
 
         const saveBtnTemplate = document.createElement("button");
-        saveBtnTemplate.textContent = "💾 Save Draft";
+        saveBtnTemplate.textContent = "Save Draft";
         saveBtnTemplate.className = "universal-save-btn";
         saveBtnTemplate.style.marginTop = "30px";
 
         saveBtnTemplate.addEventListener("click", async (e) => {
           const btn = e.target;
-          btn.textContent = "💾 Saving...";
+          btn.textContent = "Saving...";
 
           const title =
             document.getElementById("section-1")?.value || "Untitled";
@@ -246,10 +246,10 @@
           });
 
           if (response.ok) {
-            btn.textContent = "✅ Saved!";
-            setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
+            btn.textContent = "Saved!";
+            setTimeout(() => (btn.textContent = "Save Draft"), 2000);
           } else {
-            btn.textContent = "❌ Save Failed";
+            btn.textContent = "Save Failed";
           }
         });
 
@@ -261,37 +261,38 @@
         });
       });
 
-      console.log("🚀 Script started");
+      console.log("Script started");
+  fetch('/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      console.log("navbar.html loaded");
+      document.getElementById('navbar-placeholder').innerHTML = html;
 
-      fetch("/navbar.html")
-        .then((res) => res.text())
-        .then((html) => {
-          console.log("✅ navbar.html loaded");
-          document.getElementById("navbar-placeholder").innerHTML = html;
+      // Wait a moment to let HTML insert
+      setTimeout(() => {
+        const navLinks = document.querySelector(".nav-links");
+        if (!navLinks) {
+          console.error("navLinks element missing");
+          return;
+        }
 
-          setTimeout(() => {
-            const navLinks = document.querySelector(".nav-links");
-            if (!navLinks) {
-              console.error("❌ navLinks element missing");
-              return;
-            }
+        fetch('/session')
+          .then(res => {
+            if (!res.ok) throw new Error("Not logged in");
+            return res.json();
+          })
+          .then(user => {
+            console.log("Logged in:", user);
 
-            fetch("/session")
-              .then((res) => {
-                if (!res.ok) throw new Error("Not logged in");
-                return res.json();
-              })
-              .then((user) => {
-                console.log("✅ Logged in:", user);
-                navLinks.innerHTML = `
-              <li><a href="/">Home</a></li>
-              <li><a href="/dashboard">My Lab</a></li>
-              <li>
-                <form action="/logout" method="POST" style="display:inline;">
-                  <button style="background:none;border:none;color:white;cursor:pointer;">Logout</button>
-                </form>
-              </li>
-            `;
+navLinks.innerHTML = `
+  <li><a href="/">Home</a></li>
+  <li><a href="/dashboard">My Lab</a></li>
+  <li>
+      <form action="/logout" method="POST" style="display:inline;">
+    <button style="padding: 8px 12px; font-weight: bold;">Logout</button>
+    </form>
+  </li>
+`;
 
                 const authSection = document.querySelector(".auth-section");
                 if (authSection) authSection.style.display = "none";
@@ -305,10 +306,10 @@
               .catch((err) => {
                 console.warn("⚠️ Not logged in:", err);
                 navLinks.innerHTML = `
-              <li><a href="/">Home</a></li>
-              <li><a href="/login.html">Log In</a></li>
-              <li><a href="/register.html">Register</a></li>
-            `;
+    <li><a href="/">Home</a></li>
+    <li><a href="/login.html">Log In</a></li>
+    <li><a href="/register.html">Register</a></li>
+  `;
 
                 const authSection = document.querySelector(".auth-section");
                 if (authSection) authSection.style.display = "block";
@@ -325,7 +326,7 @@
         <!-- Protocol Draft Tab -->
         <div id="tab-protocol" class="active">
           <div class="intro-banner">
-            <h1>🤖 AI-Enhanced Collaborative IRB Draft</h1>
+            <h1>AI-Enhanced Collaborative IRB Draft</h1>
             <p>
               Upload your existing study document and let AI help fill out your
               IRB protocol sections.
@@ -333,12 +334,12 @@
           </div>
 
           <p id="live-users" style="color: green; font-weight: bold">
-            👥 Live viewers: 1
+            Live viewers: 1
           </p>
 
           <!-- AI Upload Section -->
           <div class="ai-upload-section">
-            <h2>📄 Upload Study Document for AI Analysis</h2>
+            <h2>Upload Study Document for AI Analysis</h2>
             <p>
               Upload a PDF of your existing study materials, and our AI will
               analyze it to suggest content for each IRB section.
@@ -346,7 +347,7 @@
 
             <div class="upload-area" id="uploadArea">
               <div id="uploadPrompt">
-                <h3>📎 Drop PDF here or click to upload</h3>
+                <h3>Drop PDF here or click to upload</h3>
                 <p>Supported format: PDF (max 10MB)</p>
                 <input
                   type="file"
@@ -358,7 +359,7 @@
 
               <div class="processing-indicator" id="processingIndicator">
                 <div class="spinner"></div>
-                <p>🧠 AI is analyzing your document...</p>
+                <p>AI is analyzing your document...</p>
                 <p><small>This may take 30-60 seconds</small></p>
               </div>
             </div>
@@ -366,7 +367,7 @@
             <div class="error-message" id="errorMessage"></div>
 
             <div id="analysisResults" style="display: none">
-              <h3>✅ Analysis Complete!</h3>
+              <h3>Analysis Complete!</h3>
               <p>
                 AI has generated suggestions for your IRB sections. Look for the
                 green "AI Suggestion" badges on each section below.
@@ -638,7 +639,7 @@
             📥 Download Full Draft
           </button>
           <button id="submit-final" style="margin-left: 10px; background: #2196f3; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
-  ✅ Submit Final Protocol
+  Submit Final Protocol
 </button>
 
 
@@ -1141,7 +1142,7 @@
 }
 
           } catch (err) {
-            console.warn("⚠️ Could not load saved draft:", err);
+            console.warn("Could not load saved draft:", err);
           }
         }
 
@@ -1151,7 +1152,7 @@
         // If we have a saved draft, get the extra forms from it
         if (savedDraft && savedDraft.extraForms) {
           extraFormsNeeded = Object.keys(savedDraft.extraForms);
-          console.log("📝 Extra forms from saved draft:", extraFormsNeeded);
+          console.log("Extra forms from saved draft:", extraFormsNeeded);
         } else {
           // Otherwise, check URL parameters for form flags
           const formMappings = [
@@ -1218,7 +1219,7 @@
               extraFormsNeeded.push(mapping.field);
             }
           }
-          console.log("📝 Extra forms from URL params:", extraFormsNeeded);
+          console.log("Extra forms from URL params:", extraFormsNeeded);
         }
 
         // Step 3: Load extra form tabs
@@ -1306,9 +1307,9 @@
               const html = await res.text();
               tabDiv.innerHTML = html;
               tabDiv.style.display = "none";
-              console.log(`✅ Loaded form: ${mapping.title}`);
+              console.log(`Loaded form: ${mapping.title}`);
             } catch (err) {
-              console.error(`❌ Failed to load ${mapping.file}:`, err);
+              console.error(`Failed to load ${mapping.file}:`, err);
               tabDiv.innerHTML = `<p style="color:red;">Error loading ${mapping.title} (${mapping.file})</p>`;
             }
 
@@ -2327,13 +2328,13 @@ if (extraFormsNeeded.length > 0) {
 
         // Step 4: Create universal Save Draft button
         const saveBtnTemplate = document.createElement("button");
-        saveBtnTemplate.textContent = "💾 Save Draft";
+        saveBtnTemplate.textContent = "Save Draft";
         saveBtnTemplate.className = "universal-save-btn";
         saveBtnTemplate.style.marginTop = "30px";
 
         async function handleSave(e) {
           const btn = e.target;
-          btn.textContent = "💾 Saving...";
+          btn.textContent = "Saving...";
 
           const title =
             document.getElementById("section-1")?.value || "Untitled";
@@ -2374,10 +2375,10 @@ if (extraFormsNeeded.length > 0) {
           });
 
           if (response.ok) {
-            btn.textContent = "✅ Saved!";
-            setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
+            btn.textContent = "Saved!";
+            setTimeout(() => (btn.textContent = "Save Draft"), 2000);
           } else {
-            btn.textContent = "❌ Save Failed";
+            btn.textContent = "Save Failed";
           }
         }
 
@@ -2433,7 +2434,7 @@ if (extraFormsNeeded.length > 0) {
                 if (element) {
                   element.value = savedDraft.sections[id];
                   console.log(
-                    `✅ Loaded section ${id}:`,
+                    `Loaded section ${id}:`,
                     savedDraft.sections[id].substring(0, 50) + "..."
                   );
                 }
@@ -2451,7 +2452,7 @@ if (extraFormsNeeded.length > 0) {
                   document.querySelector(`[data-form-id="${formId}"] form`) ||
                   document.getElementById(formId);
                 if (!formWrapper) {
-                  console.warn(`⏳ Waiting for form ${formId}...`);
+                  console.warn(`Waiting for form ${formId}...`);
                   setTimeout(waitForForm, 300);
                   return;
                 }
@@ -2471,7 +2472,7 @@ if (extraFormsNeeded.length > 0) {
                     }
                   });
                 }
-                console.log(`✅ Loaded form data for ${formId}`);
+                console.log(`Loaded form data for ${formId}`);
               };
               waitForForm();
             }
@@ -2497,7 +2498,7 @@ if (extraFormsNeeded.length > 0) {
           .catch((err) => {
             console.error("Error inviting collaborator:", err);
             document.getElementById("invite-status").textContent =
-              "❌ Invite failed.";
+              "Invite failed.";
           });
       }
     </script>
@@ -2592,10 +2593,10 @@ const response = await fetch("/submit-final-draft", {
 
 
     if (response.ok) {
-      alert(`✅ Submitted "${draftTitle}" successfully!`);
+      alert(`Submitted "${draftTitle}" successfully!`);
       window.location.href = "/dashboard";
     } else {
-      alert("❌ Submission failed. Try again.");
+      alert("Submission failed. Try again.");
     }
 
   });

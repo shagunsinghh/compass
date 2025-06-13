@@ -26,6 +26,21 @@
     <a class="cta-button" href="/intake.html">➕ Start New Submission</a>
 <section style="margin-top: 40px;">
   <h2>Your IRB Submissions</h2>
+  <h2>Saved Drafts</h2>
+<% if (drafts.length === 0) { %>
+  <p>No saved drafts yet.</p>
+<% } else { %>
+  <ul>
+    <% drafts.slice().reverse().forEach(draft => { %>
+      <li>
+        <strong><%= draft.title %></strong> —
+        <%= new Date(draft.timestamp).toLocaleString() %>
+        <a href="/collab2.html?draftTitle=<%= encodeURIComponent(draft.title) %>">✏️ Resume Editing</a>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
   <% if (submissions.length === 0) { %>
     <p>No IRBs submitted yet.</p>
   <% } else { %>
@@ -48,6 +63,10 @@
           <p class="meta">🔒 Risk: <%= sub.risk_level %>, Consent: <%= sub.consent %></p>
           <a class="view-btn" href="/collab2.html?<%= params %>">📝 View Draft</a>
           <a class="view-btn" href="#">📥 Download</a>
+          <form action="/delete-submission" method="POST" style="display:inline;">
+            <input type="hidden" name="timestamp" value="<%= sub.timestamp %>">
+            <button type="submit" class="delete-btn">🗑 Delete</button>
+            </form>
         </div>
       <% }) %>
     </div>

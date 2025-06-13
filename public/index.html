@@ -53,17 +53,24 @@
               cta.innerText = 'Go to Dashboard';
             }
           })
-          .catch(err => {
-            console.warn("⚠️ Not logged in:", err);
-            navLinks.innerHTML = `
-              <li><a href="/">Home</a></li>
-              <li><a href="/login.html">Log In</a></li>
-              <li><a href="/register.html">Register</a></li>
-            `;
+.catch(err => {
+  console.warn("⚠️ Not logged in:", err);
+  navLinks.innerHTML = `
+    <li><a href="/">Home</a></li>
+    <li><a href="/login.html">Log In</a></li>
+    <li><a href="/register.html">Register</a></li>
+  `;
 
-            const authSection = document.querySelector('.auth-section');
-            if (authSection) authSection.style.display = 'block';
-          });
+  const authSection = document.querySelector('.auth-section');
+  if (authSection) authSection.style.display = 'block';
+
+  const cta = document.querySelector('#cta-button');
+  if (cta) {
+    cta.href = '/login.html';
+    cta.innerText = 'Start a Submission';
+  }
+});
+
       }, 50); // Short delay to make sure navbar is fully in DOM
     });
 </script>
@@ -78,7 +85,7 @@
   <header class="hero">
     <h1>Welcome to Compass</h1>
     <p class="subtitle">Streamlining IRB protocol drafting, submission, and collaboration.</p>
-    <a class="cta-button" href="/intake.html">Start a Submission</a>
+    <a class="cta-button" id="cta-button" href="/login.html">Start a Submission</a>
   </header>
 
 

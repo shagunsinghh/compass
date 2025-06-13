@@ -12,5 +12,12 @@
     "institution": "MIT",
     "group_name": "Media Lab",
     "password": "lara"
+  },
+  {
+    "name": "test",
+    "email": "test@gmail.com",
+    "institution": "test",
+    "group_name": "test",
+    "password": "test"
   }
 ]

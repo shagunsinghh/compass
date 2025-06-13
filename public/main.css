@@ -351,3 +351,14 @@ h1 {
 .view-btn:hover {
   background: #274ea2;
 }
+
+
+.delete-btn {
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}

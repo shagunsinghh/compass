@@ -80,45 +80,6 @@
       <input type="date" id="pi_date" name="pi_date" required>
     </fieldset>
 
-    <div style="margin-top: 20px;">
-      <button type="button" id="saveBtn">💾 Save Draft</button>
-      <button type="button" id="submitBtn">📤 Submit Draft</button>
-    </div>
-  </form>
-
-  <script>
-    function collectFormData() {
-      const form = document.getElementById('dataSharingForm');
-      const formData = new FormData(form);
-      const data = {};
-      for (const [key, value] of formData.entries()) {
-        if (data[key]) {
-          if (!Array.isArray(data[key])) data[key] = [data[key]];
-          data[key].push(value);
-        } else {
-          data[key] = value;
-        }
-      }
-      return data;
-    }
-
-    async function sendDraft(action) {
-      const data = collectFormData();
-      try {
-        const res = await fetch('/api/save-datasharing', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, data })
-        });
-        const result = await res.json();
-        alert(result.message || "Success");
-      } catch (err) {
-        alert("❌ Error: " + err.message);
-      }
-    }
-
-    document.getElementById('saveBtn').addEventListener('click', () => sendDraft('save'));
-    document.getElementById('submitBtn').addEventListener('click', () => sendDraft('submit'));
-  </script>
-</body>
+    </form>
+  </body>
 </html>

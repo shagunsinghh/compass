@@ -139,6 +139,22 @@
   <body>
     <div id="navbar-placeholder"></div>
     <script>
+        window.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const draftTitle = params.get("draftTitle");
+  if (!draftTitle) return;
+
+  const res = await fetch(`/load-draft?title=${encodeURIComponent(draftTitle)}`);
+  if (!res.ok) return;
+
+  const data = await res.json();
+  for (let id of sectionIds) {
+    if (data.sections[id]) {
+      document.getElementById(id).value = data.sections[id];
+    }
+  }
+});
+
   console.log("🚀 Script started");
 
   fetch('/navbar.html')
@@ -197,6 +213,7 @@
       }, 50); // Short delay to make sure navbar is fully in DOM
     });
 </script>
+
 
     <div class="page-wrapper">
       <ul class="tabs-nav" id="tabs-nav">
@@ -504,6 +521,7 @@
           <button id="download-draft" style="margin-top: 30px">
             📥 Download Full Draft
           </button>
+          <button id="save-draft-btn" style="margin-top: 20px">💾 Save Draft</button>
         </div>
       </div>
     </div>
@@ -1066,44 +1084,27 @@
           }
         });
       });
-// submission and save option
-      <div style="text-align: center; margin-top: 30px;">
-  <button id="save-draft" class="cta-button">💾 Save Draft</button>
-  <button id="submit-draft" class="cta-button" style="background-color: #28a745;">🚀 Submit Draft</button>
-</div>
+      document.getElementById("save-draft-btn").addEventListener("click", async () => {
+  const title = document.getElementById("section-1").value || "Untitled";
 
+  const sections = {};
+  for (let id of sectionIds) {
+    sections[id] = document.getElementById(id).value;
+  }
 
+  const response = await fetch("/save-draft", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, sections })
+  });
+
+  if (response.ok) {
+    alert("✅ Draft saved successfully.");
+  } else {
+    alert("❌ Error saving draft.");
+  }
+});
 
     </script>
-    
-    <script>
-  // Save or Submit actions
-  document.getElementById('save-draft').addEventListener('click', () => saveDraft("save"));
-  document.getElementById('submit-draft').addEventListener('click', () => saveDraft("submit"));
-
-  function saveDraft(actionType) {
-    const draft = {};
-    sectionIds.forEach(id => {
-      draft[id] = document.getElementById(id).value;
-    });
-
-    fetch('/api/save-draft', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ draft, action: actionType })
-    })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to save");
-      return res.json();
-    })
-    .then(data => {
-      alert(data.message);
-    })
-    .catch(err => {
-      alert("Error saving draft: " + err.message);
-    });
-  }
-</script>
-
   </body>
 </html>

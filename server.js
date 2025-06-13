@@ -6,6 +6,7 @@ const multer = require("multer");
 const fs = require("fs");
 const bcrypt = require('bcrypt'); // From remote
 const session = require('express-session');
+const usersFile = path.join(__dirname, "users.json");
 
 
 
@@ -531,6 +532,43 @@ ${
   res.send(html);
 });
 
+// Save collaborative IRB draft
+app.post("/save-draft", requireLogin, (req, res) => {
+  const draftPath = path.join(__dirname, "drafts.json");
+  let drafts = fs.existsSync(draftPath)
+    ? JSON.parse(fs.readFileSync(draftPath))
+    : [];
+
+  const newDraft = {
+    email: req.session.user.email,
+    timestamp: new Date().toISOString(),
+    title: req.body.title || "Untitled",
+    sections: req.body.sections, // All 12 sections as a dictionary
+  };
+
+  // Replace old draft with same title
+  drafts = drafts.filter(d => !(d.email === newDraft.email && d.title === newDraft.title));
+  drafts.push(newDraft);
+
+  fs.writeFileSync(draftPath, JSON.stringify(drafts, null, 2));
+  res.json({ success: true });
+});
+
+// Load draft when editing
+app.get("/load-draft", requireLogin, (req, res) => {
+  const draftPath = path.join(__dirname, "drafts.json");
+  if (!fs.existsSync(draftPath)) return res.status(404).send("No drafts found");
+
+  const drafts = JSON.parse(fs.readFileSync(draftPath));
+  const draft = drafts.find(
+    d => d.email === req.session.user.email && d.title === req.query.title
+  );
+
+  if (!draft) return res.status(404).send("Draft not found");
+  res.json(draft);
+});
+
+
 // Submissions route
 app.get("/submissions", (req, res) => {
   const filePath = path.join(__dirname, "intake_submissions.json");
@@ -596,12 +634,11 @@ app.post("/register", (req, res) => {
     password,
   };
 
-  const users = JSON.parse(fs.readFileSync("users.json", "utf8"));
+let users = [];
+if (fs.existsSync(usersFile)) {
+  users = JSON.parse(fs.readFileSync(usersFile, "utf8"));
+}
 
-
-  if (fs.existsSync(usersFile)) {
-    users = JSON.parse(fs.readFileSync(usersFile));
-  }
 
   if (users.find((u) => u.email === email)) {
     return res.status(400).send("User already exists.");
@@ -620,37 +657,45 @@ app.post("/register", (req, res) => {
 
 
 app.get("/dashboard", requireLogin, (req, res) => {
-  const user = req.session.user;
-  if (!user) return res.redirect("/login.html");
-
-  // ✅ Step 1: Declare the variable FIRST
-  let allSubmissions = [];
-
-  // ✅ Step 2: Read from file if it exists
-  const filePath = path.join(__dirname, "intake_submissions.json");
-  if (fs.existsSync(filePath)) {
-    try {
-      const fileData = fs.readFileSync(filePath, "utf-8");
-      allSubmissions = JSON.parse(fileData);
-    } catch (error) {
-      console.error("❌ Error reading intake_submissions.json:", error);
-    }
+  const draftPath = path.join(__dirname, "drafts.json");
+  let drafts = [];
+  if (fs.existsSync(draftPath)) {
+    drafts = JSON.parse(fs.readFileSync(draftPath)).filter(
+      d => d.email === req.session.user.email
+    );
   }
 
-  // ✅ Step 3: Use it to filter by user
-  const userSubmissions = allSubmissions.filter(
-    (s) => s.user_email === user.email
-  );
+  const intakePath = path.join(__dirname, "intake_submissions.json");
+  const submissions = fs.existsSync(intakePath)
+    ? JSON.parse(fs.readFileSync(intakePath)).filter(
+        s => s.user_email === req.session.user.email
+      )
+    : [];
 
-  // ✅ Step 4: Render the dashboard
   res.render("dashboard", {
-    user,
-    submissions: userSubmissions,
+    user: req.session.user,
+    drafts,
+    submissions
   });
-
 });
 
 
+
+app.post("/delete-submission", requireLogin, (req, res) => {
+  const filePath = path.join(__dirname, "intake_submissions.json");
+  if (!fs.existsSync(filePath)) return res.redirect("/dashboard");
+
+  const allSubmissions = JSON.parse(fs.readFileSync(filePath, "utf8"));
+
+  // Only delete if the submission belongs to the logged-in user
+  const updatedSubmissions = allSubmissions.filter(
+    s => !(s.timestamp === req.body.timestamp && s.user_email === req.session.user.email)
+  );
+
+  fs.writeFileSync(filePath, JSON.stringify(updatedSubmissions, null, 2));
+
+  res.redirect("/dashboard");
+});
 
 
 
@@ -713,28 +758,4 @@ server.listen(PORT, () => {
   console.log(`🚀 Server listening on http://localhost:${PORT}`);
   console.log(`🧪 Test the API at: http://localhost:${PORT}/api/test`);
   console.log(`🤖 AI endpoint at: http://localhost:${PORT}/api/analyze`);
-});
-
-
-const fs = require("fs");
-const path = require("path");
-
-const DRAFT_PATH = path.join(__dirname, "drafts.json");
-
-app.post("/api/save-draft", (req, res) => {
-  const { draft, action } = req.body;
-  if (!draft || typeof draft !== "object") {
-    return res.status(400).json({ message: "Invalid draft" });
-  }
-
-  let existing = [];
-  if (fs.existsSync(DRAFT_PATH)) {
-    existing = JSON.parse(fs.readFileSync(DRAFT_PATH, "utf8"));
-  }
-
-  const timestamp = new Date().toISOString();
-  existing.push({ draft, action, timestamp });
-
-  fs.writeFileSync(DRAFT_PATH, JSON.stringify(existing, null, 2));
-  res.json({ message: action === "submit" ? "✅ Draft submitted!" : "✅ Draft saved!" });
 });

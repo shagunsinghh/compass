@@ -139,135 +139,142 @@
   <body>
     <div id="navbar-placeholder"></div>
     <script>
-        window.addEventListener("DOMContentLoaded", async () => {
-  const params = new URLSearchParams(window.location.search);
-  const draftTitle = params.get("draftTitle");
-  if (!draftTitle) return;
+      window.addEventListener("DOMContentLoaded", async () => {
+        const params = new URLSearchParams(window.location.search);
+        const draftTitle = params.get("draftTitle");
+        if (!draftTitle) return;
 
-  const res = await fetch(`/load-draft?title=${encodeURIComponent(draftTitle)}`);
-  if (!res.ok) return;
+        const res = await fetch(
+          `/load-draft?title=${encodeURIComponent(draftTitle)}`
+        );
+        if (!res.ok) return;
 
-  const data = await res.json();
+        const data = await res.json();
 
-
-  if (data.sections) {
-    for (let id of sectionIds) {
-      if (data.sections[id]) {
-        document.getElementById(id).value = data.sections[id];
-      }
-    }
-  }
-
-  if (data.extraForms) {
-    for (const [formId, savedInputs] of Object.entries(data.extraForms)) {
-      const waitForForm = async () => {
-        const formWrapper = document.querySelector(`[data-form-id="${formId}"] form`) || document.getElementById(formId);
-        if (!formWrapper) {
-          console.warn(`⏳ Waiting for form ${formId}...`);
-          setTimeout(waitForForm, 300);
-          return;
-        }
-
-        for (const [key, value] of Object.entries(savedInputs)) {
-          const inputs = formWrapper.querySelectorAll(`[name="${key}"]`);
-          inputs.forEach(input => {
-            if (input.type === "checkbox") {
-              input.checked = Array.isArray(value) && value.includes(input.value);
-            } else if (input.type === "radio") {
-              input.checked = input.value === value;
-            } else {
-              input.value = value;
+        if (data.sections) {
+          for (let id of sectionIds) {
+            if (data.sections[id]) {
+              document.getElementById(id).value = data.sections[id];
             }
+          }
+        }
+
+        if (data.extraForms) {
+          for (const [formId, savedInputs] of Object.entries(data.extraForms)) {
+            const waitForForm = async () => {
+              const formWrapper =
+                document.querySelector(`[data-form-id="${formId}"] form`) ||
+                document.getElementById(formId);
+              if (!formWrapper) {
+                console.warn(`⏳ Waiting for form ${formId}...`);
+                setTimeout(waitForForm, 300);
+                return;
+              }
+
+              for (const [key, value] of Object.entries(savedInputs)) {
+                const inputs = formWrapper.querySelectorAll(`[name="${key}"]`);
+                inputs.forEach((input) => {
+                  if (input.type === "checkbox") {
+                    input.checked =
+                      Array.isArray(value) && value.includes(input.value);
+                  } else if (input.type === "radio") {
+                    input.checked = input.value === value;
+                  } else {
+                    input.value = value;
+                  }
+                });
+              }
+            };
+            waitForForm();
+          }
+        }
+
+        const saveBtnTemplate = document.createElement("button");
+        saveBtnTemplate.textContent = "💾 Save Draft";
+        saveBtnTemplate.className = "universal-save-btn";
+        saveBtnTemplate.style.marginTop = "30px";
+
+        saveBtnTemplate.addEventListener("click", async (e) => {
+          const btn = e.target;
+          btn.textContent = "💾 Saving...";
+
+          const title =
+            document.getElementById("section-1")?.value || "Untitled";
+
+          const sections = {};
+          for (let id of sectionIds) {
+            const el = document.getElementById(id);
+            if (el) sections[id] = el.value;
+          }
+
+          const extraForms = {};
+          document.querySelectorAll(".tab-content form").forEach((form) => {
+            const formId =
+              form.closest("[data-form-id]")?.getAttribute("data-form-id") ||
+              form.getAttribute("id") ||
+              "unknown_form";
+            const inputs = form.querySelectorAll("input, textarea, select");
+
+            const data = {};
+            inputs.forEach((input) => {
+              if (input.type === "checkbox") {
+                if (!data[input.name]) data[input.name] = [];
+                if (input.checked) data[input.name].push(input.value);
+              } else if (input.type === "radio") {
+                if (input.checked) data[input.name] = input.value;
+              } else {
+                data[input.name] = input.value;
+              }
+            });
+
+            extraForms[formId] = data;
           });
-        }
-      };
-      waitForForm();
-    }
-  }
-const saveBtnTemplate = document.createElement("button");
-saveBtnTemplate.textContent = "💾 Save Draft";
-saveBtnTemplate.className = "universal-save-btn";
-saveBtnTemplate.style.marginTop = "30px";
 
-saveBtnTemplate.addEventListener("click", async (e) => {
-  const btn = e.target;
-  btn.textContent = "💾 Saving...";
+          const response = await fetch("/save-draft", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, sections, extraForms }),
+          });
 
-  const title = document.getElementById("section-1")?.value || "Untitled";
+          if (response.ok) {
+            btn.textContent = "✅ Saved!";
+            setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
+          } else {
+            btn.textContent = "❌ Save Failed";
+          }
+        });
 
-  const sections = {};
-  for (let id of sectionIds) {
-    const el = document.getElementById(id);
-    if (el) sections[id] = el.value;
-  }
+        // Add Save button to every loaded tab
+        document.querySelectorAll(".tab-content > div").forEach((tab) => {
+          const btnClone = saveBtnTemplate.cloneNode(true);
+          btnClone.addEventListener("click", saveBtnTemplate.onclick);
+          tab.appendChild(btnClone);
+        });
+      });
 
-  const extraForms = {};
-  document.querySelectorAll(".tab-content form").forEach(form => {
-    const formId = form.closest("[data-form-id]")?.getAttribute("data-form-id") || form.getAttribute("id") || "unknown_form";
-    const inputs = form.querySelectorAll("input, textarea, select");
+      console.log("🚀 Script started");
 
-    const data = {};
-    inputs.forEach(input => {
-      if (input.type === "checkbox") {
-        if (!data[input.name]) data[input.name] = [];
-        if (input.checked) data[input.name].push(input.value);
-      } else if (input.type === "radio") {
-        if (input.checked) data[input.name] = input.value;
-      } else {
-        data[input.name] = input.value;
-      }
-    });
+      fetch("/navbar.html")
+        .then((res) => res.text())
+        .then((html) => {
+          console.log("✅ navbar.html loaded");
+          document.getElementById("navbar-placeholder").innerHTML = html;
 
-    extraForms[formId] = data;
-  });
+          setTimeout(() => {
+            const navLinks = document.querySelector(".nav-links");
+            if (!navLinks) {
+              console.error("❌ navLinks element missing");
+              return;
+            }
 
-  const response = await fetch("/save-draft", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, sections, extraForms })
-  });
-
-  if (response.ok) {
-    btn.textContent = "✅ Saved!";
-    setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
-  } else {
-    btn.textContent = "❌ Save Failed";
-  }
-});
-
-// Add Save button to every loaded tab
-document.querySelectorAll(".tab-content > div").forEach(tab => {
-  const btnClone = saveBtnTemplate.cloneNode(true);
-  btnClone.addEventListener("click", saveBtnTemplate.onclick); // important: preserve handler
-  tab.appendChild(btnClone);
-});
-
-});
-
-  console.log("🚀 Script started");
-
-  fetch('/navbar.html')
-    .then(res => res.text())
-    .then(html => {
-      console.log("✅ navbar.html loaded");
-      document.getElementById('navbar-placeholder').innerHTML = html;
-
-      // Wait a moment to let HTML insert
-      setTimeout(() => {
-        const navLinks = document.querySelector(".nav-links");
-        if (!navLinks) {
-          console.error("❌ navLinks element missing");
-          return;
-        }
-
-        fetch('/session')
-          .then(res => {
-            if (!res.ok) throw new Error("Not logged in");
-            return res.json();
-          })
-          .then(user => {
-            console.log("✅ Logged in:", user);
-            navLinks.innerHTML = `
+            fetch("/session")
+              .then((res) => {
+                if (!res.ok) throw new Error("Not logged in");
+                return res.json();
+              })
+              .then((user) => {
+                console.log("✅ Logged in:", user);
+                navLinks.innerHTML = `
               <li><a href="/">Home</a></li>
               <li><a href="/intake.html">IRB Intake Form</a></li>
               <li><a href="/collab2.html">Collaborative Draft IRB Full</a></li>
@@ -279,30 +286,29 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
               </li>
             `;
 
-            const authSection = document.querySelector('.auth-section');
-            if (authSection) authSection.style.display = 'none';
+                const authSection = document.querySelector(".auth-section");
+                if (authSection) authSection.style.display = "none";
 
-            const cta = document.querySelector('.cta-button');
-            if (cta) {
-              cta.href = '/dashboard';
-              cta.innerText = 'Go to Dashboard';
-            }
-          })
-          .catch(err => {
-            console.warn("⚠️ Not logged in:", err);
-            navLinks.innerHTML = `
+                const cta = document.querySelector(".cta-button");
+                if (cta) {
+                  cta.href = "/dashboard";
+                  cta.innerText = "Go to Dashboard";
+                }
+              })
+              .catch((err) => {
+                console.warn("⚠️ Not logged in:", err);
+                navLinks.innerHTML = `
               <li><a href="/">Home</a></li>
               <li><a href="/login.html">Log In</a></li>
               <li><a href="/register.html">Register</a></li>
             `;
 
-            const authSection = document.querySelector('.auth-section');
-            if (authSection) authSection.style.display = 'block';
-          });
-      }, 50); // Short delay to make sure navbar is fully in DOM
-    });
-</script>
-
+                const authSection = document.querySelector(".auth-section");
+                if (authSection) authSection.style.display = "block";
+              });
+          }, 50);
+        });
+    </script>
 
     <div class="page-wrapper">
       <ul class="tabs-nav" id="tabs-nav">
@@ -606,23 +612,24 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
               placeholder="Describe supporting documents..."
             ></textarea>
           </div>
-        <hr style="margin-top: 40px;" />
-        <div style="margin-top: 20px;">
-        <h3>Invite Collaborator</h3>
-        <input
-            type="email"
-            id="invite-email"
-            placeholder="Enter email to invite"
-            style="padding: 8px; width: 250px;"
-        />
-        <button onclick="inviteCollaborator()" style="padding: 8px 12px;">➕ Invite</button>
-        <p id="invite-status" style="margin-top: 10px; color: green;"></p>
-    </div>
+          <hr style="margin-top: 40px" />
+          <div style="margin-top: 20px">
+            <h3>Invite Collaborator</h3>
+            <input
+              type="email"
+              id="invite-email"
+              placeholder="Enter email to invite"
+              style="padding: 8px; width: 250px"
+            />
+            <button onclick="inviteCollaborator()" style="padding: 8px 12px">
+              ➕ Invite
+            </button>
+            <p id="invite-status" style="margin-top: 10px; color: green"></p>
+          </div>
 
           <button id="download-draft" style="margin-top: 30px">
             📥 Download Full Draft
           </button>
-          <!-- <button id="save-draft-btn" style="margin-top: 20px">💾 Save Draft</button> -->
         </div>
       </div>
     </div>
@@ -725,7 +732,6 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
 
       async function processPDF(file) {
         if (file.size > 10 * 1024 * 1024) {
-          // 10MB limit
           showError("File size must be less than 10MB.");
           return;
         }
@@ -735,13 +741,8 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
         errorMessage.style.display = "none";
 
         try {
-          // Extract text from PDF
           const pdfText = await extractTextFromPDF(file);
-
-          // Send to OpenAI for analysis
           const suggestions = await analyzeWithAI(pdfText);
-
-          // Display suggestions
           displaySuggestions(suggestions);
 
           processingIndicator.style.display = "none";
@@ -758,14 +759,12 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
         try {
           const arrayBuffer = await file.arrayBuffer();
 
-          // Set up PDF.js worker
           pdfjsLib.GlobalWorkerOptions.workerSrc =
             "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
           const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
           let fullText = "";
 
-          // Extract text from each page
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
@@ -790,7 +789,7 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
           const response = await fetch("/api/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pdfText: pdfText }), // Send full text, let server handle size
+            body: JSON.stringify({ pdfText: pdfText }),
           });
 
           console.log("API response status:", response.status);
@@ -803,19 +802,15 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
 
           const data = await response.json();
           console.log("API response received successfully");
-          console.log("Full API response:", data); // Debug log
+          console.log("Full API response:", data);
 
-          // Extract the content from OpenAI's response
           const content = data.choices[0].message.content;
-          console.log("OpenAI content:", content); // Debug log
+          console.log("OpenAI content:", content);
 
           try {
-            // Try to parse JSON from the response
             let parsedContent;
 
-            // Handle case where content might already be a JSON object or string
             if (typeof content === "string") {
-              // Look for JSON in the string
               const jsonMatch = content.match(/\{[\s\S]*\}/);
               if (jsonMatch) {
                 parsedContent = JSON.parse(jsonMatch[0]);
@@ -823,13 +818,12 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
                 throw new Error("No JSON found in response");
               }
             } else if (typeof content === "object") {
-              // Content is already an object
               parsedContent = content;
             } else {
               throw new Error("Unexpected content type");
             }
 
-            console.log("Parsed suggestions:", parsedContent); // Debug log
+            console.log("Parsed suggestions:", parsedContent);
             return parsedContent;
           } catch (parseError) {
             console.log("JSON parsing failed:", parseError);
@@ -846,16 +840,14 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
       }
 
       function displaySuggestions(suggestions) {
-        console.log("Displaying suggestions:", suggestions); // Debug log
+        console.log("Displaying suggestions:", suggestions);
 
-        // Check if suggestions is valid
         if (!suggestions || typeof suggestions !== "object") {
           console.error("Invalid suggestions object:", suggestions);
           showError("Invalid suggestions received from AI");
           return;
         }
 
-        // Map section keys to section numbers
         const sectionMapping = {
           section1: "1",
           section2: "2",
@@ -883,7 +875,6 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
 
           const suggestionValue = suggestions[key];
 
-          // Check if suggestion has meaningful content
           if (
             suggestionValue &&
             typeof suggestionValue === "string" &&
@@ -912,8 +903,9 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
               aiSuggestions[sectionNum] = suggestionValue;
               hasAnySuggestions = true;
             } else {
-              console.error(
-                `Could not find elements for section ${sectionNum}`
+              console.log(
+                `Skipping empty/invalid suggestion for section ${sectionNum}:`,
+                suggestionValue
               );
             }
           } else {
@@ -939,7 +931,6 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
         const suggestions = {};
         const text = pdfText.toLowerCase();
 
-        // Smart extraction based on the ultrasound research paper
         if (text.includes("ultrasound") && text.includes("breast")) {
           suggestions.section1 =
             "Conformable ultrasound breast patch for deep tissue scanning and imaging";
@@ -966,7 +957,6 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
           suggestions.section12 =
             "Informed consent forms, device technical specifications, imaging protocols, and safety documentation";
         } else {
-          // Generic extraction for other documents
           const titleMatch = pdfText.match(/^(.{10,100}?)(?:\n|\.)/);
           suggestions.section1 = titleMatch
             ? titleMatch[1].trim()
@@ -1010,13 +1000,11 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
 
         if (suggestion) {
           textarea.value = suggestion;
-          // Trigger the collaborative update
           socket.emit("section-edit", {
             section: `section-${sectionNum}`,
             content: suggestion,
           });
 
-          // Hide the suggestion
           const suggestionDiv = document.getElementById(
             `suggestion-${sectionNum}`
           );
@@ -1033,7 +1021,6 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
         errorMessage.style.display = "block";
       }
 
-      // Apply all suggestions button
       document
         .getElementById("applyAllSuggestions")
         .addEventListener("click", () => {
@@ -1043,7 +1030,6 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
           analysisResults.style.display = "none";
         });
 
-      // Download functionality
       document
         .getElementById("download-draft")
         .addEventListener("click", () => {
@@ -1070,160 +1056,377 @@ document.querySelectorAll(".tab-content > div").forEach(tab => {
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
         });
-document.addEventListener("DOMContentLoaded", async () => {
-  const params = new URLSearchParams(window.location.search);
 
-  const formMappings = [
-    { field: "dod_funded", title: "DoD Exempt Application", file: "dodexempt.html" },
-    { field: "mit_reviewing_irb", title: "Local Context", file: "localcontext.html" },
-    { field: "conducting_interviews", title: "Consent to Participate in Interview", file: "consentpart.html" },
-    { field: "submitting_genomic_data", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
-    { field: "lincoln_lab", title: "Scientific Review (Lincoln Lab only)", file: "scientific.html" },
-    { field: "adverse_events", title: "Protocol Event Reporting", file: "protocol.html" },
-    { field: "study_complete", title: "Final Report Closure", file: "finalreport.html" },
-    { field: "not_in_english", title: "Translation Attestation", file: "translation.html" },
-    { field: "wants_waiver", title: "Waiver or Alteration of Informed Consent Request", file: "waiver.html" },
-    { field: "is_genomic", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
-    { field: "uses_phi", title: "Authorization for Release of PHI", file: "release.html" },
-    { field: "involves_minors", title: "Assent for Minors", file: "assentform.html" },
-  ];
+      // FIXED: Enhanced tab loading system
+      document.addEventListener("DOMContentLoaded", async () => {
+        const params = new URLSearchParams(window.location.search);
 
-  const nav = document.getElementById("tabs-nav");
-  const content = document.querySelector(".tab-content");
+        // Step 1: Check if we have a saved draft to load
+        const draftTitle = params.get("draftTitle");
+        let savedDraft = null;
 
-  // Load extra form tabs
-  for (const mapping of formMappings) {
-    if (params.has(mapping.field)) {
-      const li = document.createElement("li");
-      li.textContent = mapping.title;
-      li.dataset.tab = mapping.field;
-      nav.appendChild(li);
+        if (draftTitle) {
+          try {
+            const res = await fetch(
+              `/load-draft?title=${encodeURIComponent(draftTitle)}`
+            );
+            if (res.ok) {
+              savedDraft = await res.json();
+              console.log("📋 Loaded saved draft:", savedDraft);
+            }
+          } catch (err) {
+            console.warn("⚠️ Could not load saved draft:", err);
+          }
+        }
 
-      const tabDiv = document.createElement("div");
-      tabDiv.id = `tab-${mapping.field}`;
-      tabDiv.setAttribute("data-form-id", mapping.field);
-      content.appendChild(tabDiv);
+        // Step 2: Determine which extra forms to load
+        let extraFormsNeeded = [];
 
-      try {
-        const res = await fetch(mapping.file);
-        const html = await res.text();
-        tabDiv.innerHTML = html;
-        tabDiv.style.display = "none";
-      } catch (err) {
-        console.error(`❌ Failed to load ${mapping.file}:`, err);
-        tabDiv.innerHTML = `<p style="color:red;">Error loading ${mapping.title} (${mapping.file})</p>`;
-      }
-    }
-  }
-
-  // ✅ Add universal Save Draft button to every tab
-  const saveBtnTemplate = document.createElement("button");
-  saveBtnTemplate.textContent = "💾 Save Draft";
-  saveBtnTemplate.className = "universal-save-btn";
-  saveBtnTemplate.style.marginTop = "30px";
-
-  async function handleSave(e) {
-    const btn = e.target;
-    btn.textContent = "💾 Saving...";
-
-    const title = document.getElementById("section-1")?.value || "Untitled";
-
-    const sections = {};
-    for (let id of sectionIds) {
-      const el = document.getElementById(id);
-      if (el) sections[id] = el.value;
-    }
-
-    const extraForms = {};
-    document.querySelectorAll(".tab-content form").forEach(form => {
-      const formId = form.closest("[data-form-id]")?.getAttribute("data-form-id") || form.getAttribute("id") || "unknown_form";
-      const inputs = form.querySelectorAll("input, textarea, select");
-
-      const data = {};
-      inputs.forEach(input => {
-        if (input.type === "checkbox") {
-          if (!data[input.name]) data[input.name] = [];
-          if (input.checked) data[input.name].push(input.value);
-        } else if (input.type === "radio") {
-          if (input.checked) data[input.name] = input.value;
+        // If we have a saved draft, get the extra forms from it
+        if (savedDraft && savedDraft.extraForms) {
+          extraFormsNeeded = Object.keys(savedDraft.extraForms);
+          console.log("📝 Extra forms from saved draft:", extraFormsNeeded);
         } else {
-          data[input.name] = input.value;
+          // Otherwise, check URL parameters for form flags
+          const formMappings = [
+            {
+              field: "dod_funded",
+              title: "DoD Exempt Application",
+              file: "dodexempt.html",
+            },
+            {
+              field: "mit_reviewing_irb",
+              title: "Local Context",
+              file: "localcontext.html",
+            },
+            {
+              field: "conducting_interviews",
+              title: "Consent to Participate in Interview",
+              file: "consentpart.html",
+            },
+            {
+              field: "submitting_genomic_data",
+              title: "Genomic Data Sharing Certification",
+              file: "datasharing.html",
+            },
+            {
+              field: "lincoln_lab",
+              title: "Scientific Review (Lincoln Lab only)",
+              file: "scientific.html",
+            },
+            {
+              field: "adverse_events",
+              title: "Protocol Event Reporting",
+              file: "protocol.html",
+            },
+            {
+              field: "study_complete",
+              title: "Final Report Closure",
+              file: "finalreport.html",
+            },
+            {
+              field: "not_in_english",
+              title: "Translation Attestation",
+              file: "translation.html",
+            },
+            {
+              field: "wants_waiver",
+              title: "Waiver or Alteration of Informed Consent Request",
+              file: "waiver.html",
+            },
+            {
+              field: "is_genomic",
+              title: "Genomic Data Sharing Certification",
+              file: "datasharing.html",
+            },
+            {
+              field: "uses_phi",
+              title: "Authorization for Release of PHI",
+              file: "release.html",
+            },
+            {
+              field: "involves_minors",
+              title: "Assent for Minors",
+              file: "assentform.html",
+            },
+          ];
+
+          for (const mapping of formMappings) {
+            if (params.has(mapping.field)) {
+              extraFormsNeeded.push(mapping.field);
+            }
+          }
+          console.log("📝 Extra forms from URL params:", extraFormsNeeded);
+        }
+
+        // Step 3: Load extra form tabs
+        const nav = document.getElementById("tabs-nav");
+        const content = document.querySelector(".tab-content");
+
+        const formMappings = [
+          {
+            field: "dod_funded",
+            title: "DoD Exempt Application",
+            file: "dodexempt.html",
+          },
+          {
+            field: "mit_reviewing_irb",
+            title: "Local Context",
+            file: "localcontext.html",
+          },
+          {
+            field: "conducting_interviews",
+            title: "Consent to Participate in Interview",
+            file: "consentpart.html",
+          },
+          {
+            field: "submitting_genomic_data",
+            title: "Genomic Data Sharing Certification",
+            file: "datasharing.html",
+          },
+          {
+            field: "lincoln_lab",
+            title: "Scientific Review (Lincoln Lab only)",
+            file: "scientific.html",
+          },
+          {
+            field: "adverse_events",
+            title: "Protocol Event Reporting",
+            file: "protocol.html",
+          },
+          {
+            field: "study_complete",
+            title: "Final Report Closure",
+            file: "finalreport.html",
+          },
+          {
+            field: "not_in_english",
+            title: "Translation Attestation",
+            file: "translation.html",
+          },
+          {
+            field: "wants_waiver",
+            title: "Waiver or Alteration of Informed Consent Request",
+            file: "waiver.html",
+          },
+          {
+            field: "is_genomic",
+            title: "Genomic Data Sharing Certification",
+            file: "datasharing.html",
+          },
+          {
+            field: "uses_phi",
+            title: "Authorization for Release of PHI",
+            file: "release.html",
+          },
+          {
+            field: "involves_minors",
+            title: "Assent for Minors",
+            file: "assentform.html",
+          },
+        ];
+
+        for (const formField of extraFormsNeeded) {
+          const mapping = formMappings.find((m) => m.field === formField);
+          if (mapping) {
+            const li = document.createElement("li");
+            li.textContent = mapping.title;
+            li.dataset.tab = mapping.field;
+            nav.appendChild(li);
+
+            const tabDiv = document.createElement("div");
+            tabDiv.id = `tab-${mapping.field}`;
+            tabDiv.setAttribute("data-form-id", mapping.field);
+            content.appendChild(tabDiv);
+
+            try {
+              const res = await fetch(mapping.file);
+              const html = await res.text();
+              tabDiv.innerHTML = html;
+              tabDiv.style.display = "none";
+              console.log(`✅ Loaded form: ${mapping.title}`);
+            } catch (err) {
+              console.error(`❌ Failed to load ${mapping.file}:`, err);
+              tabDiv.innerHTML = `<p style="color:red;">Error loading ${mapping.title} (${mapping.file})</p>`;
+            }
+          }
+        }
+
+        // Step 4: Create universal Save Draft button
+        const saveBtnTemplate = document.createElement("button");
+        saveBtnTemplate.textContent = "💾 Save Draft";
+        saveBtnTemplate.className = "universal-save-btn";
+        saveBtnTemplate.style.marginTop = "30px";
+
+        async function handleSave(e) {
+          const btn = e.target;
+          btn.textContent = "💾 Saving...";
+
+          const title =
+            document.getElementById("section-1")?.value || "Untitled";
+
+          const sections = {};
+          for (let id of sectionIds) {
+            const el = document.getElementById(id);
+            if (el) sections[id] = el.value;
+          }
+
+          const extraForms = {};
+          document.querySelectorAll(".tab-content form").forEach((form) => {
+            const formId =
+              form.closest("[data-form-id]")?.getAttribute("data-form-id") ||
+              form.getAttribute("id") ||
+              "unknown_form";
+            const inputs = form.querySelectorAll("input, textarea, select");
+
+            const data = {};
+            inputs.forEach((input) => {
+              if (input.type === "checkbox") {
+                if (!data[input.name]) data[input.name] = [];
+                if (input.checked) data[input.name].push(input.value);
+              } else if (input.type === "radio") {
+                if (input.checked) data[input.name] = input.value;
+              } else {
+                data[input.name] = input.value;
+              }
+            });
+
+            extraForms[formId] = data;
+          });
+
+          const response = await fetch("/save-draft", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, sections, extraForms }),
+          });
+
+          if (response.ok) {
+            btn.textContent = "✅ Saved!";
+            setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
+          } else {
+            btn.textContent = "❌ Save Failed";
+          }
+        }
+
+        // Step 5: Add Save button to all tabs
+        document.querySelectorAll(".tab-content > div").forEach((tab) => {
+          const btnClone = saveBtnTemplate.cloneNode(true);
+          btnClone.addEventListener("click", handleSave);
+          tab.appendChild(btnClone);
+        });
+
+        // Step 6: Enable tab-switching behavior
+        nav.addEventListener("click", (e) => {
+          if (e.target.tagName === "LI") {
+            const selectedTab = e.target.dataset.tab;
+            nav
+              .querySelectorAll("li")
+              .forEach((item) =>
+                item.classList.toggle(
+                  "active",
+                  item.dataset.tab === selectedTab
+                )
+              );
+            content
+              .querySelectorAll(":scope > div")
+              .forEach(
+                (div) =>
+                  (div.style.display =
+                    div.id === `tab-${selectedTab}` ? "block" : "none")
+              );
+          }
+        });
+
+        // Step 7: Show the first visible tab
+        setTimeout(() => {
+          const firstTab = nav.querySelector("li");
+          if (firstTab) {
+            firstTab.classList.add("active");
+            const tabId = firstTab.dataset.tab;
+            const tabContent = document.getElementById(`tab-${tabId}`);
+            if (tabContent) {
+              tabContent.style.display = "block";
+            }
+          }
+        }, 100);
+
+        // Step 8: Load saved data if we have it
+        if (savedDraft) {
+          // Load main sections
+          if (savedDraft.sections) {
+            for (let id of sectionIds) {
+              if (savedDraft.sections[id]) {
+                const element = document.getElementById(id);
+                if (element) {
+                  element.value = savedDraft.sections[id];
+                  console.log(
+                    `✅ Loaded section ${id}:`,
+                    savedDraft.sections[id].substring(0, 50) + "..."
+                  );
+                }
+              }
+            }
+          }
+
+          // Load extra form data
+          if (savedDraft.extraForms) {
+            for (const [formId, savedInputs] of Object.entries(
+              savedDraft.extraForms
+            )) {
+              const waitForForm = async () => {
+                const formWrapper =
+                  document.querySelector(`[data-form-id="${formId}"] form`) ||
+                  document.getElementById(formId);
+                if (!formWrapper) {
+                  console.warn(`⏳ Waiting for form ${formId}...`);
+                  setTimeout(waitForForm, 300);
+                  return;
+                }
+
+                for (const [key, value] of Object.entries(savedInputs)) {
+                  const inputs = formWrapper.querySelectorAll(
+                    `[name="${key}"]`
+                  );
+                  inputs.forEach((input) => {
+                    if (input.type === "checkbox") {
+                      input.checked =
+                        Array.isArray(value) && value.includes(input.value);
+                    } else if (input.type === "radio") {
+                      input.checked = input.value === value;
+                    } else {
+                      input.value = value;
+                    }
+                  });
+                }
+                console.log(`✅ Loaded form data for ${formId}`);
+              };
+              waitForForm();
+            }
+          }
         }
       });
 
-      extraForms[formId] = data;
-    });
+      function inviteCollaborator() {
+        const inviteEmail = document.getElementById("invite-email").value;
+        const params = new URLSearchParams(window.location.search);
+        const draftTitle = params.get("draftTitle") || "Untitled";
 
-    const response = await fetch("/save-draft", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, sections, extraForms })
-    });
-
-    if (response.ok) {
-      btn.textContent = "✅ Saved!";
-      setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
-    } else {
-      btn.textContent = "❌ Save Failed";
-    }
-  }
-
-  // Add cloned button to all tabs
-  document.querySelectorAll(".tab-content > div").forEach(tab => {
-    const btnClone = saveBtnTemplate.cloneNode(true);
-    btnClone.addEventListener("click", handleSave);
-    tab.appendChild(btnClone);
-  });
-
-  // ✅ Enable tab-switching behavior
-  nav.addEventListener("click", (e) => {
-    if (e.target.tagName === "LI") {
-      const selectedTab = e.target.dataset.tab;
-      nav.querySelectorAll("li").forEach((item) =>
-        item.classList.toggle("active", item.dataset.tab === selectedTab)
-      );
-      content.querySelectorAll(":scope > div").forEach((div) =>
-        div.style.display = div.id === `tab-${selectedTab}` ? "block" : "none"
-      );
-    }
-  });
-
-  // ✅ Show the first visible tab
-  setTimeout(() => {
-    const firstVisible = content.querySelector(".tab-content > div");
-    if (firstVisible) {
-      firstVisible.style.display = "block";
-      const tabId = firstVisible.id.replace("tab-", "");
-      const tabLi = nav.querySelector(`li[data-tab="${tabId}"]`);
-      if (tabLi) tabLi.classList.add("active");
-    }
-  }, 300);
-});
-
-function inviteCollaborator() {
-  const inviteEmail = document.getElementById("invite-email").value;
-  const params = new URLSearchParams(window.location.search);
-  const draftTitle = params.get("draftTitle") || "Untitled";
-
-  fetch("/invite-collaborator", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ draftTitle, inviteEmail })
-  })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("invite-status").textContent = data.message;
-      document.getElementById("invite-email").value = "";
-    })
-    .catch(err => {
-      console.error("Error inviting collaborator:", err);
-      document.getElementById("invite-status").textContent = "❌ Invite failed.";
-    });
-
-
-}
-
-
+        fetch("/invite-collaborator", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ draftTitle, inviteEmail }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            document.getElementById("invite-status").textContent = data.message;
+            document.getElementById("invite-email").value = "";
+          })
+          .catch((err) => {
+            console.error("Error inviting collaborator:", err);
+            document.getElementById("invite-status").textContent =
+              "❌ Invite failed.";
+          });
+      }
     </script>
   </body>
 </html>

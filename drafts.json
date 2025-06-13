@@ -241,13 +241,13 @@
   },
   {
     "email": "shagun@mit.edu",
-    "timestamp": "2025-06-13T18:18:07.022Z",
-    "title": "Untitled",
+    "timestamp": "2025-06-13T18:43:09.343Z",
+    "title": "djwndwjkndw",
     "sections": {
-      "section-1": "",
+      "section-1": "djwndwjkndw",
       "section-2": "",
       "section-3": "",
-      "section-4": "dwwdwd",
+      "section-4": "",
       "section-5": "",
       "section-6": "",
       "section-7": "",
@@ -258,50 +258,72 @@
       "section-12": ""
     },
     "extraForms": {
-      "lincoln_lab": {
-        "protocol": "ewdewdewd",
-        "dept_head": "",
-        "q1": "yes",
-        "q4": "yes",
-        "comments": "dwdwdw",
-        "signature": "",
-        "sig_date": ""
+      "adverse_events": {
+        "reportTypes": [],
+        "titleOfStudy": "",
+        "piName": "",
+        "irbNumber": "",
+        "eventDate": "",
+        "description": "",
+        "actionsTaken": ""
       },
-      "wants_waiver": {
-        "request_type": [],
-        "practicable": "",
-        "risk": "no",
-        "risk_details": "",
-        "debrief": "no",
-        "debrief_text": ""
+      "study_complete": {
+        "study_title": "",
+        "pi_info": "",
+        "closure_reason": "",
+        "subjects_count": "",
+        "withdrawals": "",
+        "unreported": "no",
+        "findings": "",
+        "pi_sig": "",
+        "pi_date": "",
+        "dept_sig": "",
+        "dept_date": ""
       },
-      "is_genomic": {
+      "not_in_english": {
         "study_title": "",
         "pi_name": "",
-        "contact_person": "",
-        "contact_email": "",
-        "dataset_type": [],
-        "dul": [],
-        "controlled_uses": "",
-        "pop_desc": "",
-        "data_fields": "",
-        "seq_type": "none",
-        "coding_method": "",
-        "key_maintenance": "",
-        "sensitive_info": "",
-        "pi_sig": "",
-        "pi_date": ""
-      },
-      "involves_minors": {
-        "study_title": "",
-        "child_name": "",
-        "purpose": "",
-        "procedures": "",
-        "risks": "",
-        "benefits": "",
-        "phone": "",
-        "signature": "",
-        "date": ""
+        "pi_room": "",
+        "pi_title": "",
+        "pi_email": "",
+        "pi_dept": "",
+        "pi_phone": "",
+        "doc_list": "",
+        "pi_signature": "",
+        "pi_date": "",
+        "translator_signature": "",
+        "translator_date": ""
+      }
+    },
+    "collaborators": []
+  },
+  {
+    "email": "shagun@mit.edu",
+    "timestamp": "2025-06-13T18:56:43.915Z",
+    "title": "Untitled",
+    "sections": {
+      "section-1": "",
+      "section-2": "",
+      "section-3": "",
+      "section-4": "",
+      "section-5": "",
+      "section-6": "",
+      "section-7": "",
+      "section-8": "",
+      "section-9": "",
+      "section-10": "",
+      "section-11": "",
+      "section-12": ""
+    },
+    "extraForms": {
+      "adverse_events": {
+        "reportTypes": [],
+        "titleOfStudy": "",
+        "piName": "",
+        "irbNumber": "",
+        "eventDate": "",
+        "description": "",
+        "actionsTaken": ""
       }
     },
     "collaborators": []

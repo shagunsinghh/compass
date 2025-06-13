@@ -3,12 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <title>IRB Intake Form</title>
-    <link rel="stylesheet" href="main.css" />
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f5f5f5;
+      }
+      
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 20px;
+      }
+      
+      .hero {
+        background: #e0f2ff;
+        text-align: center;
+        padding: 40px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+      }
+      
+      .hero h1 {
+        color: #1e3a8a;
+        margin-bottom: 10px;
+      }
+      
+      .subtitle {
+        color: #666;
+        font-size: 1.1em;
+      }
+      
       form {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 20px;
       }
 
       .form-row {
@@ -26,274 +66,322 @@
 
       label {
         font-weight: bold;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        color: #333;
       }
 
       input,
       textarea,
       select {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
         font-size: 14px;
+        transition: border-color 0.3s;
+      }
+      
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #1e3a8a;
       }
 
       textarea {
         resize: vertical;
+        min-height: 100px;
       }
 
-      .form-section {
+      .checkbox-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+      }
+      
+      .checkbox-section h3 {
+        margin-bottom: 15px;
+        color: #1e3a8a;
+      }
+      
+      .checkbox-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      
+      .checkbox-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      
+      .checkbox-item input[type="checkbox"] {
+        margin-top: 2px;
+        width: 18px;
+        height: 18px;
+      }
+      
+      .checkbox-item label {
+        font-weight: normal;
+        margin-bottom: 0;
+        flex: 1;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 8px;
+      }
+      
+      .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      
+      .radio-item input[type="radio"] {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .radio-item label {
+        font-weight: normal;
+        margin-bottom: 0;
+      }
+
+      .submit-button {
+        padding: 15px 30px;
+        font-size: 16px;
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        align-self: flex-start;
         margin-top: 20px;
       }
 
-      button {
-        padding: 12px;
-        font-size: 16px;
-        background-color: #1e3a8a;
-        color: white;
-        border: none;
+      .submit-button:hover {
+        background: linear-gradient(135deg, #1e40af, #2563eb);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+      }
+      
+      .required-forms {
+        background: #e8f5e8;
+        padding: 20px;
         border-radius: 6px;
-        cursor: pointer;
-        width: fit-content;
+        border-left: 4px solid #22c55e;
+        margin-top: 20px;
       }
-
-    button:hover {
-      background-color: #274ea2;
-    }
-  </style>
-</head>
-<body>
-<div id="navbar-placeholder"></div>
-
-<script>
-  console.log("🚀 Script started");
-
-  fetch('/navbar.html')
-    .then(res => res.text())
-    .then(html => {
-      console.log("✅ navbar.html loaded");
-      document.getElementById('navbar-placeholder').innerHTML = html;
-
-      // Wait a moment to let HTML insert
-      setTimeout(() => {
-        const navLinks = document.querySelector(".nav-links");
-        if (!navLinks) {
-          console.error("❌ navLinks element missing");
-          return;
+      
+      .required-forms h3 {
+        color: #15803d;
+        margin-bottom: 10px;
+      }
+      
+      .required-forms ul {
+        margin-left: 20px;
+      }
+      
+      .required-forms li {
+        margin-bottom: 5px;
+        color: #374151;
+      }
+      
+      @media (max-width: 768px) {
+        .form-row {
+          flex-direction: column;
         }
-
-        fetch('/session')
-          .then(res => {
-            if (!res.ok) throw new Error("Not logged in");
-            return res.json();
-          })
-          .then(user => {
-            console.log("✅ Logged in:", user);
-            navLinks.innerHTML = `
-              <li><a href="/">Home</a></li>
-              <li><a href="/intake.html">IRB Intake Form</a></li>
-              <li><a href="/collab2.html">Collaborative Draft IRB Full</a></li>
-              <li><a href="/dashboard">My Lab</a></li>
-              <li>
-                <form action="/logout" method="POST" style="display:inline;">
-                  <button style="background:none;border:none;color:white;cursor:pointer;">Logout</button>
-                </form>
-              </li>
-            `;
-
-            const authSection = document.querySelector('.auth-section');
-            if (authSection) authSection.style.display = 'none';
-
-            const cta = document.querySelector('.cta-button');
-            if (cta) {
-              cta.href = '/dashboard';
-              cta.innerText = 'Go to Dashboard';
-            }
-          })
-          .catch(err => {
-            console.warn("⚠️ Not logged in:", err);
-            navLinks.innerHTML = `
-              <li><a href="/">Home</a></li>
-              <li><a href="/login.html">Log In</a></li>
-              <li><a href="/register.html">Register</a></li>
-            `;
-
-            const authSection = document.querySelector('.auth-section');
-            if (authSection) authSection.style.display = 'block';
-          });
-      }, 50); // Short delay to make sure navbar is fully in DOM
-    });
-</script>
-
-
-<div class="hero" style="background: #e0f2ff; text-align: center; padding: 40px;">
-  <h1>IRB Intake Form</h1>
-  <p class="subtitle">Answer a few questions and we’ll generate the forms you need.</p>
-</div>
-<div id="group-display" style="text-align: center; margin-bottom: 20px; font-size: 16px; color: #333;">
-  <!-- Group name will appear here -->
-</div>
-
-
-    <div class="page-wrapper">
-      <div id="container">
-        <h1>IRB Protocol Intake Form</h1>
-
-        <!-- Changed to GET so collab2.html can read query params -->
-        <form action="collab2.html" method="GET">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="title">Study Title</label>
-              <input type="text" name="title" id="title" required />
-            </div>
-            <div class="form-group">
-              <label for="pi">Principal Investigator</label>
-              <input type="text" name="pi" id="pi" required />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="irb_number">IRB Number (optional)</label>
-              <input type="text" name="irb_number" id="irb_number" />
-            </div>
-            <div class="form-group">
-              <label for="risk_level">Risk Level</label>
-              <select name="risk_level" id="risk_level" required>
-                <option value="">--Choose--</option>
-                <option value="Minimal">Minimal</option>
-                <option value="Moderate">Moderate</option>
-                <option value="High">High</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="description">Study Description</label>
-            <textarea
-              name="description"
-              id="description"
-              rows="4"
-              required
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="recruitment">Recruitment Details</label>
-            <textarea
-              name="recruitment"
-              id="recruitment"
-              rows="3"
-              required
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>Consent Required?</label>
-            <div>
-              <label
-                ><input type="radio" name="consent" value="Yes" required />
-                Yes</label
-              >
-              <label
-                ><input type="radio" name="consent" value="No" required />
-                No</label
-              >
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Will this study involve any of the following?</label>
-            <label
-              ><input type="checkbox" name="involves_minors" /> Minors (ages
-              8–17)</label
-            ><br />
-            <label
-              ><input type="checkbox" name="uses_mturk" /> Amazon Mechanical
-              Turk participants</label
-            ><br />
-            <label
-              ><input type="checkbox" name="uses_phi" /> Disclosure of PHI
-              outside of MIT</label
-            ><br />
-            <label
-              ><input type="checkbox" name="is_genomic" /> NIH-funded study
-              involving genomic data</label
-            ><br />
-            <label
-              ><input type="checkbox" name="wants_waiver" /> Requesting waiver
-              or alteration of informed consent</label
-            ><br />
-            <label
-              ><input type="checkbox" name="not_in_english" /> Study will be
-              conducted in a language other than English</label
-            ><br />
-            <label
-              ><input type="checkbox" name="study_complete" /> This is a final
-              report – study is now complete</label
-            ><br />
-            <label
-              ><input type="checkbox" name="adverse_events" /> Reporting
-              complaints, deviations, or adverse events</label
-            ><br />
-            <label
-              ><input type="checkbox" name="lincoln_lab" /> Study is affiliated
-              with Lincoln Laboratory</label
-            ><br />
-            <label
-              ><input type="checkbox" name="submitting_genomic_data" />
-              Submitting genomic data to NIH repository</label
-            ><br />
-            <label
-              ><input type="checkbox" name="conducting_interviews" /> Conducting
-              interviews with participants</label
-            ><br />
-            <label
-              ><input type="checkbox" name="mit_reviewing_irb" /> MIT will serve
-              as the reviewing IRB (Single IRB)</label
-            ><br />
-            <label
-              ><input type="checkbox" name="dod_funded" /> Department of
-              Defense–funded or supported research</label
-            ><br />
-          </div>
-
-
-          <div class="form-section">
-            <h2>Forms Required for All Studies</h2>
-            <ul>
-              <li>ICF Template: Consent to Participate in Research</li>
-              <li>
-                Additional Standard Language for Informed Consent (as needed)
-              </li>
-              <li>
-                Supplement for Disclosure of Financial Interest (required for
-                all key personnel with financial interest)
-              </li>
-            </ul>
-          </div>
-      <input type="hidden" name="group_name" id="group_name_hidden" />
-
-          <button type="submit">Submit Protocol</button>
-        </form>
-      </div>
-    </div>
-  <script>
-  // Fetch session user data and insert group name
-  fetch('/session')
-    .then(res => res.json())
-    .then(data => {
-      if (data.group_name) {
-        document.getElementById('group_name_hidden').value = data.group_name;
-
-        // ✅ Display group name at top of form
-        document.getElementById('group-display').innerText =
-          `Logged in as group: ${data.group_name}`;
+        
+        .radio-group {
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .container {
+          margin: 10px;
+          padding: 15px;
+        }
       }
-    })
-    .catch(err => console.error("Couldn't load session group:", err));
-</script>
+    </style>
+  </head>
+  <body>
+    <div class="hero">
+      <h1>IRB Intake Form</h1>
+      <p class="subtitle">Answer a few questions and we'll generate the forms you need.</p>
+    </div>
 
+    <div class="container">
+      <h2>IRB Protocol Intake Form</h2>
 
-</body>
+      <form id="intakeForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="title">Study Title *</label>
+            <input type="text" name="title" id="title" required />
+          </div>
+          <div class="form-group">
+            <label for="pi">Principal Investigator *</label>
+            <input type="text" name="pi" id="pi" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="irb_number">IRB Number (optional)</label>
+            <input type="text" name="irb_number" id="irb_number" />
+          </div>
+          <div class="form-group">
+            <label for="risk_level">Risk Level *</label>
+            <select name="risk_level" id="risk_level" required>
+              <option value="">--Choose--</option>
+              <option value="Minimal">Minimal</option>
+              <option value="Moderate">Moderate</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Study Description *</label>
+          <textarea name="description" id="description" required placeholder="Provide a detailed description of your study..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="recruitment">Recruitment Details *</label>
+          <textarea name="recruitment" id="recruitment" required placeholder="Describe how you will recruit participants..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Consent Required? *</label>
+          <div class="radio-group">
+            <div class="radio-item">
+              <input type="radio" name="consent" value="Yes" required id="consent_yes" />
+              <label for="consent_yes">Yes</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="consent" value="No" required id="consent_no" />
+              <label for="consent_no">No</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkbox-section">
+          <h3>Will this study involve any of the following?</h3>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="checkbox" name="involves_minors" id="involves_minors" />
+              <label for="involves_minors">Minors (ages 8–17)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="uses_mturk" id="uses_mturk" />
+              <label for="uses_mturk">Amazon Mechanical Turk participants</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="uses_phi" id="uses_phi" />
+              <label for="uses_phi">Disclosure of PHI outside of MIT</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="is_genomic" id="is_genomic" />
+              <label for="is_genomic">NIH-funded study involving genomic data</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="wants_waiver" id="wants_waiver" />
+              <label for="wants_waiver">Requesting waiver or alteration of informed consent</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="not_in_english" id="not_in_english" />
+              <label for="not_in_english">Study will be conducted in a language other than English</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="study_complete" id="study_complete" />
+              <label for="study_complete">This is a final report – study is now complete</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="adverse_events" id="adverse_events" />
+              <label for="adverse_events">Reporting complaints, deviations, or adverse events</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="lincoln_lab" id="lincoln_lab" />
+              <label for="lincoln_lab">Study is affiliated with Lincoln Laboratory</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="submitting_genomic_data" id="submitting_genomic_data" />
+              <label for="submitting_genomic_data">Submitting genomic data to NIH repository</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="conducting_interviews" id="conducting_interviews" />
+              <label for="conducting_interviews">Conducting interviews with participants</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="mit_reviewing_irb" id="mit_reviewing_irb" />
+              <label for="mit_reviewing_irb">MIT will serve as the reviewing IRB (Single IRB)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" name="dod_funded" id="dod_funded" />
+              <label for="dod_funded">Department of Defense–funded or supported research</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="required-forms">
+          <h3>📋 Forms Required for All Studies</h3>
+          <ul>
+            <li>ICF Template: Consent to Participate in Research</li>
+            <li>Additional Standard Language for Informed Consent (as needed)</li>
+            <li>Supplement for Disclosure of Financial Interest (required for all key personnel with financial interest)</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="submit-button">
+          🚀 Generate Protocol & Forms
+        </button>
+      </form>
+    </div>
+
+    <script>
+      document.getElementById('intakeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        
+        // Add all form fields to URL parameters
+        for (let [key, value] of formData.entries()) {
+          params.append(key, value);
+        }
+        
+        // Add checked checkboxes
+        const checkboxes = this.querySelectorAll('input[type="checkbox"]:checked');
+        checkboxes.forEach(checkbox => {
+          params.append(checkbox.name, 'on');
+        });
+        
+        // Debug: Log what we're sending
+        console.log('Form submission params:', params.toString());
+        
+        // Navigate to collab2.html with all parameters
+        window.location.href = `collab2.html?${params.toString()}`;
+      });
+      
+      // Add some visual feedback when checkboxes are selected
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          if (this.checked) {
+            this.parentElement.style.backgroundColor = '#e8f5e8';
+            this.parentElement.style.borderRadius = '4px';
+            this.parentElement.style.padding = '8px';
+            this.parentElement.style.transition = 'all 0.3s ease';
+          } else {
+            this.parentElement.style.backgroundColor = 'transparent';
+            this.parentElement.style.padding = '0';
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

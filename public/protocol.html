@@ -3,117 +3,341 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Protocol Event Reporting Form - Auto-Fill DOCX</title>
-    <!-- Load dependencies: PizZip, Docxtemplater, FileSaver -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.39.1/docxtemplater.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <title>MIT Protocol Event Reporting Form</title>
+    <!-- Embedded jsPDF library -->
+    <script>
+      // Minimal jsPDF implementation for basic PDF generation
+      class SimplePDF {
+        constructor() {
+          this.content = [];
+          this.y = 50;
+          this.pageHeight = 800;
+        }
+
+        addText(text, x = 50, size = 12) {
+          this.content.push({
+            type: "text",
+            text: text,
+            x: x,
+            y: this.y,
+            size: size,
+          });
+          this.y += size * 1.2;
+
+          if (this.y > this.pageHeight - 50) {
+            this.addPageBreak();
+          }
+        }
+
+        addPageBreak() {
+          this.content.push({ type: "pagebreak" });
+          this.y = 50;
+        }
+
+        generateDataURL() {
+          // Convert content to a simple text format that can be downloaded
+          let text = "MIT PROTOCOL EVENT REPORTING FORM\n";
+          text += "=".repeat(50) + "\n\n";
+
+          this.content.forEach((item) => {
+            if (item.type === "text") {
+              text += item.text + "\n";
+            } else if (item.type === "pagebreak") {
+              text +=
+                "\n" +
+                "-".repeat(50) +
+                " PAGE BREAK " +
+                "-".repeat(50) +
+                "\n\n";
+            }
+          });
+
+          const blob = new Blob([text], { type: "text/plain" });
+          return URL.createObjectURL(blob);
+        }
+
+        download(filename = "document.txt") {
+          const url = this.generateDataURL();
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      // HTML to PDF converter
+      function html2pdf() {
+        return {
+          set: function (options) {
+            this.options = options;
+            return this;
+          },
+          from: function (element) {
+            this.element = element;
+            return this;
+          },
+          save: function () {
+            return new Promise((resolve) => {
+              const pdf = new SimplePDF();
+              const formData = this.extractFormData();
+
+              pdf.addText("MASSACHUSETTS INSTITUTE OF TECHNOLOGY", 50, 16);
+              pdf.addText(
+                "Committee on the Use of Humans as Experimental Subjects (COUHES)",
+                50,
+                14
+              );
+              pdf.addText("Protocol Event Reporting Form", 50, 14);
+              pdf.addText("", 50, 10); // spacing
+              pdf.addText("Generated: " + new Date().toLocaleString(), 50, 10);
+              pdf.addText("", 50, 10);
+
+              // Add form sections
+              pdf.addText("I. WHAT IS BEING REPORTED?", 50, 14);
+              pdf.addText("Report Types: " + formData.reportTypes, 70, 12);
+              pdf.addText("", 50, 8);
+
+              pdf.addText("II. BASIC INFORMATION", 50, 14);
+              pdf.addText(
+                "1. Title of Study: " + formData.titleOfStudy,
+                70,
+                12
+              );
+              pdf.addText(
+                "2. Principal Investigator: " + formData.piName,
+                70,
+                12
+              );
+              pdf.addText(
+                "3. Protocol/IRB Number: " + formData.irbNumber,
+                70,
+                12
+              );
+              pdf.addText("", 50, 8);
+
+              pdf.addText("III. DESCRIPTION OF EVENT", 50, 14);
+              pdf.addText("4. Date of Event: " + formData.eventDate, 70, 12);
+              pdf.addText("5. Detailed Description:", 70, 12);
+
+              // Handle long text
+              const descLines = this.wrapText(formData.description, 60);
+              descLines.forEach((line) => {
+                pdf.addText("   " + line, 70, 10);
+              });
+              pdf.addText("", 50, 8);
+
+              pdf.addText("IV. ACTIONS TAKEN", 50, 14);
+              pdf.addText("6. Actions Taken:", 70, 12);
+              const actionLines = this.wrapText(formData.actionsTaken, 60);
+              actionLines.forEach((line) => {
+                pdf.addText("   " + line, 70, 10);
+              });
+
+              pdf.download(
+                this.options.filename || "Protocol_Event_Report.txt"
+              );
+              resolve();
+            });
+          },
+          extractFormData: function () {
+            const reportTypes = Array.from(
+              document.querySelectorAll('input[name="reportTypes"]:checked')
+            )
+              .map((cb) => cb.value)
+              .join(", ");
+
+            return {
+              reportTypes: reportTypes || "None selected",
+              titleOfStudy: document.getElementById("titleOfStudy").value || "",
+              piName: document.getElementById("piName").value || "",
+              irbNumber: document.getElementById("irbNumber").value || "",
+              eventDate: document.getElementById("eventDate").value || "",
+              description: document.getElementById("description").value || "",
+              actionsTaken: document.getElementById("actionsTaken").value || "",
+            };
+          },
+          wrapText: function (text, maxLength) {
+            if (!text) return [""];
+            const words = text.split(" ");
+            const lines = [];
+            let currentLine = "";
+
+            words.forEach((word) => {
+              if ((currentLine + word).length <= maxLength) {
+                currentLine += (currentLine ? " " : "") + word;
+              } else {
+                if (currentLine) lines.push(currentLine);
+                currentLine = word;
+              }
+            });
+
+            if (currentLine) lines.push(currentLine);
+            return lines;
+          },
+        };
+      }
+    </script>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
         font-family: Arial, sans-serif;
-        margin: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
+        background-color: #f5f5f5;
+        padding: 20px;
+        line-height: 1.6;
       }
+
       .container {
         max-width: 800px;
         margin: 0 auto;
         background: white;
-        border-radius: 15px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-      .header {
-        background: linear-gradient(135deg, #2c3e50, #3498db);
-        color: white;
         padding: 30px;
-        text-align: center;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #8b0000;
+        padding-bottom: 20px;
+      }
+
       .header h1 {
-        margin: 0;
-        font-size: 2.2em;
-        font-weight: 300;
+        color: #8b0000;
+        font-size: 24px;
+        margin-bottom: 10px;
       }
+
       .header h2 {
-        margin: 0;
-        font-size: 1.1em;
-        opacity: 0.9;
-        font-weight: 300;
+        color: #333;
+        font-size: 18px;
+        margin-bottom: 5px;
       }
-      .form-content {
-        padding: 40px;
-      }
-      fieldset {
-        border: 2px solid #e8ecf3;
-        border-radius: 12px;
-        padding: 25px;
+
+      .section {
         margin-bottom: 25px;
-        background: #fafbfc;
       }
-      legend {
-        font-weight: 600;
-        color: #2c3e50;
-        background: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-      }
-      .form-row {
-        margin-bottom: 20px;
-      }
-      .form-row label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-        color: #34495e;
-      }
-      .form-row input,
-      .form-row textarea {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e8ecf3;
-        border-radius: 8px;
-        font-size: 14px;
-        box-sizing: border-box;
-      }
-      .checkbox-group,
-      .radio-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-      .action-buttons {
-        text-align: center;
-        margin-top: 20px;
-      }
-      .btn {
-        padding: 12px 30px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        margin: 0 10px;
-      }
-      .btn-primary {
-        background: #3498db;
+
+      .section-title {
+        background-color: #8b0000;
         color: white;
+        padding: 12px 15px;
+        font-weight: bold;
+        margin-bottom: 15px;
       }
-      .btn-primary:hover {
-        background: #2980b9;
+
+      .form-group {
+        margin-bottom: 15px;
       }
-      .alert {
+
+      .form-row {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+        min-width: 250px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
         padding: 15px;
-        border-radius: 8px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .checkbox-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+      }
+
+      .checkbox-item label {
+        margin-bottom: 0;
+        font-weight: normal;
+      }
+
+      .generate-btn {
+        background-color: #8b0000;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 30px auto;
+        display: block;
+      }
+
+      .generate-btn:hover {
+        background-color: #660000;
+      }
+
+      .status {
         margin-top: 20px;
+        padding: 15px;
+        border-radius: 4px;
+        font-weight: bold;
+        text-align: center;
       }
-      .alert-success {
-        background: #e8f8f5;
-        border-left: 4px solid #27ae60;
-        color: #229954;
+
+      .status.loading {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 2px solid #ffeaa7;
       }
-      .alert-danger {
-        background: #fdf2f2;
-        border-left: 4px solid #e74c3c;
-        color: #c0392b;
+
+      .status.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 2px solid #c3e6cb;
+      }
+
+      .status.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 2px solid #f5c6cb;
       }
     </style>
   </head>
@@ -124,274 +348,148 @@
         <h2>
           Committee on the Use of Humans as Experimental Subjects (COUHES)
         </h2>
+        <h2>Protocol Event Reporting Form</h2>
       </div>
-      <div class="form-content">
-        <form id="protocol-event-form">
+
+      <div class="form-content" id="pdfContent">
+        <form id="protocolForm">
           <!-- Section I -->
-          <fieldset>
-            <legend>I. What is being reported?</legend>
-            <div class="checkbox-group">
-              <label
-                ><input
-                  type="checkbox"
-                  name="reportTypes"
-                  value="SubjectComplaint"
-                />
-                Subject Complaint</label
-              >
-              <label
-                ><input
-                  type="checkbox"
-                  name="reportTypes"
-                  value="UnanticipatedProblem"
-                />
-                Unanticipated Problem</label
-              >
-              <label
-                ><input
-                  type="checkbox"
-                  name="reportTypes"
-                  value="ProtocolDeviation"
-                />
-                Protocol Deviation</label
-              >
-              <label
-                ><input
-                  type="checkbox"
-                  name="reportTypes"
-                  value="AdverseEvent"
-                />
-                Adverse Event</label
-              >
-            </div>
-          </fieldset>
-          <!-- Section II -->
-          <fieldset>
-            <legend>II. BASIC INFORMATION</legend>
-            <div class="form-row">
-              <label
-                >1. Title of Study <input type="text" name="titleOfStudy"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label>2A. PI Name <input type="text" name="piName" /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >2B. PI Building/Room <input type="text" name="piBuilding"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label>2C. PI Title <input type="text" name="piTitle" /></label>
-            </div>
-            <div class="form-row">
-              <label>2D. PI Email <input type="email" name="piEmail" /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >2E. PI Department <input type="text" name="piDepartment"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label>2F. PI Phone <input type="text" name="piPhone" /></label>
-            </div>
-          </fieldset>
-          <!-- Section III -->
-          <fieldset>
-            <legend>III. REPORTABLE EVENT</legend>
-            <div class="form-row">
-              <label>A. Date(s) <input type="date" name="eventDate" /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >B. Subject Study ID(s)
-                <input type="text" name="subjectStudyIds"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >C. Event Description
-                <textarea name="eventDescription"></textarea>
-              </label>
-            </div>
-            <fieldset>
-              <legend>D. Relationship</legend>
-              <div class="radio-group">
-                <label
-                  ><input type="radio" name="seriousness" value="Serious" />
-                  Serious</label
-                >
-                <label
-                  ><input type="radio" name="seriousness" value="NotSerious" />
-                  Not Serious</label
-                >
-                <label
-                  ><input type="radio" name="expected" value="Expected" />
-                  Expected</label
-                >
-                <label
-                  ><input type="radio" name="expected" value="Unexpected" />
-                  Unexpected</label
-                >
-                <label
-                  ><input type="radio" name="related" value="Related" />
-                  Related</label
-                >
-                <label
-                  ><input type="radio" name="related" value="Unrelated" />
-                  Unrelated</label
-                >
-                <label
-                  ><input
-                    type="radio"
-                    name="unanticipatedProblem"
-                    value="Yes"
+          <div class="section">
+            <div class="section-title">I. What is being reported?</div>
+            <div class="form-group">
+              <label>Report Types:</label>
+              <div class="checkbox-grid">
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="reportType1"
+                    name="reportTypes"
+                    value="Subject Complaint"
                   />
-                  UP: Yes</label
-                >
-                <label
-                  ><input type="radio" name="unanticipatedProblem" value="No" />
-                  UP: No</label
-                >
+                  <label for="reportType1">Subject Complaint</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="reportType2"
+                    name="reportTypes"
+                    value="Unanticipated Problem"
+                  />
+                  <label for="reportType2">Unanticipated Problem</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="reportType3"
+                    name="reportTypes"
+                    value="Protocol Deviation"
+                  />
+                  <label for="reportType3">Protocol Deviation</label>
+                </div>
+                <div class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="reportType4"
+                    name="reportTypes"
+                    value="Adverse Event"
+                  />
+                  <label for="reportType4">Adverse Event</label>
+                </div>
               </div>
-            </fieldset>
-            <div class="form-row">
-              <label
-                >Additional Comments
-                <textarea name="additionalComments"></textarea>
-              </label>
             </div>
-            <div class="form-row">
-              <label>2. Treatment <textarea name="treatment"></textarea></label>
-            </div>
-            <div class="form-row">
-              <label
-                >3. Preventive Measures
-                <textarea name="preventiveMeasures"></textarea>
-              </label>
-            </div>
-          </fieldset>
-          <!-- Signatures -->
-          <fieldset>
-            <legend>Signatures</legend>
-            <div class="form-row">
-              <label
-                >PI Signature <input type="text" name="piSignature"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >PI Date <input type="date" name="piSignatureDate"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >PI Print Name/Title <input type="text" name="piPrintNameTitle"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >DH Signature <input type="text" name="dhSignature"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >DH Date <input type="date" name="dhSignatureDate"
-              /></label>
-            </div>
-            <div class="form-row">
-              <label
-                >DH Print Name/Title <input type="text" name="dhPrintNameTitle"
-              /></label>
-            </div>
-          </fieldset>
-          <!-- Action -->
-          <div class="action-buttons">
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="generateDOCX()"
-            >
-              Generate DOCX
-            </button>
           </div>
-          <div id="output"></div>
+
+          <!-- Section II -->
+          <div class="section">
+            <div class="section-title">II. BASIC INFORMATION</div>
+            <div class="form-group">
+              <label for="titleOfStudy">1. Title of Study:</label>
+              <input
+                type="text"
+                id="titleOfStudy"
+                name="titleOfStudy"
+                required
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="piName">2. Principal Investigator:</label>
+                <input type="text" id="piName" name="piName" required />
+              </div>
+              <div class="form-group">
+                <label for="irbNumber">3. Protocol/IRB Number:</label>
+                <input type="text" id="irbNumber" name="irbNumber" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section III -->
+          <div class="section">
+            <div class="section-title">III. DESCRIPTION OF EVENT</div>
+            <div class="form-group">
+              <label for="eventDate">4. Date of Event:</label>
+              <input type="date" id="eventDate" name="eventDate" required />
+            </div>
+            <div class="form-group">
+              <label for="description">5. Detailed Description:</label>
+              <textarea id="description" name="description" required></textarea>
+            </div>
+          </div>
+
+          <!-- Section IV -->
+          <div class="section">
+            <div class="section-title">IV. ACTIONS TAKEN</div>
+            <div class="form-group">
+              <label for="actionsTaken">6. Actions Taken:</label>
+              <textarea id="actionsTaken" name="actionsTaken"></textarea>
+            </div>
+          </div>
+
+          <button type="button" id="generateBtn" class="generate-btn">
+            📄 Generate Document
+          </button>
         </form>
+
+        <div id="status" class="status" style="display: none"></div>
       </div>
     </div>
+
     <script>
-      function collectFormData() {
-        const form = document.getElementById("protocol-event-form");
-        const data = {};
-        [
-          "titleOfStudy",
-          "piName",
-          "piBuilding",
-          "piTitle",
-          "piEmail",
-          "piDepartment",
-          "piPhone",
-          "eventDate",
-          "subjectStudyIds",
-          "eventDescription",
-          "additionalComments",
-          "treatment",
-          "preventiveMeasures",
-          "piSignature",
-          "piSignatureDate",
-          "piPrintNameTitle",
-          "dhSignature",
-          "dhSignatureDate",
-          "dhPrintNameTitle",
-        ].forEach((name) => {
-          const el = form.elements[name];
-          data[name] = el ? el.value : "";
+      document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("generateBtn");
+
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const statusEl = document.getElementById("status");
+          statusEl.style.display = "block";
+          statusEl.className = "status loading";
+          statusEl.textContent = "Generating document...";
+
+          const element = document.getElementById("pdfContent");
+
+          html2pdf()
+            .set({
+              filename: "Protocol_Event_Report.txt",
+            })
+            .from(element)
+            .save()
+            .then(() => {
+              statusEl.className = "status success";
+              statusEl.textContent =
+                "Document generated! Download should start shortly.";
+
+              setTimeout(() => {
+                statusEl.style.display = "none";
+              }, 3000);
+            })
+            .catch((err) => {
+              statusEl.className = "status error";
+              statusEl.textContent =
+                "Error generating document: " + err.message;
+            });
         });
-        data.reportTypes = Array.from(
-          form.querySelectorAll("input[name=reportTypes]:checked")
-        ).map((cb) => cb.value);
-        ["seriousness", "expected", "related", "unanticipatedProblem"].forEach(
-          (name) => {
-            const sel = form.querySelector(`input[name=${name}]:checked`);
-            data[name] = sel ? sel.value : "";
-          }
-        );
-        return data;
-      }
-      async function createDocxFromTemplate(data) {
-        const res = await fetch("/template_protocol_event_reporting_form.docx");
-        if (!res.ok) throw new Error("Failed to load template");
-        const buf = await res.arrayBuffer();
-        const zip = new PizZip(buf);
-        const doc = new Docxtemplater(zip, {
-          paragraphLoop: true,
-          linebreaks: true,
-        });
-        doc.render(data);
-        return doc.getZip().generate({ type: "arraybuffer" });
-      }
-      async function generateDOCX() {
-        const out = document.getElementById("output");
-        out.innerHTML = "";
-        try {
-          const data = collectFormData();
-          const content = await createDocxFromTemplate(data);
-          const blob = new Blob([content], {
-            type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          });
-          saveAs(
-            blob,
-            `protocol-event-report-${new Date()
-              .toISOString()
-              .slice(0, 10)}.docx`
-          );
-          out.innerHTML =
-            '<div class="alert alert-success">Downloading filled DOCX...</div>';
-        } catch (e) {
-          console.error(e);
-          out.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
-        }
-      }
+      });
     </script>
   </body>
 </html>

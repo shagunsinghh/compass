@@ -1096,10 +1096,52 @@
               `/load-draft?title=${encodeURIComponent(draftTitle)}`
             );
 
+
             if (res.ok) {
               savedDraft = await res.json();
               console.log("📋 Loaded saved draft:", savedDraft);
             }
+        if (savedDraft && savedDraft.extraForms) {
+  const extraFormsNeeded = Object.keys(savedDraft.extraForms);
+  const nav = document.getElementById("tabs-nav");
+  const content = document.querySelector(".tab-content");
+
+  const formMappings = [
+    { field: "dod_funded", title: "DoD Exempt Application", file: "dodexempt.html" },
+    { field: "mit_reviewing_irb", title: "Local Context", file: "localcontext.html" },
+    { field: "conducting_interviews", title: "Consent to Participate in Interview", file: "consentpart.html" },
+    { field: "submitting_genomic_data", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
+    { field: "lincoln_lab", title: "Scientific Review (Lincoln Lab only)", file: "scientific.html" },
+    { field: "adverse_events", title: "Protocol Event Reporting", file: "protocol.html" },
+    { field: "study_complete", title: "Final Report Closure", file: "finalreport.html" },
+    { field: "not_in_english", title: "Translation Attestation", file: "translation.html" },
+    { field: "wants_waiver", title: "Waiver or Alteration of Informed Consent Request", file: "waiver.html" },
+    { field: "is_genomic", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
+    { field: "uses_phi", title: "Authorization for Release of PHI", file: "release.html" },
+    { field: "involves_minors", title: "Assent for Minors", file: "assentform.html" },
+  ];
+
+  for (const formField of extraFormsNeeded) {
+    const mapping = formMappings.find((m) => m.field === formField);
+    if (mapping) {
+      const li = document.createElement("li");
+      li.textContent = mapping.title;
+      li.dataset.tab = mapping.field;
+      nav.appendChild(li);
+
+      const tabDiv = document.createElement("div");
+      tabDiv.id = `tab-${mapping.field}`;
+      tabDiv.setAttribute("data-form-id", mapping.field);
+      content.appendChild(tabDiv);
+
+      const res = await fetch(mapping.file);
+      const html = await res.text();
+      tabDiv.innerHTML = html;
+      tabDiv.style.display = "none";
+    }
+  }
+}
+
           } catch (err) {
             console.warn("⚠️ Could not load saved draft:", err);
           }
@@ -1277,6 +1319,11 @@
             }
           }
         }
+        // Ensure tabs bar is visible if extra tabs exist
+if (extraFormsNeeded.length > 0) {
+  document.getElementById("tabs-nav").style.display = "flex";
+}
+
 
         // Step 4: Create universal Save Draft button
         const saveBtnTemplate = document.createElement("button");
@@ -1493,30 +1540,91 @@
   document.getElementById("submit-final").addEventListener("click", async () => {
     const confirmed = confirm("Are you sure you want to submit this draft as final? You won’t be able to edit it afterward.");
     if (!confirmed) return;
+    // 🛑 Prevent save/resave
+  Object.values(autosaveTimers).forEach(clearTimeout);
+  document.querySelectorAll(".universal-save-btn").forEach(btn => {
+    btn.disabled = true;
+    btn.textContent = "⏳ Submitting...";
+  });
 
-    const draftTitle = new URLSearchParams(window.location.search).get("draftTitle") || "default";
+
+    const draftTitle = document.getElementById("section-1")?.value || "Untitled";
+
     const sections = {};
     for (let id of sectionIds) {
       const el = document.getElementById(id);
       if (el) sections[id] = el.value;
     }
 
-    const response = await fetch("/submit-final-draft", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: draftTitle,
-        sections,
-      }),
-    });
+// Collect extraForms just like in save
+const extraForms = {};
+document.querySelectorAll(".tab-content form").forEach((form) => {
+  const formId =
+    form.closest("[data-form-id]")?.getAttribute("data-form-id") ||
+    form.getAttribute("id") ||
+    "unknown_form";
+  const inputs = form.querySelectorAll("input, textarea, select");
+
+  const data = {};
+  inputs.forEach((input) => {
+    if (input.type === "checkbox") {
+      if (!data[input.name]) data[input.name] = [];
+      if (input.checked) data[input.name].push(input.value);
+    } else if (input.type === "radio") {
+      if (input.checked) data[input.name] = input.value;
+    } else {
+      data[input.name] = input.value;
+    }
+  });
+
+  extraForms[formId] = data;
+});
+
+const response = await fetch("/submit-final-draft", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    title: draftTitle,
+    sections,
+    extraForms: extraForms, // ✅ include this
+  }),
+});
+
 
     if (response.ok) {
-      alert("✅ Submitted successfully!");
+      alert(`✅ Submitted "${draftTitle}" successfully!`);
       window.location.href = "/dashboard";
     } else {
       alert("❌ Submission failed. Try again.");
     }
+
   });
+  // ✅ Attach tab-switch behavior AFTER all tabs are loaded
+document.querySelectorAll(".tabs-nav li").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const selectedTab = tab.dataset.tab;
+
+    document.querySelectorAll(".tabs-nav li").forEach((t) =>
+      t.classList.toggle("active", t === tab)
+    );
+
+    document.querySelectorAll(".tab-content > div").forEach((div) => {
+      div.style.display = div.id === `tab-${selectedTab}` ? "block" : "none";
+    });
+  });
+});
+
+// ✅ Ensure first visible tab is active
+const firstTab = document.querySelector(".tabs-nav li");
+if (firstTab) {
+  firstTab.classList.add("active");
+  const tabId = firstTab.dataset.tab;
+  const tabContent = document.getElementById(`tab-${tabId}`);
+  if (tabContent) {
+    tabContent.style.display = "block";
+  }
+}
+
 </script>
 
   </body>

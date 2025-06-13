@@ -922,21 +922,18 @@ app.post("/submit-final-draft", requireLogin, (req, res) => {
     finalized = JSON.parse(fs.readFileSync(finalizedPath));
   }
 
-  // Prefer section-1 as fallback title
-  const inferredTitle = req.body.title || req.body.sections?.["section-1"] || "Untitled";
-
   // Remove from drafts.json
   if (fs.existsSync(draftPath)) {
     let drafts = JSON.parse(fs.readFileSync(draftPath));
     drafts = drafts.filter(
-      (d) => !(d.email === req.session.user.email && d.title === inferredTitle)
+      (d) => !(d.email === req.session.user.email && d.title === req.body.title)
     );
     fs.writeFileSync(draftPath, JSON.stringify(drafts, null, 2));
   }
 
   finalized.push({
     email: req.session.user.email,
-    title: inferredTitle,
+    title: req.body.title,
     sections: req.body.sections,
     timestamp: new Date().toISOString(),
   });
@@ -948,18 +945,16 @@ app.post("/submit-final-draft", requireLogin, (req, res) => {
 
 app.post("/delete-finalized", (req, res) => {
   const { title } = req.body;
-  const email = req.session.user?.email;
-
-  if (!email) return res.status(403).send("Unauthorized");
-
+  const userEmail = req.session.user.email;
   const finalPath = path.join(__dirname, "final_submissions.json");
+
   if (!fs.existsSync(finalPath)) return res.redirect("/dashboard");
 
-  let submissions = JSON.parse(fs.readFileSync(finalPath));
-  submissions = submissions.filter(sub =>
-    !(sub.title === title && sub.email === email)
+  let data = JSON.parse(fs.readFileSync(finalPath));
+  data = data.filter(sub =>
+    !(sub.title === title && (sub.email === userEmail || (sub.collaborators || []).includes(userEmail)))
   );
 
-  fs.writeFileSync(finalPath, JSON.stringify(submissions, null, 2));
+  fs.writeFileSync(finalPath, JSON.stringify(data, null, 2));
   res.redirect("/dashboard");
 });

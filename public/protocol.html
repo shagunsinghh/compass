@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
+    <script src="https://unpkg.com/nprogress/nprogress.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MIT Protocol Event Reporting Form</title>
@@ -489,6 +491,41 @@
                 "Error generating document: " + err.message;
             });
         });
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // 1️⃣ Configure & clear any leftover bar
+        NProgress.configure({ showSpinner: false });
+        NProgress.done();
+
+        // 2️⃣ Start on any <button> click
+        document.body.addEventListener("click", (e) => {
+          if (e.target.closest("button")) {
+            NProgress.start();
+          }
+        });
+
+        // 3️⃣ Finish on full-page navigations
+        window.addEventListener("pageshow", () => {
+          NProgress.done();
+        });
+
+        // 4️⃣ Wrap fetch() so AJAX calls drive the bar too
+        (function (origFetch) {
+          window.fetch = function (...args) {
+            NProgress.start();
+            return origFetch(...args)
+              .then((res) => {
+                NProgress.done();
+                return res;
+              })
+              .catch((err) => {
+                NProgress.done();
+                throw err;
+              });
+          };
+        })(window.fetch);
       });
     </script>
   </body>

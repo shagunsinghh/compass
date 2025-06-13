@@ -5,6 +5,8 @@
     <title>IRB Protocol Drafting - AI-Enhanced Collaboration</title>
     <link rel="stylesheet" href="main.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/nprogress/nprogress.css" />
+    <script src="https://unpkg.com/nprogress/nprogress.js"></script>
     <style>
       .tabs-nav {
         display: flex;
@@ -141,12 +143,11 @@
     <script>
       window.addEventListener("DOMContentLoaded", async () => {
         const params = new URLSearchParams(window.location.search);
-const draftTitle = params.get("draftTitle");
-if (!draftTitle || draftTitle === "new") {
-  console.log("🆕 Starting fresh draft");
-  return; // don't load anything
-}
-
+        const draftTitle = params.get("draftTitle");
+        if (!draftTitle || draftTitle === "new") {
+          console.log("🆕 Starting fresh draft");
+          return; // don't load anything
+        }
 
         const res = await fetch(
           `/load-draft?title=${encodeURIComponent(draftTitle)}`
@@ -204,10 +205,10 @@ if (!draftTitle || draftTitle === "new") {
 
           const title =
             document.getElementById("section-1")?.value || "Untitled";
-            if (title === "Untitled") {
-  alert("Please enter a study title before saving.");
-  return;
-}
+          if (title === "Untitled") {
+            alert("Please enter a study title before saving.");
+            return;
+          }
 
           const sections = {};
           for (let id of sectionIds) {
@@ -666,27 +667,25 @@ if (!draftTitle || draftTitle === "new") {
       const params = new URLSearchParams(window.location.search);
       const draftTitle = params.get("draftTitle") || "default";
 
-
       // Original collaboration functionality
       sectionIds.forEach((id) => {
         const textarea = document.getElementById(id);
 
         socket.on(`${draftTitle}-${id}-init`, (text) => {
-  textarea.value = text;
-});
+          textarea.value = text;
+        });
 
-socket.on(`${draftTitle}-${id}-update`, (text) => {
-  textarea.value = text;
-});
+        socket.on(`${draftTitle}-${id}-update`, (text) => {
+          textarea.value = text;
+        });
 
-textarea.addEventListener("input", () => {
-  if (autosaveTimers[id]) clearTimeout(autosaveTimers[id]);
-  autosaveTimers[id] = setTimeout(() => {
-    const content = textarea.value;
-    socket.emit("section-edit", { section: id, content, draftTitle });
-  }, 2000);
-});
-
+        textarea.addEventListener("input", () => {
+          if (autosaveTimers[id]) clearTimeout(autosaveTimers[id]);
+          autosaveTimers[id] = setTimeout(() => {
+            const content = textarea.value;
+            socket.emit("section-edit", { section: id, content, draftTitle });
+          }, 2000);
+        });
       });
 
       // Viewer count functionality
@@ -1077,18 +1076,20 @@ textarea.addEventListener("input", () => {
         // Step 1: Check if we have a saved draft to load
         const draftTitle = params.get("draftTitle");
         let savedDraft = null;
-if (draftTitle === "new") {
-  console.log("🧼 Clearing old inputs for new draft");
-  sectionIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-  return;
-}
+        if (draftTitle === "new") {
+          console.log("🧼 Clearing old inputs for new draft");
+          sectionIds.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+          });
+          return;
+        }
 
         if (draftTitle && draftTitle !== "new") {
-  try {
-    const res = await fetch(`/load-draft?title=${encodeURIComponent(draftTitle)}`);
+          try {
+            const res = await fetch(
+              `/load-draft?title=${encodeURIComponent(draftTitle)}`
+            );
 
             if (res.ok) {
               savedDraft = await res.json();
@@ -1447,6 +1448,41 @@ if (draftTitle === "new") {
               "❌ Invite failed.";
           });
       }
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // 1️⃣ Configure & clear any leftover bar
+        NProgress.configure({ showSpinner: false });
+        NProgress.done();
+
+        // 2️⃣ Start on any <button> click
+        document.body.addEventListener("click", (e) => {
+          if (e.target.closest("button")) {
+            NProgress.start();
+          }
+        });
+
+        // 3️⃣ Finish on full-page navigations
+        window.addEventListener("pageshow", () => {
+          NProgress.done();
+        });
+
+        // 4️⃣ Wrap fetch() so AJAX calls drive the bar too
+        (function (origFetch) {
+          window.fetch = function (...args) {
+            NProgress.start();
+            return origFetch(...args)
+              .then((res) => {
+                NProgress.done();
+                return res;
+              })
+              .catch((err) => {
+                NProgress.done();
+                throw err;
+              });
+          };
+        })(window.fetch);
+      });
     </script>
   </body>
 </html>

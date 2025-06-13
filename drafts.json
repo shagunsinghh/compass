@@ -1,72 +1,5 @@
 [
   {
-    "email": "shagun@mit.edu",
-    "timestamp": "2025-06-13T17:08:19.750Z",
-    "title": "Untitled",
-    "sections": {
-      "section-1": "",
-      "section-2": "",
-      "section-3": "",
-      "section-4": "",
-      "section-5": "",
-      "section-6": "",
-      "section-7": "",
-      "section-8": "",
-      "section-9": "",
-      "section-10": "",
-      "section-11": "",
-      "section-12": ""
-    },
-    "extraForms": {
-      "lincoln_lab": {
-        "protocol": "ewdewdewd",
-        "dept_head": "",
-        "q1": "yes",
-        "q4": "yes",
-        "comments": "dwdwdw",
-        "signature": "",
-        "sig_date": ""
-      },
-      "wants_waiver": {
-        "request_type": [],
-        "practicable": "",
-        "risk": "no",
-        "risk_details": "",
-        "debrief": "no",
-        "debrief_text": ""
-      },
-      "is_genomic": {
-        "study_title": "",
-        "pi_name": "",
-        "contact_person": "",
-        "contact_email": "",
-        "dataset_type": [],
-        "dul": [],
-        "controlled_uses": "",
-        "pop_desc": "",
-        "data_fields": "",
-        "seq_type": "none",
-        "coding_method": "",
-        "key_maintenance": "",
-        "sensitive_info": "",
-        "pi_sig": "",
-        "pi_date": ""
-      },
-      "involves_minors": {
-        "study_title": "",
-        "child_name": "",
-        "purpose": "",
-        "procedures": "",
-        "risks": "",
-        "benefits": "",
-        "phone": "",
-        "signature": "",
-        "date": ""
-      }
-    },
-    "collaborators": []
-  },
-  {
     "email": "lara@mit.edu",
     "timestamp": "2025-06-13T18:04:35.538Z",
     "title": "test again",
@@ -183,6 +116,73 @@
       },
       "involves_minors": {
         "study_title": "hey!",
+        "child_name": "",
+        "purpose": "",
+        "procedures": "",
+        "risks": "",
+        "benefits": "",
+        "phone": "",
+        "signature": "",
+        "date": ""
+      }
+    },
+    "collaborators": []
+  },
+  {
+    "email": "shagun@mit.edu",
+    "timestamp": "2025-06-13T18:18:07.022Z",
+    "title": "Untitled",
+    "sections": {
+      "section-1": "",
+      "section-2": "",
+      "section-3": "",
+      "section-4": "dwwdwd",
+      "section-5": "",
+      "section-6": "",
+      "section-7": "",
+      "section-8": "",
+      "section-9": "",
+      "section-10": "",
+      "section-11": "",
+      "section-12": ""
+    },
+    "extraForms": {
+      "lincoln_lab": {
+        "protocol": "ewdewdewd",
+        "dept_head": "",
+        "q1": "yes",
+        "q4": "yes",
+        "comments": "dwdwdw",
+        "signature": "",
+        "sig_date": ""
+      },
+      "wants_waiver": {
+        "request_type": [],
+        "practicable": "",
+        "risk": "no",
+        "risk_details": "",
+        "debrief": "no",
+        "debrief_text": ""
+      },
+      "is_genomic": {
+        "study_title": "",
+        "pi_name": "",
+        "contact_person": "",
+        "contact_email": "",
+        "dataset_type": [],
+        "dul": [],
+        "controlled_uses": "",
+        "pop_desc": "",
+        "data_fields": "",
+        "seq_type": "none",
+        "coding_method": "",
+        "key_maintenance": "",
+        "sensitive_info": "",
+        "pi_sig": "",
+        "pi_date": ""
+      },
+      "involves_minors": {
+        "study_title": "",
         "child_name": "",
         "purpose": "",
         "procedures": "",

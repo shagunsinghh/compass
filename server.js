@@ -603,19 +603,37 @@ const newDraft = {
   res.json({ success: true });
 });
 
-// Load draft when editing
-app.get("/load-draft", requireLogin, (req, res) => {
-  const draftPath = path.join(__dirname, "drafts.json");  // ✅ Shared file
-  if (!fs.existsSync(draftPath)) return res.status(404).send("No drafts found");
+app.get("/load-draft", (req, res) => {
+  const title = req.query.title;
+  const email = req.session.user.email;
+  const draftPath = path.join(__dirname, "drafts.json");
+  const finalPath = path.join(__dirname, "final_submissions.json");
 
-  const drafts = JSON.parse(fs.readFileSync(draftPath));
-  const draft = drafts.find(
-    (d) => d.email === req.session.user.email && d.title === req.query.title
-  );
+  let draft = null;
 
-  if (!draft) return res.status(404).send("Draft not found");
-  res.json(draft);
+  if (fs.existsSync(draftPath)) {
+    const allDrafts = JSON.parse(fs.readFileSync(draftPath));
+    draft = allDrafts.find(d =>
+      d.title === title &&
+      (d.email === email || (d.collaborators && d.collaborators.includes(email)))
+    );
+  }
+
+  if (!draft && fs.existsSync(finalPath)) {
+    const allFinals = JSON.parse(fs.readFileSync(finalPath));
+    draft = allFinals.find(d =>
+      d.title === title &&
+      (d.email === email || (d.collaborators && d.collaborators.includes(email)))
+    );
+  }
+
+  if (draft) {
+    res.json(draft);
+  } else {
+    res.status(404).json({ error: "Draft not found" });
+  }
 });
+
 
 
 
@@ -727,12 +745,7 @@ app.get("/dashboard", requireLogin, (req, res) => {
       )
     : [];
 
-  res.render("dashboard", {
-    user: req.session.user,
-    drafts,
-    submissions,
-  });
-  const finalizedPath = path.join(__dirname, "final_submissions.json");
+const finalizedPath = path.join(__dirname, "final_submissions.json");
 let finalized = [];
 if (fs.existsSync(finalizedPath)) {
   const allFinal = JSON.parse(fs.readFileSync(finalizedPath));
@@ -742,13 +755,13 @@ if (fs.existsSync(finalizedPath)) {
       (d.collaborators && d.collaborators.includes(req.session.user.email))
   );
 }
-
 res.render("dashboard", {
   user: req.session.user,
   drafts,
   submissions,
-  finalized,
+  finalized, // ✅ This is what was missing
 });
+
 
 });
 
@@ -900,33 +913,53 @@ function loadCollaborators() {
     });
 
 }
-
 app.post("/submit-final-draft", requireLogin, (req, res) => {
   const finalizedPath = path.join(__dirname, "final_submissions.json");
-  let finalized = [];
+  const draftPath = path.join(__dirname, "drafts.json");
 
+  let finalized = [];
   if (fs.existsSync(finalizedPath)) {
     finalized = JSON.parse(fs.readFileSync(finalizedPath));
   }
 
+  // Prefer section-1 as fallback title
+  const inferredTitle = req.body.title || req.body.sections?.["section-1"] || "Untitled";
+
   // Remove from drafts.json
-  const draftPath = path.join(__dirname, "drafts.json");
   if (fs.existsSync(draftPath)) {
     let drafts = JSON.parse(fs.readFileSync(draftPath));
     drafts = drafts.filter(
-      (d) =>
-        !(d.email === req.session.user.email && d.title === req.body.title)
+      (d) => !(d.email === req.session.user.email && d.title === inferredTitle)
     );
     fs.writeFileSync(draftPath, JSON.stringify(drafts, null, 2));
   }
 
   finalized.push({
     email: req.session.user.email,
-    title: req.body.title,
+    title: inferredTitle,
     sections: req.body.sections,
     timestamp: new Date().toISOString(),
   });
 
   fs.writeFileSync(finalizedPath, JSON.stringify(finalized, null, 2));
   res.json({ success: true });
+});
+
+
+app.post("/delete-finalized", (req, res) => {
+  const { title } = req.body;
+  const email = req.session.user?.email;
+
+  if (!email) return res.status(403).send("Unauthorized");
+
+  const finalPath = path.join(__dirname, "final_submissions.json");
+  if (!fs.existsSync(finalPath)) return res.redirect("/dashboard");
+
+  let submissions = JSON.parse(fs.readFileSync(finalPath));
+  submissions = submissions.filter(sub =>
+    !(sub.title === title && sub.email === email)
+  );
+
+  fs.writeFileSync(finalPath, JSON.stringify(submissions, null, 2));
+  res.redirect("/dashboard");
 });

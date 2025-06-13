@@ -84,12 +84,33 @@
       <% }) %>
     </div>
   <% } %>
-</section>
+  </section>
 
-  </div>
+  <h2 style="margin-top: 40px;">✅ Finalized Protocol Submissions</h2>
+  <% if (finalized.length === 0) { %>
+    <p>No finalized protocols yet.</p>
+  <% } else { %>
+    <div class="submission-grid">
+      <% finalized.slice().reverse().forEach(sub => { %>
+        <div class="submission-card">
+  <h3><%= sub.title || "Untitled" %></h3>
+  <p class="meta">📅 Submitted: <%= new Date(sub.timestamp).toLocaleString() %></p>
+  <a class="view-btn" href="/collab2.html?draftTitle=<%= encodeURIComponent(sub.title) %>">📄 View</a>
+  <a class="view-btn" href="/download-draft?title=<%= encodeURIComponent(sub.title) %>">📥 Download</a>
+
+  <form method="POST" action="/delete-finalized" style="display:inline;">
+    <input type="hidden" name="title" value="<%= sub.title %>">
+    <button type="submit" class="delete-btn">🗑️ Delete</button>
+  </form>
+</div>
+      <% }) %>
+    </div>
+  <% } %>
+
   <form action="/logout" method="POST" style="position: absolute; top: 20px; right: 20px;">
-  <button style="padding: 8px 12px; font-weight: bold;">Logout</button>
-</form>
+    <button style="padding: 8px 12px; font-weight: bold;">Logout</button>
+  </form>
+</div> <!-- ✅ This closes .page-wrapper -->
 
 </body>
 </html>

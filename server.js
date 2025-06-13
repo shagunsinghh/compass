@@ -584,13 +584,14 @@ app.post("/save-draft", requireLogin, (req, res) => {
   (d) => d.email === req.session.user.email && d.title === req.body.title
 );
 
-  const newDraft = {
-    email: req.session.user.email,
-    timestamp: new Date().toISOString(),
-    title: req.body.title || "Untitled",
-    sections: req.body.sections, // All 12 sections as a dictionary
-    collaborators: existingDraft?.collaborators || []  // 🧠 Keep existing collaborators
-  };
+const newDraft = {
+  email: req.session.user.email,
+  timestamp: new Date().toISOString(),
+  title: req.body.title || "Untitled",
+  sections: req.body.sections,
+  extraForms: req.body.extraForms || {},
+  collaborators: existingDraft?.collaborators || []
+};
 
   // Replace old draft with same title
   drafts = drafts.filter(
@@ -879,5 +880,5 @@ function loadCollaborators() {
         list.prepend(you);
       }
     });
-    
+
 }

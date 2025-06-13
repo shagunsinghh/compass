@@ -184,6 +184,63 @@
       waitForForm();
     }
   }
+const saveBtnTemplate = document.createElement("button");
+saveBtnTemplate.textContent = "💾 Save Draft";
+saveBtnTemplate.className = "universal-save-btn";
+saveBtnTemplate.style.marginTop = "30px";
+
+saveBtnTemplate.addEventListener("click", async (e) => {
+  const btn = e.target;
+  btn.textContent = "💾 Saving...";
+
+  const title = document.getElementById("section-1")?.value || "Untitled";
+
+  const sections = {};
+  for (let id of sectionIds) {
+    const el = document.getElementById(id);
+    if (el) sections[id] = el.value;
+  }
+
+  const extraForms = {};
+  document.querySelectorAll(".tab-content form").forEach(form => {
+    const formId = form.closest("[data-form-id]")?.getAttribute("data-form-id") || form.getAttribute("id") || "unknown_form";
+    const inputs = form.querySelectorAll("input, textarea, select");
+
+    const data = {};
+    inputs.forEach(input => {
+      if (input.type === "checkbox") {
+        if (!data[input.name]) data[input.name] = [];
+        if (input.checked) data[input.name].push(input.value);
+      } else if (input.type === "radio") {
+        if (input.checked) data[input.name] = input.value;
+      } else {
+        data[input.name] = input.value;
+      }
+    });
+
+    extraForms[formId] = data;
+  });
+
+  const response = await fetch("/save-draft", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, sections, extraForms })
+  });
+
+  if (response.ok) {
+    btn.textContent = "✅ Saved!";
+    setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
+  } else {
+    btn.textContent = "❌ Save Failed";
+  }
+});
+
+// Add Save button to every loaded tab
+document.querySelectorAll(".tab-content > div").forEach(tab => {
+  const btnClone = saveBtnTemplate.cloneNode(true);
+  btnClone.addEventListener("click", saveBtnTemplate.onclick); // important: preserve handler
+  tab.appendChild(btnClone);
+});
 
 });
 
@@ -565,7 +622,7 @@
           <button id="download-draft" style="margin-top: 30px">
             📥 Download Full Draft
           </button>
-          <button id="save-draft-btn" style="margin-top: 20px">💾 Save Draft</button>
+          <!-- <button id="save-draft-btn" style="margin-top: 20px">💾 Save Draft</button> -->
         </div>
       </div>
     </div>
@@ -1013,7 +1070,7 @@
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
         });
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const params = new URLSearchParams(window.location.search);
 
   const formMappings = [
@@ -1034,7 +1091,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const nav = document.getElementById("tabs-nav");
   const content = document.querySelector(".tab-content");
 
-  formMappings.forEach((mapping) => {
+  // Load extra form tabs
+  for (const mapping of formMappings) {
     if (params.has(mapping.field)) {
       const li = document.createElement("li");
       li.textContent = mapping.title;
@@ -1046,23 +1104,75 @@ document.addEventListener("DOMContentLoaded", () => {
       tabDiv.setAttribute("data-form-id", mapping.field);
       content.appendChild(tabDiv);
 
-      // ✅ Ensure each tab gets the right form using a closure
-      ((divRef, file, label) => {
-        fetch(file)
-          .then((res) => {
-            if (!res.ok) throw new Error(`❌ Failed to load ${file}`);
-            return res.text();
-          })
-          .then((html) => {
-            divRef.innerHTML = html;
-            divRef.style.display = "none"; // will show via tab click
-          })
-          .catch((err) => {
-            console.error(err);
-            divRef.innerHTML = `<p style="color:red;">Error loading ${label} (${file})</p>`;
-          });
-      })(tabDiv, mapping.file, mapping.title);
+      try {
+        const res = await fetch(mapping.file);
+        const html = await res.text();
+        tabDiv.innerHTML = html;
+        tabDiv.style.display = "none";
+      } catch (err) {
+        console.error(`❌ Failed to load ${mapping.file}:`, err);
+        tabDiv.innerHTML = `<p style="color:red;">Error loading ${mapping.title} (${mapping.file})</p>`;
+      }
     }
+  }
+
+  // ✅ Add universal Save Draft button to every tab
+  const saveBtnTemplate = document.createElement("button");
+  saveBtnTemplate.textContent = "💾 Save Draft";
+  saveBtnTemplate.className = "universal-save-btn";
+  saveBtnTemplate.style.marginTop = "30px";
+
+  async function handleSave(e) {
+    const btn = e.target;
+    btn.textContent = "💾 Saving...";
+
+    const title = document.getElementById("section-1")?.value || "Untitled";
+
+    const sections = {};
+    for (let id of sectionIds) {
+      const el = document.getElementById(id);
+      if (el) sections[id] = el.value;
+    }
+
+    const extraForms = {};
+    document.querySelectorAll(".tab-content form").forEach(form => {
+      const formId = form.closest("[data-form-id]")?.getAttribute("data-form-id") || form.getAttribute("id") || "unknown_form";
+      const inputs = form.querySelectorAll("input, textarea, select");
+
+      const data = {};
+      inputs.forEach(input => {
+        if (input.type === "checkbox") {
+          if (!data[input.name]) data[input.name] = [];
+          if (input.checked) data[input.name].push(input.value);
+        } else if (input.type === "radio") {
+          if (input.checked) data[input.name] = input.value;
+        } else {
+          data[input.name] = input.value;
+        }
+      });
+
+      extraForms[formId] = data;
+    });
+
+    const response = await fetch("/save-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, sections, extraForms })
+    });
+
+    if (response.ok) {
+      btn.textContent = "✅ Saved!";
+      setTimeout(() => (btn.textContent = "💾 Save Draft"), 2000);
+    } else {
+      btn.textContent = "❌ Save Failed";
+    }
+  }
+
+  // Add cloned button to all tabs
+  document.querySelectorAll(".tab-content > div").forEach(tab => {
+    const btnClone = saveBtnTemplate.cloneNode(true);
+    btnClone.addEventListener("click", handleSave);
+    tab.appendChild(btnClone);
   });
 
   // ✅ Enable tab-switching behavior
@@ -1078,7 +1188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ✅ Show the first tab by default (after a short delay)
+  // ✅ Show the first visible tab
   setTimeout(() => {
     const firstVisible = content.querySelector(".tab-content > div");
     if (firstVisible) {
@@ -1090,50 +1200,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 300);
 });
 
-
-      document.getElementById("save-draft-btn").addEventListener("click", async () => {
-  const title = document.getElementById("section-1").value || "Untitled";
-
-  const sections = {};
-  for (let id of sectionIds) {
-    sections[id] = document.getElementById(id).value;
-  }
-
-  const extraForms = {};
-
-document.querySelectorAll(".tab-content form").forEach(form => {
-  const formId = form.closest("[data-form-id]")?.getAttribute("data-form-id") || form.getAttribute("id") || "unknown_form";
-  const inputs = form.querySelectorAll("input, textarea, select");
-
-  const data = {};
-  inputs.forEach(input => {
-    if (input.type === "checkbox") {
-      if (!data[input.name]) data[input.name] = [];
-      if (input.checked) data[input.name].push(input.value);
-    } else if (input.type === "radio") {
-      if (input.checked) data[input.name] = input.value;
-    } else {
-      data[input.name] = input.value;
-    }
-  });
-
-  extraForms[formId] = data;
-});
-
-
-const response = await fetch("/save-draft", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ title, sections, extraForms })
-});
-
-
-  if (response.ok) {
-    alert("✅ Draft saved successfully.");
-  } else {
-    alert("❌ Error saving draft.");
-  }
-});
 function inviteCollaborator() {
   const inviteEmail = document.getElementById("invite-email").value;
   const params = new URLSearchParams(window.location.search);

@@ -1,30 +1,11 @@
 [
   {
     "email": "lara@mit.edu",
-    "timestamp": "2025-06-13T12:55:18.831Z",
-    "title": "wgrrwg",
+    "timestamp": "2025-06-13T16:43:13.571Z",
+    "title": "AWGWG",
     "sections": {
-      "section-1": "wgrrwg",
-      "section-2": "rgw",
-      "section-3": "gqe",
-      "section-4": "qg",
-      "section-5": "qge",
-      "section-6": "qeg",
-      "section-7": "gq",
-      "section-8": "qg",
-      "section-9": "qg",
-      "section-10": "eg",
-      "section-11": "wgr",
-      "section-12": "efq"
-    }
-  },
-  {
-    "email": "lara@mit.edu",
-    "timestamp": "2025-06-13T13:55:37.129Z",
-    "title": "Test1",
-    "sections": {
-      "section-1": "Test1",
-      "section-2": "",
+      "section-1": "AWGWG",
+      "section-2": "GERG",
       "section-3": "",
       "section-4": "",
       "section-5": "",
@@ -32,35 +13,11 @@
       "section-7": "",
       "section-8": "",
       "section-9": "",
-      "section-10": "",
+      "section-10": "hjg",
       "section-11": "",
       "section-12": ""
     },
-    "collaborators": [
-      "shagun@mit.edu",
-      ""
-    ]
-  },
-  {
-    "email": "lara@mit.edu",
-    "timestamp": "2025-06-13T14:03:04.063Z",
-    "title": "test1",
-    "sections": {
-      "section-1": "test1",
-      "section-2": "",
-      "section-3": "",
-      "section-4": "",
-      "section-5": "",
-      "section-6": "",
-      "section-7": "",
-      "section-8": "",
-      "section-9": "",
-      "section-10": "",
-      "section-11": "",
-      "section-12": ""
-    },
-    "collaborators": [
-      "shagun@mit.edu"
-    ]
+    "extraForms": {},
+    "collaborators": []
   }
 ]

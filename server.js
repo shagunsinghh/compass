@@ -732,6 +732,24 @@ app.get("/dashboard", requireLogin, (req, res) => {
     drafts,
     submissions,
   });
+  const finalizedPath = path.join(__dirname, "final_submissions.json");
+let finalized = [];
+if (fs.existsSync(finalizedPath)) {
+  const allFinal = JSON.parse(fs.readFileSync(finalizedPath));
+  finalized = allFinal.filter(
+    (d) =>
+      d.email === req.session.user.email ||
+      (d.collaborators && d.collaborators.includes(req.session.user.email))
+  );
+}
+
+res.render("dashboard", {
+  user: req.session.user,
+  drafts,
+  submissions,
+  finalized,
+});
+
 });
 
 
@@ -882,3 +900,33 @@ function loadCollaborators() {
     });
 
 }
+
+app.post("/submit-final-draft", requireLogin, (req, res) => {
+  const finalizedPath = path.join(__dirname, "final_submissions.json");
+  let finalized = [];
+
+  if (fs.existsSync(finalizedPath)) {
+    finalized = JSON.parse(fs.readFileSync(finalizedPath));
+  }
+
+  // Remove from drafts.json
+  const draftPath = path.join(__dirname, "drafts.json");
+  if (fs.existsSync(draftPath)) {
+    let drafts = JSON.parse(fs.readFileSync(draftPath));
+    drafts = drafts.filter(
+      (d) =>
+        !(d.email === req.session.user.email && d.title === req.body.title)
+    );
+    fs.writeFileSync(draftPath, JSON.stringify(drafts, null, 2));
+  }
+
+  finalized.push({
+    email: req.session.user.email,
+    title: req.body.title,
+    sections: req.body.sections,
+    timestamp: new Date().toISOString(),
+  });
+
+  fs.writeFileSync(finalizedPath, JSON.stringify(finalized, null, 2));
+  res.json({ success: true });
+});

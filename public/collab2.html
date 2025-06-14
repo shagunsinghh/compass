@@ -658,6 +658,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();
+      const lastEditFromMe = {};
+
       const sectionIds = [
         "section-1",
         "section-2",
@@ -680,23 +682,33 @@
 
       // Original collaboration functionality
       sectionIds.forEach((id) => {
+        // Force rejoin the draft on load
+
+socket.emit("join-draft", { draftTitle });
+
         const textarea = document.getElementById(id);
+
 
         socket.on(`${draftTitle}-${id}-init`, (text) => {
           textarea.value = text;
         });
 
         socket.on(`${draftTitle}-${id}-update`, (text) => {
-          textarea.value = text;
-        });
+  if (!lastEditFromMe[id]) {
+    textarea.value = text;
+  }
+});
+
 
         textarea.addEventListener("input", () => {
+            lastEditFromMe[id] = true;
           if (autosaveTimers[id]) clearTimeout(autosaveTimers[id]);
           autosaveTimers[id] = setTimeout(() => {
-            const content = textarea.value;
-            socket.emit("section-edit", { section: id, content, draftTitle });
-          }, 2000);
-          socket.emit("join-draft", { draftTitle });
+  const content = textarea.value;
+  socket.emit("section-edit", { section: id, content, draftTitle });
+
+  lastEditFromMe[id] = false; // reset after sync
+}, 2000);
 
         });
       });

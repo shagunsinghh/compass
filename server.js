@@ -432,6 +432,7 @@ io.on("connection", (socket) => {
 
   socket.emit("init-content", sharedText);
 
+
   socket.on("join", ({ name, color }) => {
     users[socket.id] = { name, color };
     io.emit(
@@ -442,6 +443,24 @@ io.on("connection", (socket) => {
       }))
     );
   });
+  // Join draft room
+socket.on("join-draft", ({ draftTitle }) => {
+  socket.join(draftTitle);
+  const state = sectionStatesByTitle[draftTitle] || {};
+  Object.entries(state).forEach(([section, content]) => {
+    socket.emit(`${draftTitle}-${section}-init`, content);
+  });
+});
+
+// Collaborative textarea syncing
+socket.on("section-edit", ({ section, content, draftTitle }) => {
+  if (!draftTitle) return;
+  if (!sectionStatesByTitle[draftTitle]) sectionStatesByTitle[draftTitle] = {};
+  sectionStatesByTitle[draftTitle][section] = content;
+
+  socket.to(draftTitle).emit(`${draftTitle}-${section}-update`, content);
+});
+
 
   socket.on("text-change", (payload) => {
     const fullPayload = [...payload, socket.id];
@@ -471,25 +490,8 @@ io.on("connection", (socket) => {
 
 const sectionStatesByTitle = {}; // draftTitle => sectionId => content
 
-io.on("connection", (socket) => {
-socket.on("section-edit", ({ section, content, draftTitle }) => {
-  if (!draftTitle) return;
-  if (!sectionStates[draftTitle]) sectionStates[draftTitle] = {};
-  sectionStates[draftTitle][section] = content;
-
-  socket.broadcast.emit(`${draftTitle}-${section}-update`, content);
 });
 
-
-socket.on("join-draft", ({ draftTitle }) => {
-  const state = sectionStates[draftTitle] || {};
-  Object.entries(state).forEach(([section, content]) => {
-    socket.emit(`${draftTitle}-${section}-init`, content);
-  });
-});
-
-});
-});
 
 // Submit intake route
 app.post("/submit-intake", upload.single("supporting_docs"), (req, res) => {

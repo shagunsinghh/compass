@@ -19,5 +19,12 @@
     "institution": "test",
     "group_name": "test",
     "password": "test"
+  },
+  {
+    "name": "billy",
+    "email": "billy@gmail.com",
+    "institution": "Princeton",
+    "group_name": "Lax",
+    "password": "billylovesshagun"
   }
 ]

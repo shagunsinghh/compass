@@ -200,5 +200,83 @@
       }
     },
     "collaborators": []
+  },
+  {
+    "email": "billy@gmail.com",
+    "timestamp": "2025-06-13T23:54:16.090Z",
+    "title": "The complete study title is 'Treatment response and its predictors of immunosuppressive therapy in patients with severe or very severe aplastic anemia.' This title reflects the focus of the research on understanding how various factors may predict the effectiveness of immunosuppressive treatments in a specific patient population suffering from a serious hematological condition.",
+    "sections": {
+      "section-1": "The complete study title is 'Treatment response and its predictors of immunosuppressive therapy in patients with severe or very severe aplastic anemia.' This title reflects the focus of the research on understanding how various factors may predict the effectiveness of immunosuppressive treatments in a specific patient population suffering from a serious hematological condition.",
+      "section-2": "The principal investigator of the study is Kittisak Sawanyawisuth, who is affiliated with the Department of Medicine at Khon Kaen University in Khon Kaen, Thailand. His contact information is provided as kittisak@kku.ac.th, indicating his role as the corresponding author for this research. This affiliation highlights the academic and clinical context in which the study was conducted.",
+      "section-3": "The purpose of this study is to evaluate the predictors of treatment response in patients with severe or very severe aplastic anemia who are receiving immunosuppressive therapy, specifically anti-thymocyte globulin and cyclosporine. The research aims to identify clinical factors that may influence treatment outcomes, thereby addressing the inconsistency in existing literature regarding predictors of successful treatment. The study seeks to answer questions about which specific patient characteristics are associated with better responses to this treatment regimen.",
+      "section-4": "Aplastic anemia is a rare but serious hematological condition characterized by high morbidity and mortality rates. The study provides a background on the incidence of aplastic anemia, noting that Thailand has a higher incidence rate compared to Sweden and Spain, which underscores the need for effective treatment strategies in resource-limited settings. The research is significant as it aims to fill gaps in the current understanding of treatment predictors, particularly for the immunosuppressive regimen used when bone marrow transplants are not feasible.",
+      "section-5": "The target population for this study includes adult patients aged 40 years or older, or those aged 15 to 39 years without an HLA-matched sibling, who have been diagnosed with severe or very severe aplastic anemia. A total of 92 patients met the inclusion criteria, which required them to have received treatment with anti-thymocyte globulin and cyclosporine A for at least 180 days. Exclusion criteria included patients with refractory aplastic anemia, those lost to follow-up, or those who received treatment for fewer than 180 days, ensuring that the study focuses on a well-defined and relevant patient group.",
+      "section-6": "Recruitment methods for this study involved a retrospective chart review of eligible patients at Khon Kaen Hospital, a tertiary care facility. The study utilized existing medical records to identify patients who met the inclusion criteria, thereby streamlining the recruitment process. This approach minimizes the burden on participants and allows for the efficient collection of data from a specific patient population already receiving treatment.",
+      "section-7": "The study employed a retrospective cohort design, focusing on patients who received a specific immunosuppressive treatment regimen over a defined period. Data collection involved reviewing patient charts to extract baseline characteristics, laboratory investigations, and treatment outcomes. Participants experienced a treatment regimen consisting of rabbit anti-thymocyte globulin and cyclosporine A, with the primary outcome being the response to treatment assessed at 180 days post-initiation.",
+      "section-8": "The risk assessment for this study includes potential physical risks associated with the treatment regimen, such as adverse reactions to immunosuppressive therapy. Psychological risks may arise from the stress of dealing with a severe health condition, while social and economic risks could involve the impact of treatment on patients' daily lives and financial situations. Safety considerations include monitoring for treatment-related complications, and risk mitigation strategies involve thorough patient selection and follow-up to ensure appropriate care.",
+      "section-9": "The benefits to participants include the potential for improved treatment outcomes through personalized care based on identified predictors of response. Additionally, the study aims to contribute to scientific knowledge regarding the treatment of severe aplastic anemia, which may lead to better management strategies in the future. Broader societal impacts include enhancing understanding of this condition and informing healthcare practices in similar resource-limited settings.",
+      "section-10": "Data handling procedures in this study involve strict confidentiality measures to protect patient information. Data will be securely stored in compliance with institutional protocols, ensuring that only authorized personnel have access. De-identification procedures will be implemented to maintain participant anonymity, and there are plans for data sharing in a manner that respects privacy and complies with ethical guidelines.",
+      "section-11": "The informed consent process for this study will involve obtaining consent from eligible patients or their guardians, ensuring that they are fully informed about the study's purpose, procedures, and potential risks. Consent will be documented in writing, and the process will be overseen by trained research staff to ensure ethical compliance. Special considerations may include addressing the needs of patients who may have difficulty understanding the consent process due to their medical condition.",
+      "section-12": "Supporting documents for this study include consent forms, data collection instruments, and any relevant clinical guidelines referenced in the research. These materials are essential for ensuring that the study adheres to ethical standards and provides clear information to participants. Additional documentation may include protocols for data analysis and reporting, which will be referenced throughout the study to maintain consistency and rigor."
+    },
+    "extraForms": {
+      "study_complete": {
+        "study_title": "",
+        "pi_info": "",
+        "closure_reason": "",
+        "subjects_count": "",
+        "withdrawals": "",
+        "unreported": "no",
+        "findings": "",
+        "pi_sig": "",
+        "pi_date": "",
+        "dept_sig": "",
+        "dept_date": ""
+      },
+      "wants_waiver": {
+        "request_type": [],
+        "practicable": "",
+        "risk": "no",
+        "risk_details": "",
+        "debrief": "no",
+        "debrief_text": ""
+      },
+      "is_genomic": {
+        "study_title": "",
+        "pi_name": "",
+        "contact_person": "",
+        "contact_email": "",
+        "dataset_type": [],
+        "dul": [],
+        "controlled_uses": "",
+        "pop_desc": "",
+        "data_fields": "",
+        "seq_type": "none",
+        "coding_method": "",
+        "key_maintenance": "",
+        "sensitive_info": "",
+        "pi_sig": "",
+        "pi_date": ""
+      },
+      "uses_phi": {
+        "study_title": "",
+        "researcher": "",
+        "phi_list": "",
+        "purpose": "",
+        "recipients": "",
+        "expiration": "",
+        "revocation": "",
+        "subj_name": "",
+        "subj_date": "",
+        "inv_name": "",
+        "inv_date": "",
+        "witness_name": "",
+        "witness_date": ""
+      }
+    },
+    "collaborators": [
+      "lara@mit.edu",
+      "shagun@mit.edu"
+    ]
   }
 ]

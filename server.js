@@ -469,27 +469,26 @@ io.on("connection", (socket) => {
     socket.emit(`${id}-init`, content);
   });
 
-  socket.on("section-edit", ({ section, content }) => {
-    sectionStates[section] = content;
-    socket.broadcast.emit(`${section}-update`, content);
-  });
+const sectionStatesByTitle = {}; // draftTitle => sectionId => content
 
-  socket.on("editor-change", (newText) => {
-    sharedText = newText;
-    socket.broadcast.emit("remote-edit", newText);
-  });
+io.on("connection", (socket) => {
+socket.on("section-edit", ({ section, content, draftTitle }) => {
+  if (!draftTitle) return;
+  if (!sectionStates[draftTitle]) sectionStates[draftTitle] = {};
+  sectionStates[draftTitle][section] = content;
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-    delete users[socket.id];
-    io.emit(
-      "user-list",
-      Object.entries(users).map(([id, u]) => ({
-        socketId: id,
-        ...u,
-      }))
-    );
+  socket.broadcast.emit(`${draftTitle}-${section}-update`, content);
+});
+
+
+socket.on("join-draft", ({ draftTitle }) => {
+  const state = sectionStates[draftTitle] || {};
+  Object.entries(state).forEach(([section, content]) => {
+    socket.emit(`${draftTitle}-${section}-init`, content);
   });
+});
+
+});
 });
 
 // Submit intake route
@@ -858,22 +857,28 @@ server.listen(PORT, () => {
 
 app.post("/invite-collaborator", requireLogin, (req, res) => {
   const { draftTitle, inviteEmail } = req.body;
+  const userEmail = req.session.user.email.toLowerCase();
   const draftPath = path.join(__dirname, "drafts.json");
-  const drafts = fs.existsSync(draftPath)
+
+  let drafts = fs.existsSync(draftPath)
     ? JSON.parse(fs.readFileSync(draftPath))
     : [];
 
-  // Find the draft belonging to the logged-in user
-  const draft = drafts.find(
-    (d) => d.email === req.session.user.email && d.title === draftTitle
+  let draft = drafts.find(
+    (d) => d.email.toLowerCase() === userEmail && d.title.toLowerCase() === draftTitle.toLowerCase()
   );
 
+  // If draft doesn't exist yet, create it with blank sections
   if (!draft) {
-    return res.status(404).json({ message: "Draft not found or unauthorized." });
-  }
-
-  if (!draft.collaborators) {
-    draft.collaborators = [];
+    draft = {
+      email: userEmail,
+      title: draftTitle,
+      timestamp: new Date().toISOString(),
+      sections: {},
+      extraForms: {},
+      collaborators: []
+    };
+    drafts.push(draft);
   }
 
   if (!draft.collaborators.includes(inviteEmail)) {

@@ -1,10 +1,20 @@
 [
   {
-    "email": "shagun@mit.edu",
-    "timestamp": "2025-06-13T18:43:09.343Z",
-    "title": "djwndwjkndw",
+    "email": "lara@mit.edu",
+    "title": "Untitled",
+    "timestamp": "2025-06-13T23:59:32.810Z",
+    "sections": {},
+    "extraForms": {},
+    "collaborators": [
+      "shagun@mit.edu"
+    ]
+  },
+  {
+    "email": "lara@mit.edu",
+    "timestamp": "2025-06-13T23:59:43.477Z",
+    "title": "generate",
     "sections": {
-      "section-1": "djwndwjkndw",
+      "section-1": "generate",
       "section-2": "",
       "section-3": "",
       "section-4": "",
@@ -18,51 +28,41 @@
       "section-12": ""
     },
     "extraForms": {
-      "adverse_events": {
-        "reportTypes": [],
-        "titleOfStudy": "",
-        "piName": "",
-        "irbNumber": "",
-        "eventDate": "",
-        "description": "",
-        "actionsTaken": ""
+      "uses_phi": {
+        "study_title": "testing",
+        "researcher": "",
+        "phi_list": "",
+        "purpose": "",
+        "recipients": "",
+        "expiration": "",
+        "revocation": "",
+        "subj_name": "",
+        "subj_date": "",
+        "inv_name": "",
+        "inv_date": "",
+        "witness_name": "",
+        "witness_date": ""
       },
-      "study_complete": {
+      "involves_minors": {
         "study_title": "",
-        "pi_info": "",
-        "closure_reason": "",
-        "subjects_count": "",
-        "withdrawals": "",
-        "unreported": "no",
-        "findings": "",
-        "pi_sig": "",
-        "pi_date": "",
-        "dept_sig": "",
-        "dept_date": ""
-      },
-      "not_in_english": {
-        "study_title": "",
-        "pi_name": "",
-        "pi_room": "",
-        "pi_title": "",
-        "pi_email": "",
-        "pi_dept": "",
-        "pi_phone": "",
-        "doc_list": "",
-        "pi_signature": "",
-        "pi_date": "",
-        "translator_signature": "",
-        "translator_date": ""
+        "child_name": "",
+        "purpose": "",
+        "procedures": "",
+        "risks": "",
+        "benefits": "",
+        "phone": "",
+        "signature": "",
+        "date": ""
       }
     },
     "collaborators": []
   },
   {
     "email": "shagun@mit.edu",
-    "timestamp": "2025-06-13T18:56:43.915Z",
-    "title": "Untitled",
+    "timestamp": "2025-06-14T00:05:13.499Z",
+    "title": "generate",
     "sections": {
-      "section-1": "",
+      "section-1": "generate",
       "section-2": "",
       "section-3": "",
       "section-4": "",
@@ -76,14 +76,127 @@
       "section-12": ""
     },
     "extraForms": {
-      "adverse_events": {
-        "reportTypes": [],
-        "titleOfStudy": "",
-        "piName": "",
-        "irbNumber": "",
-        "eventDate": "",
-        "description": "",
-        "actionsTaken": ""
+      "uses_phi": {
+        "study_title": "",
+        "researcher": "",
+        "phi_list": "",
+        "purpose": "",
+        "recipients": "",
+        "expiration": "",
+        "revocation": "",
+        "subj_name": "",
+        "subj_date": "",
+        "inv_name": "",
+        "inv_date": "",
+        "witness_name": "",
+        "witness_date": ""
+      },
+      "involves_minors": {
+        "study_title": "",
+        "child_name": "",
+        "purpose": "",
+        "procedures": "",
+        "risks": "",
+        "benefits": "",
+        "phone": "",
+        "signature": "",
+        "date": ""
+      }
+    },
+    "collaborators": []
+  },
+  {
+    "email": "shagun@mit.edu",
+    "timestamp": "2025-06-14T00:05:26.233Z",
+    "title": "checking",
+    "sections": {
+      "section-1": "checking",
+      "section-2": "",
+      "section-3": "",
+      "section-4": "",
+      "section-5": "",
+      "section-6": "",
+      "section-7": "",
+      "section-8": "",
+      "section-9": "",
+      "section-10": "",
+      "section-11": "",
+      "section-12": ""
+    },
+    "extraForms": {
+      "uses_phi": {
+        "study_title": "",
+        "researcher": "",
+        "phi_list": "",
+        "purpose": "",
+        "recipients": "",
+        "expiration": "",
+        "revocation": "",
+        "subj_name": "",
+        "subj_date": "",
+        "inv_name": "",
+        "inv_date": "",
+        "witness_name": "",
+        "witness_date": ""
+      },
+      "involves_minors": {
+        "study_title": "",
+        "child_name": "",
+        "purpose": "",
+        "procedures": "",
+        "risks": "",
+        "benefits": "",
+        "phone": "",
+        "signature": "",
+        "date": ""
+      }
+    },
+    "collaborators": []
+  },
+  {
+    "email": "shagun@mit.edu",
+    "timestamp": "2025-06-14T00:05:44.264Z",
+    "title": "checking 123",
+    "sections": {
+      "section-1": "checking 123",
+      "section-2": "",
+      "section-3": "",
+      "section-4": "",
+      "section-5": "",
+      "section-6": "",
+      "section-7": "",
+      "section-8": "",
+      "section-9": "",
+      "section-10": "",
+      "section-11": "",
+      "section-12": ""
+    },
+    "extraForms": {
+      "uses_phi": {
+        "study_title": "",
+        "researcher": "",
+        "phi_list": "",
+        "purpose": "",
+        "recipients": "",
+        "expiration": "",
+        "revocation": "",
+        "subj_name": "",
+        "subj_date": "",
+        "inv_name": "",
+        "inv_date": "",
+        "witness_name": "",
+        "witness_date": ""
+      },
+      "involves_minors": {
+        "study_title": "",
+        "child_name": "",
+        "purpose": "",
+        "procedures": "",
+        "risks": "",
+        "benefits": "",
+        "phone": "",
+        "signature": "",
+        "date": ""
       }
     },
     "collaborators": []

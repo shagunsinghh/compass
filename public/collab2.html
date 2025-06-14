@@ -171,7 +171,7 @@
                 document.querySelector(`[data-form-id="${formId}"] form`) ||
                 document.getElementById(formId);
               if (!formWrapper) {
-                console.warn(`⏳ Waiting for form ${formId}...`);
+                console.warn(`Waiting for form ${formId}...`);
                 setTimeout(waitForForm, 300);
                 return;
               }
@@ -384,7 +384,7 @@ navLinks.innerHTML = `
                   margin: 10px 0;
                 "
               >
-                🚀 Apply All AI Suggestions
+                Apply All AI Suggestions
               </button>
             </div>
           </div>
@@ -688,6 +688,8 @@ navLinks.innerHTML = `
             const content = textarea.value;
             socket.emit("section-edit", { section: id, content, draftTitle });
           }, 2000);
+          socket.emit("join-draft", { draftTitle });
+
         });
       });
 
@@ -1100,51 +1102,51 @@ navLinks.innerHTML = `
               savedDraft = await res.json();
               console.log("📋 Loaded saved draft:", savedDraft);
             }
-        if (savedDraft && savedDraft.extraForms) {
-  const extraFormsNeeded = Object.keys(savedDraft.extraForms);
-  const nav = document.getElementById("tabs-nav");
-  const content = document.querySelector(".tab-content");
+//         if (savedDraft && savedDraft.extraForms) {
+//   const extraFormsNeeded = Object.keys(savedDraft.extraForms);
+//   const nav = document.getElementById("tabs-nav");
+//   const content = document.querySelector(".tab-content");
 
-  const formMappings = [
-    { field: "dod_funded", title: "DoD Exempt Application", file: "dodexempt.html" },
-    { field: "mit_reviewing_irb", title: "Local Context", file: "localcontext.html" },
-    { field: "conducting_interviews", title: "Consent to Participate in Interview", file: "consentpart.html" },
-    { field: "submitting_genomic_data", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
-    { field: "lincoln_lab", title: "Scientific Review (Lincoln Lab only)", file: "scientific.html" },
-    { field: "adverse_events", title: "Protocol Event Reporting", file: "protocol.html" },
-    { field: "study_complete", title: "Final Report Closure", file: "finalreport.html" },
-    { field: "not_in_english", title: "Translation Attestation", file: "translation.html" },
-    { field: "wants_waiver", title: "Waiver or Alteration of Informed Consent Request", file: "waiver.html" },
-    { field: "is_genomic", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
-    { field: "uses_phi", title: "Authorization for Release of PHI", file: "release.html" },
-    { field: "involves_minors", title: "Assent for Minors", file: "assentform.html" },
-  ];
+//   const formMappings = [
+//     { field: "dod_funded", title: "DoD Exempt Application", file: "dodexempt.html" },
+//     { field: "mit_reviewing_irb", title: "Local Context", file: "localcontext.html" },
+//     { field: "conducting_interviews", title: "Consent to Participate in Interview", file: "consentpart.html" },
+//     { field: "submitting_genomic_data", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
+//     { field: "lincoln_lab", title: "Scientific Review (Lincoln Lab only)", file: "scientific.html" },
+//     { field: "adverse_events", title: "Protocol Event Reporting", file: "protocol.html" },
+//     { field: "study_complete", title: "Final Report Closure", file: "finalreport.html" },
+//     { field: "not_in_english", title: "Translation Attestation", file: "translation.html" },
+//     { field: "wants_waiver", title: "Waiver or Alteration of Informed Consent Request", file: "waiver.html" },
+//     { field: "is_genomic", title: "Genomic Data Sharing Certification", file: "datasharing.html" },
+//     { field: "uses_phi", title: "Authorization for Release of PHI", file: "release.html" },
+//     { field: "involves_minors", title: "Assent for Minors", file: "assentform.html" },
+//   ];
 
-  for (const formField of extraFormsNeeded) {
-    const mapping = formMappings.find((m) => m.field === formField);
-    if (mapping) {
-      const li = document.createElement("li");
-      li.textContent = mapping.title;
-      li.dataset.tab = mapping.field;
-      nav.appendChild(li);
+//   for (const formField of extraFormsNeeded) {
+//     const mapping = formMappings.find((m) => m.field === formField);
+//     if (mapping) {
+//       const li = document.createElement("li");
+//       li.textContent = mapping.title;
+//       li.dataset.tab = mapping.field;
+//       nav.appendChild(li);
 
-      const tabDiv = document.createElement("div");
-      tabDiv.id = `tab-${mapping.field}`;
-      tabDiv.setAttribute("data-form-id", mapping.field);
-      content.appendChild(tabDiv);
+//       const tabDiv = document.createElement("div");
+//       tabDiv.id = `tab-${mapping.field}`;
+//       tabDiv.setAttribute("data-form-id", mapping.field);
+//       content.appendChild(tabDiv);
 
-      const res = await fetch(mapping.file);
-      const html = await res.text();
-      tabDiv.innerHTML = html;
-      tabDiv.style.display = "none";
-    }
-  }
+//       const res = await fetch(mapping.file);
+//       const html = await res.text();
+//       tabDiv.innerHTML = html;
+//       tabDiv.style.display = "none";
+//     }
+//   }
+// }
+
+} catch (err) {
+console.warn("Could not load saved draft:", err);
 }
-
-          } catch (err) {
-            console.warn("Could not load saved draft:", err);
-          }
-        }
+}
 
         // Step 2: Determine which extra forms to load
         let extraFormsNeeded = [];
